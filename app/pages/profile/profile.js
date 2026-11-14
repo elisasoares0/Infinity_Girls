@@ -351,4 +351,19 @@
     if (signOutButton) {
         signOutButton.addEventListener("click", App.signOut);
     }
+
+    // Sincroniza edição de perfil com o Supabase
+    var formEdit = document.getElementById("personal-edit");
+     if (formEdit) {
+        formEdit.addEventListener("submit", async function () {
+        var userLocal = JSON.parse(localStorage.getItem("astrohealth_user") || "null");
+        var novoNome = document.getElementById("edit-name")?.value?.trim();
+        if (userLocal && novoNome && window.supabaseClient) {
+        await window.supabaseClient
+          .from("usuarios")
+          .update({ nome: novoNome })
+          .eq("id", userLocal.uid);
+        }
+    });
+}
 })();
