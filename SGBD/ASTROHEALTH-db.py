@@ -287,7 +287,7 @@ if __name__ == "__main__":
         print("3. Encerrar")
         escolha = input("Escolha: ").strip()
         if escolha == "1":
-            cadastrar_paciente()
+            cadastrar_usuario()
         elif escolha == "2":
             entrar_e_testar()
         elif escolha == "3":
