@@ -1,5 +1,6 @@
 -- ============================================================================
 -- ASTROHEALTH (INFINITY GIRLS) — ESQUEMA COMPLETO DO BANCO DE DADOS (SUPABASE)
+-- Autenticação unificada via NASA ID (AST-XXXX ou CRM-XXXX)
 -- ============================================================================
 
 -- 0. LIMPEZA (Permite recriar o banco do zero sem conflitos)
@@ -15,18 +16,19 @@ DROP TABLE IF EXISTS
 DROP FUNCTION IF EXISTS public.verificar_anomalia_vital() CASCADE;
 DROP FUNCTION IF EXISTS public.eh_medico() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.obter_email_por_nasa_id(TEXT) CASCADE;
 
 -- ============================================================================
 -- 1. TABELAS PRINCIPAIS
 -- ============================================================================
 
--- 1.1 Usuários (Vinculado ao Supabase Auth, sem senha armazenada aqui)
+-- 1.1 Usuários (Vinculado ao Supabase Auth via NASA ID: AST-XXXX ou CRM-XXXX)
 CREATE TABLE public.usuarios (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    cpf VARCHAR(11) UNIQUE NOT NULL CHECK (cpf ~ '^[0-9]{11}$'),
+    nasa_id VARCHAR(20) UNIQUE NOT NULL CHECK (nasa_id ~ '^(AST|CRM)-[A-Z0-9]{2,15}$'),
     nome VARCHAR(150) NOT NULL,
     perfil VARCHAR(20) NOT NULL DEFAULT 'paciente' CHECK (perfil IN ('paciente', 'medico')),
-    crm VARCHAR(20) UNIQUE,
+    cpf VARCHAR(11) UNIQUE CHECK (cpf IS NULL OR cpf ~ '^[0-9]{11}$'),
     missao VARCHAR(100) DEFAULT 'Artemis IV',
     tipo_sanguineo VARCHAR(5) DEFAULT 'N/I',
     data_nascimento DATE,
@@ -165,22 +167,36 @@ BEFORE INSERT OR UPDATE ON public.sinais_vitais
 FOR EACH ROW
 EXECUTE FUNCTION public.verificar_anomalia_vital();
 
--- 2.2 Cria perfil automaticamente na tabela usuarios após cadastro no Auth
+-- 2.2 Cria perfil automaticamente na tabela usuarios após cadastro via NASA ID
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+DECLARE
+    v_nasa_id TEXT;
+    v_perfil TEXT;
 BEGIN
-    INSERT INTO public.usuarios (id, cpf, nome, missao, tipo_sanguineo)
+    v_nasa_id := UPPER(TRIM(NEW.raw_user_meta_data->>'nasa_id'));
+
+    IF v_nasa_id LIKE 'CRM-%' THEN
+        v_perfil := 'medico';
+    ELSE
+        v_perfil := 'paciente';
+    END IF;
+
+    INSERT INTO public.usuarios (id, nasa_id, nome, perfil, missao, tipo_sanguineo, cpf)
     VALUES (
         NEW.id,
-        NEW.raw_user_meta_data->>'cpf',
-        NEW.raw_user_meta_data->>'nome',
+        v_nasa_id,
+        COALESCE(NEW.raw_user_meta_data->>'nome', 'Tripulante'),
+        v_perfil,
         COALESCE(NEW.raw_user_meta_data->>'missao', 'Artemis IV'),
-        COALESCE(NEW.raw_user_meta_data->>'tipo_sanguineo', 'N/I')
+        COALESCE(NEW.raw_user_meta_data->>'tipo_sanguineo', 'N/I'),
+        NEW.raw_user_meta_data->>'cpf'
     );
+
     RETURN NEW;
 END;
 $$;
@@ -191,7 +207,29 @@ AFTER INSERT ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION public.handle_new_user();
 
--- 2.3 Função auxiliar para validar perfil médico nas políticas RLS
+-- 2.3 Resolve o identificador técnico no login a partir do NASA ID (AST/CRM)
+CREATE OR REPLACE FUNCTION public.obter_email_por_nasa_id(p_nasa_id TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+    v_email TEXT;
+BEGIN
+    SELECT au.email INTO v_email
+    FROM auth.users au
+    JOIN public.usuarios u ON u.id = au.id
+    WHERE UPPER(u.nasa_id) = UPPER(TRIM(p_nasa_id))
+    LIMIT 1;
+
+    RETURN v_email;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.obter_email_por_nasa_id(TEXT) TO anon, authenticated;
+
+-- 2.4 Função auxiliar para validar perfil médico nas políticas RLS
 CREATE OR REPLACE FUNCTION public.eh_medico()
 RETURNS BOOLEAN
 LANGUAGE sql
@@ -265,27 +303,3 @@ CREATE POLICY "medico ver avaliacoes" ON public.avaliacoes_diarias
 -- Políticas: gamificacao_metas
 CREATE POLICY "gerenciar gamificacao propria" ON public.gamificacao_metas
     FOR ALL TO authenticated USING (auth.uid() = usuario_id) WITH CHECK (auth.uid() = usuario_id);
-
--- ============================================================================
--- 4. STORAGE BUCKET PRIVADO (IMAGENS DE ULTRASSOM / OCT)
--- ============================================================================
-
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('exames-imagem', 'exames-imagem', false)
-ON CONFLICT (id) DO NOTHING;
-
-DROP POLICY IF EXISTS "Astronauta envia proprio exame" ON storage.objects;
-CREATE POLICY "Astronauta envia proprio exame"
-ON storage.objects FOR INSERT TO authenticated
-WITH CHECK (
-    bucket_id = 'exames-imagem' 
-    AND (storage.foldername(name))[1] = auth.uid()::text
-);
-
-DROP POLICY IF EXISTS "Ver proprios exames ou acesso medico" ON storage.objects;
-CREATE POLICY "Ver proprios exames ou acesso medico"
-ON storage.objects FOR SELECT TO authenticated
-USING (
-    bucket_id = 'exames-imagem' 
-    AND ((storage.foldername(name))[1] = auth.uid()::text OR public.eh_medico())
-);

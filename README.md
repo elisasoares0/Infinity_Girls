@@ -4,7 +4,7 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:030F26,45:0B3D91,80:FF4D94,100:00D2FF&height=210&section=header&text=AstroHealth&fontSize=58&fontColor=FFFFFF&fontAlignY=38&desc=Infinity%20Girls%20%E2%80%A2%20NASA%20Space%20Apps%20Challenge%202026&descSize=18&descAlignY=62&descColor=FFFFFF&animation=twinkling" width="100%" alt="Banner AstroHealth" />
 
 <!-- TYPING SVG DINÂMICO -->
-<a href="https://spaceapps-infinitygirls.web.app/">
+<a href="https://spaceapps2026-infinitygirls.web.app/">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=19&duration=3000&pause=1000&color=FF66B2&center=true&vCenter=true&multiline=false&width=780&height=42&lines=Monitoramento+Biom%C3%A9dico+Aut%C3%B4nomo+para+Miss%C3%B5es+Espaciais;Mitigando+os+5+Riscos+do+Human+Research+Program+da+NASA;Telemetria+em+Tempo+Real+%E2%80%A2+PostgreSQL+%2B+RLS+%E2%80%A2+Python+%2B+Web" alt="Typing SVG" />
 </a>
 
@@ -22,6 +22,7 @@
 [🎨 Identidade Visual](#-identidade-visual-azul--branco) •
 [✨ Funcionalidades](#-funcionalidades-principais) •
 [🏗️ Arquitetura](#️-arquitetura-do-sistema) •
+[📂 Estrutura do Repositório](#-Estrutura-do-Repositório) •
 [🚀 Como Executar](#-como-executar-o-projeto) •
 [👩‍🚀 Equipe](#-equipe-infinity-girls)
 
@@ -90,7 +91,7 @@ flowchart LR
     D --> E[🗂️ Storage Privado\nBucket: exames-imagem]
 ```
 ---
-### 📂 Estrutura do Repositório
+## 📂 Estrutura do Repositório
 
 ```text
 NASA/
@@ -135,7 +136,7 @@ NASA/
     # No terminal do frontend
     npm run dev
     ```
-4. Acesse a aplicação no seu navegador: https://spaceapps-infinitygirls.web.app
+4. Acesse a aplicação no seu navegador: https://spaceapps2026-infinitygirls.web.app/
 
 --- 
 ### 🤝 Como Contribuir

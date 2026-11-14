@@ -1,4 +1,7 @@
 import os
+import re
+import time
+from datetime import date
 from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -12,32 +15,59 @@ SUPABASE_KEY = (os.getenv("SUPABASE_KEY") or "").strip()
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def cadastrar_paciente():
-    print("\n--- CADASTRO DE ASTRONAUTA / PACIENTE ---")
-    email = input("E-mail: ").strip()
-    senha = input("Senha (mínimo 6 caracteres): ").strip()
-    cpf = input("CPF (11 números): ").strip()
+
+#CADASTRO NO SISTEMA
+def validar_nasa_id(nasa_id: str) -> bool:
+    """Aceita AST-1234, CRM-001 ou CRM-SP 123456."""
+    return bool(re.match(r"^(AST|CRM)[ -][A-Z0-9 -]{2,16}$", nasa_id))
+
+
+def nasa_id_para_email_interno(nasa_id: str) -> str:
+    """Gera o identificador técnico compatível com o Supabase Auth a partir do NASA ID."""
+    limpo = re.sub(r"[^a-z0-9]", "_", nasa_id.lower())
+    return f"{limpo}@astrohealth.nasa"
+
+
+def cadastrar_usuario():
+    print("\n--- CADASTRO DE ASTRONAUTA / OFICIAL MÉDICO ---")
+    print("Exemplos: AST-1234 (Astronauta) ou CRM-SP 123456 (Médico)")
+    nasa_id = input("Astronaut ID ou CRM: ").strip().upper()
+
+    if not validar_nasa_id(nasa_id):
+        print("❌ ID inválido! Comece com AST- ou CRM- (ex: AST-1234 ou CRM-SP 123456).")
+        return
+
     nome = input("Nome completo: ").strip()
+    data_nasc_br = input("Data de Nascimento (DD/MM/AAAA) [Enter para pular]: ").strip()
+    senha = input("Senha (mínimo 8 caracteres, letras e números): ").strip()
     tipo_sanguineo = input("Tipo Sanguíneo (ex: O+): ").strip().upper() or "N/I"
 
+    # Converte DD/MM/AAAA para AAAA-MM-DD (formato DATE do PostgreSQL)
+    data_nasc_iso = None
+    if len(data_nasc_br) == 10 and "/" in data_nasc_br:
+        dia, mes, ano = data_nasc_br.split("/")
+        data_nasc_iso = f"{ano}-{mes}-{dia}"
+
+    email_interno = nasa_id_para_email_interno(nasa_id)
+
     try:
-        # Cria o usuário no Supabase Auth; o trigger SQL cria a linha na tabela 'usuarios' automaticamente
         res = supabase.auth.sign_up({
-            "email": email,
+            "email": email_interno,
             "password": senha,
             "options": {
                 "data": {
-                    "cpf": cpf,
+                    "nasa_id": nasa_id,
                     "nome": nome,
+                    "data_nascimento": data_nasc_iso,
                     "missao": "Artemis IV",
                     "tipo_sanguineo": tipo_sanguineo
                 }
             }
         })
-        print(f"✅ Cadastro realizado! UID gerado: {res.user.id}")
+        cargo = "OFICIAL MÉDICO" if nasa_id.startswith("CRM") else "ASTRONAUTA"
+        print(f"✅ Cadastro realizado como {cargo}! ID: {nasa_id} | UID gerado: {res.user.id}")
     except Exception as e:
         print(f"❌ Erro no cadastro: {e}")
-
 
 def entrar_e_testar():
     print("\n--- LOGIN NO ASTROHEALTH ---")
@@ -59,7 +89,7 @@ def entrar_e_testar():
     except Exception as e:
         print(f"❌ Falha no login: {e}")
 
-
+# REGISTROS DE SAUDE
 def painel_paciente(user_id, nome):
     while True:
         print(f"\n=== PAINEL ASTRONAUTA: {nome} ===")
@@ -192,6 +222,7 @@ def painel_paciente(user_id, nome):
             print("Sessão encerrada.")
             break
 
+# PRONTUARIO MÉDICO
 def painel_medico(medico_id, nome):
     while True:
         print(f"\n=== PAINEL MÉDICO: {nome} ===")

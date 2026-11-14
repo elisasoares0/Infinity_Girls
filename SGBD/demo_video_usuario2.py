@@ -1,14 +1,18 @@
 import os
+import re
 import time
 from datetime import date
+from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
 # Carrega as credenciais do .env na pasta raiz
-load_dotenv(override=True)
+pasta_atual = Path(__file__).resolve().parent
+env_path = pasta_atual / ".env" if (pasta_atual / ".env").exists() else pasta_atual.parent / ".env"
+load_dotenv(dotenv_path=env_path, override=True)
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
+SUPABASE_URL = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
+SUPABASE_KEY = (os.getenv("SUPABASE_KEY") or "").strip()
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
@@ -19,41 +23,49 @@ def etapa(titulo, pausa=1.5):
     time.sleep(pausa)
 
 
+def nasa_id_para_email_interno(nasa_id: str) -> str:
+    limpo = re.sub(r"[^a-z0-9]", "_", nasa_id.lower())
+    return f"{limpo}@astrohealth.nasa"
+
+
 def executar_demonstracao():
-    email_teste = "usuario.teste2@astrohealth.com"
+    nasa_id_teste = "AST-002"
     senha_teste = "Astro2026!"
-    cpf_teste = "22233344455"
+    email_interno = nasa_id_para_email_interno(nasa_id_teste)
 
     print("\n" + "=" * 62)
     print("  🚀 ASTROHEALTH — DEMONSTRAÇÃO AO VIVO DO BANCO (SUPABASE)")
-    print("  👩‍🚀 Tripulante: Usuario Teste 2 | Missão: Artemis IV")
+    print(f"  👩‍🚀 Tripulante: Usuario Teste 2 ({nasa_id_teste}) | Missão: Artemis IV")
     print("=" * 62)
     time.sleep(2.0)
 
-    # 1. AUTENTICAÇÃO / CADASTRO AUTOMÁTICO (SUPABASE AUTH + TRIGGER)
-    etapa("ETAPA 1: Autenticando 'Usuario Teste 2' (Supabase Auth + RLS)", 1.5)
+    # 1. AUTENTICAÇÃO / CADASTRO AUTOMÁTICO VIA NASA ID (SUPABASE AUTH + TRIGGER)
+    etapa(f"ETAPA 1: Autenticando 'Usuario Teste 2' via NASA ID [{nasa_id_teste}]", 1.5)
     try:
         res = supabase.auth.sign_up({
-            "email": email_teste,
+            "email": email_interno,
             "password": senha_teste,
             "options": {
                 "data": {
-                    "cpf": cpf_teste,
+                    "nasa_id": nasa_id_teste,
                     "nome": "Usuario Teste 2",
+                    "data_nascimento": "1996-05-14",
                     "missao": "Artemis IV",
                     "tipo_sanguineo": "A+"
                 }
             }
         })
         user_id = res.user.id
-        print(f"✅ Novo perfil criado via Trigger SQL! UID: {user_id}")
+        print(f"✅ Novo perfil criado via Trigger SQL! NASA ID: {nasa_id_teste} | UID: {user_id}")
     except Exception:
+        rpc_res = supabase.rpc("obter_email_por_nasa_id", {"p_nasa_id": nasa_id_teste}).execute()
+        email_login = rpc_res.data or email_interno
         auth_res = supabase.auth.sign_in_with_password({
-            "email": email_teste,
+            "email": email_login,
             "password": senha_teste
         })
         user_id = auth_res.user.id
-        print(f"🟢 Sessão iniciada com sucesso! UID: {user_id}")
+        print(f"🟢 Sessão iniciada com sucesso via {nasa_id_teste}! UID: {user_id}")
     time.sleep(2.0)
 
     # 2. OPÇÃO 1A: TELEMETRIA E GLICOSE EM ESTADO NORMAL (Marte Base)
@@ -172,7 +184,7 @@ def executar_demonstracao():
 
     supabase.auth.sign_out()
     print("\n" + "=" * 62)
-    print("  ✅ DEMONSTRAÇÃO FINALIZADA! Atualize as tabelas no Supabase.")
+    print(f"  ✅ DEMONSTRAÇÃO FINALIZADA! Confira '{nasa_id_teste}' no Supabase.")
     print("=" * 62 + "\n")
 
 
