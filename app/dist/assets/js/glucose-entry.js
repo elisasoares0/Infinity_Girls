@@ -1,0 +1,199 @@
+(function () {
+"use strict";
+var App = window.App;
+var range = App.glucose.range;
+var dialog = null;
+var opener = null;
+var announcer = null;
+var STEPS = [
+"Wash and dry your hands.",
+"Put a new test strip in the glucometer.",
+"Prick the side of a fingertip with the lancet.",
+"Touch the drop of blood to the end of the strip.",
+"Read the number after 5 seconds and enter it below."
+];
+var UNITS = {
+mgdl: { hint: "Between " + range.min + " and " + range.max + " mg/dL.", toMgDl: function (v) { return v; } },
+mmol: { hint: "Between 1.1 and 33.3 mmol/L.", toMgDl: App.glucose.mmolToMgDl }
+};
+function build() {
+dialog = document.createElement("dialog");
+dialog.className = "glucose-entry";
+dialog.setAttribute("aria-labelledby", "glucose-entry-title");
+dialog.innerHTML =
+"<div class=\"glucose-entry__container\">" +
+"<div class=\"glucose-entry__head\"><div class=\"glucose-entry__heading\">" +
+"<h2 class=\"glucose-entry__title\" id=\"glucose-entry-title\">Measure blood glucose</h2>" +
+"<p class=\"glucose-entry__subtitle\">With the glucometer from the medical kit</p></div>" +
+"<button class=\"glucose-entry__close\" type=\"button\" aria-label=\"Close\"><svg class=\"glucose-entry__close-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div>" +
+"<ol class=\"glucose-entry__steps\"></ol>" +
+"<div class=\"glucose-entry__bluetooth\" hidden>" +
+"<button class=\"button button--secondary\" type=\"button\" data-glucose-connect><span class=\"button__text\">Connect glucometer</span></button>" +
+"<p class=\"glucose-entry__note\" aria-live=\"polite\" data-glucose-bluetooth></p></div>" +
+"<form class=\"glucose-entry__form\" novalidate>" +
+"<div class=\"glucose-entry__row\">" +
+"<div class=\"field\"><label class=\"field__label\" for=\"glucose-value\">Reading</label>" +
+"<input class=\"field__input\" id=\"glucose-value\" type=\"number\" inputmode=\"decimal\" step=\"any\" required aria-describedby=\"glucose-hint glucose-error\"></div>" +
+"<div class=\"field glucose-entry__unit\"><label class=\"field__label\" for=\"glucose-unit\">Unit</label>" +
+"<select class=\"field__input\" id=\"glucose-unit\"><option value=\"mgdl\">mg/dL</option><option value=\"mmol\">mmol/L</option></select></div>" +
+"</div>" +
+"<p class=\"field__hint\" id=\"glucose-hint\"></p>" +
+"<p class=\"field__error\" id=\"glucose-error\" hidden></p>" +
+"<button class=\"button button--primary glucose-entry__save\" type=\"submit\"><span class=\"button__text\">Save reading</span></button>" +
+"</form></div>";
+var steps = dialog.querySelector(".glucose-entry__steps");
+STEPS.forEach(function (text) {
+var li = document.createElement("li");
+li.className = "glucose-entry__step";
+li.textContent = text;
+steps.appendChild(li);
+});
+document.body.appendChild(dialog);
+announcer = document.createElement("p");
+announcer.className = "sr-only";
+announcer.setAttribute("aria-live", "polite");
+document.body.appendChild(announcer);
+var input = dialog.querySelector("#glucose-value");
+var unit = dialog.querySelector("#glucose-unit");
+var hint = dialog.querySelector("#glucose-hint");
+var error = dialog.querySelector("#glucose-error");
+function renderHint() {
+hint.textContent = UNITS[unit.value].hint;
+}
+renderHint();
+unit.addEventListener("change", renderHint);
+function showError(text) {
+error.textContent = text;
+error.hidden = !text;
+input.classList.toggle("field__input--invalid", Boolean(text));
+if (text) {
+input.setAttribute("aria-invalid", "true");
+} else {
+input.removeAttribute("aria-invalid");
+}
+}
+input.addEventListener("input", function () {
+showError("");
+});
+dialog.querySelector(".glucose-entry__form").addEventListener("submit", function (event) {
+event.preventDefault();
+var typed = parseFloat(String(input.value).replace(",", "."));
+if (isNaN(typed)) {
+showError("Enter the number shown on the glucometer.");
+input.focus();
+return;
+}
+var mgDl = UNITS[unit.value].toMgDl(typed);
+if (mgDl < range.min || mgDl > range.max) {
+showError("This reading is outside what a glucometer shows. " + UNITS[unit.value].hint + " Measure again.");
+input.focus();
+return;
+}
+finish(mgDl, "manual");
+});
+dialog.querySelector(".glucose-entry__close").addEventListener("click", function () {
+dialog.close();
+});
+dialog.addEventListener("click", function (event) {
+if (event.target === dialog) {
+dialog.close();
+}
+});
+dialog.addEventListener("close", function () {
+if (opener && document.contains(opener)) {
+opener.focus();
+}
+});
+if (navigator.bluetooth && window.isSecureContext) {
+dialog.querySelector(".glucose-entry__bluetooth").hidden = false;
+dialog.querySelector("[data-glucose-connect]").addEventListener("click", connect);
+}
+}
+function finish(mgDl, source) {
+var member = App.getProfile().member;
+App.glucose.save(member, mgDl, source);
+var status = App.glucose.status(mgDl);
+var text = "Saved: " + App.glucose.metric.format(mgDl) + ". " + (status === "ok" ? "In range." : status === "warn" ? "Watch." : "Act now.");
+dialog.close();
+if (status === "danger" && mgDl < range.actLow) {
+if (App.isFlight() && App.emergency) {
+App.emergency.start("low-glucose", "glucose");
+return;
+}
+text += " Take 15 g of fast sugar now and call your flight surgeon.";
+} else if (status === "danger") {
+text += App.isFlight() ? " Tell the crew medical officer now." : " Call your flight surgeon now.";
+}
+announcer.textContent = text;
+}
+function connect() {
+var note = dialog.querySelector("[data-glucose-bluetooth]");
+var device = null;
+note.textContent = "Choose your glucometer in the list…";
+navigator.bluetooth.requestDevice({ filters: [{ services: ["glucose"] }] }).then(function (chosen) {
+device = chosen;
+note.textContent = "Connecting to " + (device.name || "the glucometer") + "…";
+return device.gatt.connect();
+}).then(function (server) {
+return server.getPrimaryService("glucose");
+}).then(function (service) {
+return Promise.all([
+service.getCharacteristic("glucose_measurement"),
+service.getCharacteristic("record_access_control_point")
+]);
+}).then(function (characteristics) {
+var measurement = characteristics[0];
+var control = characteristics[1];
+var last = null;
+measurement.addEventListener("characteristicvaluechanged", function (event) {
+var reading = App.glucose.parseMeasurement(event.target.value);
+if (reading.mgDl !== null) {
+last = reading;
+}
+});
+control.addEventListener("characteristicvaluechanged", function () {
+if (device.gatt.connected) {
+device.gatt.disconnect();
+}
+if (!last) {
+note.textContent = "No reading found on the glucometer. Measure, then connect again or type the number.";
+return;
+}
+dialog.querySelector("#glucose-unit").value = "mgdl";
+dialog.querySelector("#glucose-unit").dispatchEvent(new Event("change"));
+dialog.querySelector("#glucose-value").value = Math.round(last.mgDl);
+note.textContent = "Read from the glucometer: " + App.glucose.metric.format(last.mgDl) + " at " + App.formatTime(new Date(last.time)) + ". Check it and save.";
+});
+return measurement.startNotifications().then(function () {
+return control.startNotifications();
+}).then(function () {
+return control.writeValue(new Uint8Array([0x01, 0x06]));
+});
+}).catch(function (problem) {
+if (device && device.gatt.connected) {
+device.gatt.disconnect();
+}
+note.textContent = problem && problem.name === "NotFoundError"
+? "No glucometer chosen. Type the number instead."
+: "Could not read the glucometer. Type the number instead.";
+});
+}
+function open(from) {
+if (!dialog) {
+build();
+}
+opener = from || document.activeElement;
+var input = dialog.querySelector("#glucose-value");
+input.value = "";
+input.classList.remove("field__input--invalid");
+input.removeAttribute("aria-invalid");
+dialog.querySelector("#glucose-error").hidden = true;
+var note = dialog.querySelector("[data-glucose-bluetooth]");
+if (note) {
+note.textContent = "";
+}
+dialog.showModal();
+input.focus();
+}
+App.glucoseEntry = { open: open };
+})();

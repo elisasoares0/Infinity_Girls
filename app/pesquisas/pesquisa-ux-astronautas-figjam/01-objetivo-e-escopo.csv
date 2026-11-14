@@ -1,0 +1,7 @@
+Item,Descrição
+Objetivo,"Desenhar um app que reúna em um só lugar os dados de saúde de cada astronauta, antes, durante e depois da missão, tratando de forma diferente o que muda entre homens e mulheres."
+Problema,"Os dados ficam espalhados entre sensores, exames a bordo e sistemas da NASA em terra."
+Para quem,"Astronautas, médicos de voo e controladores biomédicos."
+Onde,"Órbita da Terra, Lua e Marte. Uma viagem para outra estrela entra só como horizonte teórico."
+Ponto de partida,"Pesquisa de mesa: funções de saúde existentes na Terra, monitoramento de astronautas, diferenças por sexo, dores sem solução e destinos."
+Fora do escopo,Design visual final e integração técnica com sistemas reais da NASA.

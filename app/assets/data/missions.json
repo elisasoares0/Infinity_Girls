@@ -1,0 +1,48 @@
+{
+    "about": "Missions set by mission control (read-only). The flight phase is chosen at sign-in: for each phase (before, in, after the flight) the first mission of this list in that phase is offered. The phase comes from these dates. Moon and Mars missions list the mission days on the surface (surface.fromDay to surface.toDay); before and after them the crew is in transit.",
+    "missions": [
+        {
+            "id": "iss-year",
+            "name": "One-Year Mission",
+            "destination": "station",
+            "launchDate": "2026-02-02",
+            "lengthDays": 365
+        },
+        {
+            "id": "exp-72",
+            "name": "Expedition 72",
+            "destination": "station",
+            "launchDate": "2026-02-20",
+            "lengthDays": 180
+        },
+        {
+            "id": "exp-74",
+            "name": "Expedition 74",
+            "destination": "station",
+            "launchDate": "2026-10-01",
+            "lengthDays": 180
+        },
+        {
+            "id": "artemis-5",
+            "name": "Artemis V",
+            "destination": "moon",
+            "launchDate": "2027-02-01",
+            "lengthDays": 30,
+            "surface": {
+                "fromDay": 6,
+                "toDay": 25
+            }
+        },
+        {
+            "id": "mars-1",
+            "name": "Mars Transit 1",
+            "destination": "mars",
+            "launchDate": "2026-04-16",
+            "lengthDays": 900,
+            "surface": {
+                "fromDay": 181,
+                "toDay": 720
+            }
+        }
+    ]
+}

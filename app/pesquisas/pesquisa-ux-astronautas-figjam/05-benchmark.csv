@@ -1,0 +1,9 @@
+Solução,O que oferece,O que aproveitar,Limite para o espaço,Fonte
+Astroskin / Bio-Monitor,"ECG, pressão, respiração, oxigenação, temperatura e atividade; app no tablet; já usada na ISS",Sensores já validados em órbita; sinais vitais vistos na hora no exercício,Envio dos dados só ao encaixar a bateria na base,https://www.csa-asc.gc.ca/eng/sciences/astroskin.asp
+"Sistemas da NASA (prontuário, LSAH, LSDA)","Histórico de todos os astronautas desde 1959, exames, dados de voo e pesquisa",Junta dados de voo e de terra num repositório,Dados em vários sistemas; entrada parcialmente manual,https://ntrs.nasa.gov/api/citations/20170009502/downloads/20170009502.pdf
+Apple Saúde / Samsung Health,"Centralizam dados de relógios, apps e exames; ciclo menstrual; resumos com IA",Painel único de saúde e tendências,Dependem de nuvem; algoritmos treinados na Terra,Levantamento de 169 funções
+Oura / Whoop,"Sono, VFC, temperatura e prontidão diária",Pontuação simples de prontidão e recuperação,Referências de normal terrestres,Levantamento de 169 funções
+Garmin,"Carga de treino, Body Battery, VO2 máx.",Ligar treino e recuperação,VO2 máx. depende de corrida e GPS,Levantamento de 169 funções
+Natural Cycles / Flo / Clue,"Ciclo, ovulação, gravidez e menopausa",Linguagem e fluxos de saúde feminina,Não pensados para supressão do ciclo em missão,Levantamento de 169 funções
+Withings BeamO / TytoCare,"Check-up doméstico com ECG, oximetria, estetoscópio e telemedicina",Exame guiado por alguém sem formação médica,Telemedicina depende de conexão em tempo real,Levantamento de 169 funções
+Medisafe / MyTherapy,Lembretes de remédio e interações,Controle de estoque e adesão a remédios,Sem limite de estoque de uma missão longa,Levantamento de 169 funções

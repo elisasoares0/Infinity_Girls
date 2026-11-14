@@ -1,0 +1,29 @@
+Projetos avaliados por 5 critérios
+impacto , criatividade , validação, relevância , apresentação
+
+impacto - resolve grande coisa
+criatividade - maneiro que faz, sai fora da caixa e inova? curso de criatividade 100% gratuito
+validação - é cientificamente viável, não da para criar algo sem mostrar que é possuir continuar o desenvolvimento. Desenhar todas as telas não clicáveis não validou pois não fez nada que funcionasse. Mostrar funcionando é melhor doq mostra ideia (e se for protótipo navegável 100%?)
+relevencia - resolve o seu desafio?
+apresentação - quão bem você consegue vender sua ideia, fazer as pessoas entenderem o que você faz
+
+checklist
+Usar algum dado da NASA
+Qualquer link que tiver tem que estar publico ou não-listado (código fonte)
+fazer um vídeo ou apresentação sobre projeto com todos os links e TUDO em INGLES (SE SÓ O TITULO TIVER EM PT POR EXEMPLO É DESCLASSIFICADO)
+Sem baixar nada - pro jogo funcionar tinha que baixar e criar conta, não pode baixar nada pq a NASA tem alta segurança.
+Conduta - material sem palavrões, religiões ou linguagem impropria, leitura respeitável.
+SE ENVIAR 23:59/00:00 É DESCLASSIFICADO
+
+
+Anotações demais
+pode usar bibliotecas, tenha certeza que tem autorização de uso, mt são opensource e de os créditos incluindo o uso de inteligência artificial, mas não é ideal que a IA faça tudo para você a NASA não gosta.
+
+Entrega pra nasa: um relatório com summary, Project demonstration(Demo pode ser em canva, demonstração como usar,vídeo de 30s ou pode ser apresentação de até 5/7 slides) Project(site ou solução), Project details(relatório) e detalhes de como fizemos (TUDO EM INGLES)
+
+
+
+ideia / dica
+(usar IA para criar uma foto de todas do grupo juntas)
+se for fazer vídeo de 30s colocar LEGENDA também no vídeo
+NASA gosta de muito de mapa, globo, dados, gráficos, filtros

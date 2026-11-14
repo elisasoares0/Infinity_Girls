@@ -1,0 +1,11 @@
+Etapa,Método,Com quem,O que gera,Fonte
+1. Pesquisa de mesa,"Leitura de relatórios da NASA, JAXA, agência canadense, artigos e entrevistas de história oral",Fontes públicas,Feito em parte; falta a história oral completa de Sally Ride e de outras astronautas,
+2. Entrevistas com especialistas,Entrevista semiestruturada,"Médicos de voo, controladores biomédicos, pesquisadores de saúde espacial","Jornada atual do dado, dores da equipe em terra",
+3. Entrevistas com ex-astronautas,"Entrevista semiestruturada, com bloco por sexo","Ex-astronautas mulheres e homens, em número equilibrado","Experiência vivida, privacidade, readaptação",
+4. Estudo em missão simulada,Diário de uso e observação,"Tripulantes de simulações como a CHAPEA (4 voluntários, 378 dias, Houston)",Comportamento real em isolamento e com poucos recursos,https://www.nasa.gov/?p=439942
+5. Card sorting,Organização de cartões com os dados de saúde,Astronautas e médicos,Arquitetura de informação e o que cada perfil vê,
+6. Teste de usabilidade,"Protótipo navegável, com cenários de ISS, Lua e Marte",Os mesmos grupos,"Problemas de uso, confiança nos alertas",
+7. Síntese,"Mapa de afinidade, personas e jornadas",Equipe de pesquisa,Insights e oportunidades priorizadas,
+Ética,Não pedir dados médicos reais dos participantes; conferências médicas são privadas,Todos,Proteção dos participantes,https://www.nasa.gov/directorates/esdmd/hhp/flight-surgeons
+Ética,Temas de saúde reprodutiva com entrevistador escolhido pelo participante e opção de pular perguntas,Todos,Conforto e honestidade nas respostas,
+Ética,Equilibrar homens e mulheres na amostra,Todos,Reduzir o viés masculino dos dados existentes,

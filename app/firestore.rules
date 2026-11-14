@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// Crew alerts in real time (assets/js/crew-link.js). Anonymous sign-in links each device to the demo crew.
+// Only the alerts collection is open; everything else is closed.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /missions/{missionId}/alerts/{alertId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+          'member', 'memberName', 'role', 'scenario', 'title', 'vitals', 'location',
+          'status', 'responders', 'createdAt', 'clientTime', 'updatedAt', 'resolvedAt'
+        ])
+        && request.resource.data.status == 'open'
+        && request.resource.data.member is string
+        && request.resource.data.memberName is string
+        && request.resource.data.scenario is string
+        && request.resource.data.vitals is list
+        && request.resource.data.vitals.size() <= 10
+        && request.resource.data.responders is list
+        && request.resource.data.responders.size() == 0;
+
+      // Responding and resolving: only these fields change
+      allow update: if request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'responders', 'resolvedAt', 'updatedAt'])
+        && request.resource.data.status in ['open', 'responding', 'resolved']
+        && request.resource.data.responders is list
+        && request.resource.data.responders.size() <= 10;
+
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

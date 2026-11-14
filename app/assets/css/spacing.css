@@ -1,0 +1,28 @@
+/*
+ * Spacing tokens — 8px grid (with a 4px half step).
+ * Proximity rule: the weaker the relation between elements, the larger the space.
+ */
+:root {
+    --space-1: 0.25rem;  /* 4px  — icon to text, inside a component */
+    --space-2: 0.5rem;   /* 8px  — items in the same group (label to value) */
+    --space-3: 0.75rem;  /* 12px — list rows, chips, card inner gap */
+    --space-4: 1rem;     /* 16px — card padding and card grid gap (mobile) */
+    --space-5: 1.5rem;   /* 24px — card padding and grid gap (>=768), heading to content */
+    --space-6: 2rem;     /* 32px — breathing room inside large blocks */
+    --space-7: 3rem;     /* 48px — between sections (mobile), min touch target */
+    --space-8: 4rem;     /* 64px — between sections (>=768) */
+
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-pill: 999px;
+
+    --text-max: 65ch;    /* max paragraph width */
+
+    --footer-wave: 40px; /* wave on top of the footer: every page bottom keeps this much room for it */
+}
+
+@media (min-width: 768px) {
+    :root {
+        --footer-wave: 56px;
+    }
+}

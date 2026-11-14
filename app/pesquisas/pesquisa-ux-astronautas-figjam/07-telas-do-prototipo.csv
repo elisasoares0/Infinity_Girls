@@ -1,0 +1,13 @@
+#,Tela,Conteúdo
+1,Início do astronauta,"Prontidão do dia, sinais vitais, dose de radiação e tarefas de saúde"
+2,Sinais vitais,"Dados da camisa, com tendência e faixa normal para o ambiente (estação, Lua ou Marte)"
+3,Corpo,"Massa, ossos, músculos e visão ao longo da missão"
+4,Módulo feminino,"Ciclo, anticoncepcional, estoque e sintomas urinários"
+5,Módulo de atenção masculina,"Visão, audição e saúde reprodutiva, como ênfase dentro de itens comuns"
+6,Privacidade,"Quem vê cada dado (eu, médico de voo, oficial médico, pesquisa)"
+7,Painel do oficial médico,"Tripulação inteira, alertas e guias de decisão sem a Terra"
+8,Painel do médico de voo,"Visão em terra, com o atraso de cada dado visível"
+9,Status da conexão,"O que foi enviado, o que está guardado e o atraso atual"
+Regra,Hora da última leitura,Mostrar sempre a hora da última leitura de cada dado (a camisa sincroniza só ao encaixar a bateria)
+Regra,Modo da missão,"Mostrar o modo (estação, Lua ou Marte): gravidade e atraso mudam o que é normal e quem decide"
+Regra,Módulos por sexo,"Tratar módulos por sexo como opção ativada pela pessoa, não como padrão imposto"

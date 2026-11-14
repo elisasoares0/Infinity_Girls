@@ -1,0 +1,37 @@
+Público,Bloco,#,Pergunta,Aplica-se a
+Astronautas,Rotina e contexto,1,"Como é um dia típico seu em missão, do acordar ao dormir?",Todos
+Astronautas,Rotina e contexto,2,Em que momentos do dia você pensa na sua saúde? O que dispara esse pensamento?,Todos
+Astronautas,Rotina e contexto,3,Quais dados de saúde você gera hoje e quais você consegue ver?,Todos
+Astronautas,Rotina e contexto,4,Conte a última vez que você quis saber algo sobre o seu corpo e não conseguiu.,Todos
+Astronautas,Rotina e contexto,5,Como é vestir e usar a camisa Bio-Monitor? O que incomoda?,Todos
+Astronautas,Rotina e contexto,6,Quanto tempo do seu dia vai para registrar dados manualmente?,Todos
+Astronautas,Rotina e contexto,7,"Onde você acessa as informações a bordo: tablet, notebook, tela fixa? Com as mãos livres ou ocupadas?",Todos
+Astronautas,Confiança e privacidade,1,Quais dados você gostaria que só o médico de voo visse?,Todos
+Astronautas,Confiança e privacidade,2,O que você não gostaria que outros tripulantes ou o controle da missão soubessem?,Todos
+Astronautas,Confiança e privacidade,3,Você já deixou de relatar um sintoma por receio de perder uma tarefa ou a missão?,Todos
+Astronautas,Confiança e privacidade,4,Como você gostaria de ser avisado de um resultado preocupante?,Todos
+Astronautas,Autonomia em Marte,1,"Se a resposta médica da Terra demorasse 40 minutos, o que você faria diante de um sintoma?",Todos
+Astronautas,Autonomia em Marte,2,"Que tipo de orientação você confiaria vinda de um app, sem um médico do outro lado?",Todos
+Astronautas,Autonomia em Marte,3,Como você imagina dividir decisões médicas com o oficial médico da tripulação?,Todos
+Astronautas,Bloco mulheres,1,Como foi a decisão sobre o ciclo menstrual antes da missão? Quem participou?,Só mulheres
+Astronautas,Bloco mulheres,2,O que você precisou levar e como controlou o estoque?,Só mulheres
+Astronautas,Bloco mulheres,3,"Que dúvidas sobre anticoncepcional, ossos e trombose ficaram sem resposta?",Só mulheres
+Astronautas,Bloco mulheres,4,Como foi a readaptação à gravidade? Você teve tontura ou desmaio ao ficar em pé?,Só mulheres
+Astronautas,Bloco mulheres,5,Você teve sintomas urinários? Como relatou?,Só mulheres
+Astronautas,Bloco mulheres,6,"Os sensores, trajes e equipamentos serviram bem no seu corpo?",Só mulheres
+Astronautas,Bloco mulheres,7,O que você sente que os protocolos ainda não sabem sobre o corpo feminino?,Só mulheres
+Astronautas,Bloco mulheres,8,"Como você gostaria de registrar dados de saúde reprodutiva e menopausa, e quem poderia vê-los?",Só mulheres
+Astronautas,Bloco homens,1,Você notou mudanças na visão durante ou depois da missão? Como ficou sabendo?,Só homens
+Astronautas,Bloco homens,2,Como você acompanha a sua audição e o ruído a bordo?,Só homens
+Astronautas,Bloco homens,3,Você foi informado sobre efeitos do voo na testosterona e na fertilidade? O que gostaria de saber?,Só homens
+Astronautas,Bloco homens,4,Você se sentiria confortável em registrar dados de saúde reprodutiva num app?,Só homens
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,1,Como é uma conferência médica privada do começo ao fim?,Equipe médica
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,2,Quais dados você olha primeiro todos os dias? Em quais telas e sistemas?,Equipe médica
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,3,"Quais dados chegam atrasados, incompletos ou digitados à mão?",Equipe médica
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,4,Que alertas você gostaria de receber e quais seriam ruído?,Equipe médica
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,5,O que muda no seu trabalho quando a tripulação tem mulheres?,Equipe médica
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,6,"Como você imagina acompanhar uma tripulação em Marte, com 20 minutos de atraso?",Equipe médica
+Médicos de voo e controladores biomédicos,Trabalho atual e futuro,7,O que o oficial médico da tripulação precisaria ver para decidir sozinho?,Equipe médica
+Pesquisadores,Dados de pesquisa,1,Quais dados de voo você mais precisa e mais demora a conseguir?,Pesquisadores
+Pesquisadores,Dados de pesquisa,2,Que dados faltam sobre mulheres e homens para os seus estudos?,Pesquisadores
+Pesquisadores,Dados de pesquisa,3,Como o consentimento e a anonimização funcionam hoje?,Pesquisadores

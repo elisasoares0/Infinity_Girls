@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script data-theme-init>(function(){var d=document.documentElement,g=function(k){try{return JSON.parse(localStorage.getItem("astro-health:"+k));}catch(e){return null;}},t=g("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}d.setAttribute("data-theme",t);var s=g("session"),p=s&&/^(female|male|doctor)$/.test(s.profile)?s.profile:"",v=g("phase-preview"),m=s&&s.mission,h="in";d.setAttribute("data-session",p?"in":"out");if(p){d.setAttribute("data-profile",p);}if(v==="pre"||v==="in"||v==="post"){h=v;}else if(!g("mode-preview")&&m&&!isNaN(Date.parse(m.launchDate))){var n=new Date(),a=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()),l=Date.parse(m.launchDate+"T00:00:00Z");h=a<l?"pre":a>=l+m.lengthDays*864e5?"post":"in";}d.setAttribute("data-phase",h);})();</script>
+    <title>Astronaut Health — Body</title>
+    <meta name="description" content="How your body mass, bone density, muscles and eyes adapt during the mission, with trends from launch, exercise goals and the recovery plan after landing.">
+    <meta name="theme-color" content="#FFFFFF">
+    <link rel="icon" href="../../assets/img/mascot-heart-160.webp" type="image/webp">
+
+    <link rel="preload" href="../../assets/fonts/fira-sans-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../../assets/fonts/overpass-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" href="../../assets/css/colors.css">
+    <link rel="stylesheet" href="../../assets/css/spacing.css">
+    <link rel="stylesheet" href="../../assets/css/fonts.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="body.css">
+
+    <script src="../../assets/js/app.js" defer></script>
+    <script src="../../assets/js/crew-data.js" defer></script>
+    <script src="../../assets/js/records.js" defer></script>
+    <script src="../../assets/js/glucose.js" defer></script>
+    <script src="../../assets/js/health-info.js" defer></script>
+    <script src="../../assets/js/guides.js" defer></script>
+    <script src="../../assets/js/voice.js" defer></script>
+    <script src="../../assets/js/habitat.js" defer></script>
+    <script src="../../assets/js/crew-link.js" defer></script>
+    <script src="../../assets/js/emergency-engine.js" defer></script>
+    <script src="../../assets/js/reminders.js" defer></script>
+    <script src="../../assets/js/assistant.js" defer></script>
+    <script src="../../assets/js/ultrasound.js" defer></script>
+    <script src="body.js" defer></script>
+</head>
+<body>
+    <span class="scroll-sentinel" aria-hidden="true"></span>
+    <svg class="sr-only" aria-hidden="true" focusable="false">
+        <symbol id="icon-check" viewBox="0 0 12 12"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="icon-alert" viewBox="0 0 12 12"><path d="M6 1.5L11 10.5H1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 5v2.2M6 8.8v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+        <symbol id="icon-clock" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 3.5V6l1.7 1.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+        <symbol id="icon-arrow" viewBox="0 0 12 12"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="icon-info" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 5.4v3M6 3.6v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    </svg>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="app-header">
+        <div class="app-header__container">
+            <img class="app-header__logo" src="../../assets/img/logo-space-apps.svg" width="561" height="221" alt="NASA Space Apps Challenge 2026">
+            <div class="app-header__bar">
+                <dl class="status-bar" aria-label="Mission and connection status">
+                    <div class="status-bar__item">
+                        <dt>Phase</dt>
+                        <dd class="status-bar__value" data-phase-label>In flight · day 42</dd>
+                    </div>
+                    <div class="status-bar__item" data-phases="in">
+                        <dt>Last sync</dt>
+                        <dd class="status-bar__value"><time datetime="08:42" data-last-sync>08:42 UTC</time></dd>
+                    </div>
+                    <div class="status-bar__item" data-phases="in">
+                        <dt>Signal delay</dt>
+                        <dd class="status-bar__value" data-mode-delay>&lt; 1 s</dd>
+                    </div>
+                    <div class="status-bar__item" data-phases="in">
+                        <dt>Medical lead</dt>
+                        <dd class="status-bar__value" data-mode-lead>Flight surgeon (ground)</dd>
+                    </div>
+                    <div class="status-bar__item status-bar__item--offline status-bar__item--hidden" data-connection>
+                        <dt>Connection</dt>
+                        <dd class="status-bar__value">Offline · saved on board</dd>
+                    </div>
+                </dl>
+                <div class="app-header__actions">
+                    <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch to dark theme" data-theme-toggle><svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-theme-icon="moon"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg><svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-theme-icon="sun" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="theme-toggle__text" data-theme-label>Dark</span></button>
+                    <button class="ask-toggle" type="button" aria-haspopup="dialog" aria-label="Ask the assistant" title="Ask the assistant" data-ask-open><svg class="ask-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v10H10l-4 3.5v-3.5H4z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg><span class="ask-toggle__text">Ask</span></button>
+                    <button class="demo-toggle" type="button" aria-haspopup="dialog" aria-controls="demo-panel" aria-label="Presentation mode (demo)" title="Presentation mode (demo)" data-demo-open><svg class="demo-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span class="demo-toggle__flag" aria-hidden="true" data-demo-badge hidden>!</span></button>
+                    <button class="sos-toggle" type="button" aria-haspopup="dialog" aria-controls="sos-dialog" aria-label="SOS: get help now" data-phases="in" data-profiles="female male doctor" data-sos-open><svg class="sos-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.1"/></svg><span class="sos-toggle__text">SOS</span></button>
+                    <a class="app-header__emergency" href="../../pages/emergency/index.html" data-phases="in" data-emergency-link><svg class="app-header__emergency-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M9 5V3.5h6V5M12 9.5v6M9 12.5h6"/></svg><span class="app-header__emergency-text">Emergency guide</span></a>
+                </div>
+            </div>
+            <p class="sr-only" aria-live="polite" data-connection-announcer></p>
+        </div>
+        <div class="crew-alert" role="alert" data-crew-alert hidden>
+            <div class="crew-alert__container">
+                <svg class="crew-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.1"/></svg>
+                <p class="crew-alert__text" data-crew-alert-text></p>
+                <button class="button button--secondary crew-alert__open" type="button" data-crew-alert-open><span class="button__text">Open</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page" id="main">
+        <section class="page-intro">
+            <div class="page-intro__container">
+                <a class="page-intro__back" href="../../index.html"><svg class="page-intro__back-icon" aria-hidden="true"><use href="#icon-arrow"/></svg><span class="page-intro__back-text">Back to home</span></a>
+                <div class="page-intro__content">
+                    <p class="page-intro__eyebrow" data-mode-day>Mission day 42 of 180</p>
+                    <h1 class="page-intro__title">Body</h1>
+                    <p class="page-intro__text" data-intro-text>How your mass, bones, muscles and eyes are adapting to microgravity, from launch until today.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="baseline" aria-labelledby="baseline-title" data-phases="pre">
+            <div class="baseline__container">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <h2 class="section-head__title" id="baseline-title">Before launch</h2>
+                        <p class="section-head__subtitle">These scans are your reference: every reading in flight is compared with them.</p>
+                    </div>
+                </div>
+                <div class="baseline__grid">
+                    <article class="card">
+                        <h3 class="card__title">Baseline scans</h3>
+                        <ul class="baseline__list">
+                            <li class="baseline__item">
+                                <span class="baseline__name">Bone density (DXA)</span>
+                                <span class="badge badge--ok"><svg class="badge__icon" aria-hidden="true"><use href="#icon-check"/></svg><span class="badge__text">Done</span></span>
+                                <span class="baseline__meta">Hip, spine, whole body, forearm and heel · up to 45 days before launch</span>
+                            </li>
+                            <li class="baseline__item">
+                                <span class="baseline__name">Hip structure (QCT)</span>
+                                <span class="badge badge--ok"><svg class="badge__icon" aria-hidden="true"><use href="#icon-check"/></svg><span class="badge__text">Done</span></span>
+                                <span class="baseline__meta">3D scan for long missions</span>
+                            </li>
+                            <li class="baseline__item">
+                                <span class="baseline__name">Retina scan (OCT)</span>
+                                <span class="badge badge--soon"><svg class="badge__icon" aria-hidden="true"><use href="#icon-clock"/></svg><span class="badge__text">Scheduled</span></span>
+                                <span class="baseline__meta">Reference for the in-flight eye checks</span>
+                            </li>
+                            <li class="baseline__item">
+                                <span class="baseline__name">Body mass and fitness test</span>
+                                <span class="badge badge--ok"><svg class="badge__icon" aria-hidden="true"><use href="#icon-check"/></svg><span class="badge__text">Done</span></span>
+                                <span class="baseline__meta">Starting point for your mass trend and exercise loads</span>
+                            </li>
+                        </ul>
+                    </article>
+                    <article class="card">
+                        <h3 class="card__title">Your training plan</h3>
+                        <p class="card__text">Your annual physical assessment sets an individual exercise plan. In flight it becomes about 2 hours a day on three machines: resistive device, treadmill and cycle.</p>
+                        <p class="card__text">A flight surgeon stays with you in high-risk training, such as spacewalk practice in the pool and the centrifuge.</p>
+                        <div class="notice notice--info">
+                            <svg class="notice__icon" aria-hidden="true"><use href="#icon-info"/></svg>
+                            <p class="notice__text">Quarantine starts 14 days before launch: from then on you only meet people who passed a health check.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="trends" aria-labelledby="trends-title" data-phases="in post">
+            <div class="trends__container">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <h2 class="section-head__title" id="trends-title">Mass and bone</h2>
+                        <p class="section-head__subtitle">Shaded areas show the range expected for this mission. Hover or tap a point for its value.</p>
+                    </div>
+                </div>
+
+                <div class="trends__grid">
+                    <article class="card" data-mass-card>
+                        <div class="card__header">
+                            <h3 class="card__title">Body mass</h3>
+                            <span class="badge badge--ok" data-mass-badge><svg class="badge__icon" aria-hidden="true"><use href="#icon-check" data-mass-icon/></svg><span class="badge__text" data-mass-badge-text>Expected</span></span>
+                        </div>
+                        <div class="chart">
+                            <p class="chart__summary" data-mass-summary>71.4 kg, 1.2 kg less than at launch.</p>
+                            <svg class="chart__svg" viewBox="0 0 320 168" aria-hidden="true" data-mass-chart></svg>
+                            <ul class="chart__legend" aria-hidden="true">
+                                <li class="chart__legend-item"><span class="chart__swatch"></span>Mass (kg)</li>
+                                <li class="chart__legend-item"><span class="chart__swatch chart__swatch--band"></span>Expected range</li>
+                            </ul>
+                            <details class="help">
+                                <summary class="help__summary"><span class="help__label">Show data as a table</span></summary>
+                                <div data-mass-table></div>
+                            </details>
+                        </div>
+                        <p class="card__text">Measured with SLAMMD: springs push you and a sensor reads the acceleration, because scales do not work without gravity.</p>
+                    </article>
+
+                    <article class="card" data-bone-card>
+                        <div class="card__header">
+                            <h3 class="card__title">Bone density</h3>
+                            <span class="badge badge--ok" data-bone-badge><svg class="badge__icon" aria-hidden="true"><use href="#icon-check" data-bone-icon/></svg><span class="badge__text" data-bone-badge-text>On track</span></span>
+                        </div>
+                        <div class="chart">
+                            <p class="chart__summary" data-bone-summary>Projected loss at landing: 2.4%.</p>
+                            <svg class="chart__svg" viewBox="0 0 320 168" aria-hidden="true" data-bone-chart></svg>
+                            <ul class="chart__legend" aria-hidden="true">
+                                <li class="chart__legend-item"><span class="chart__swatch chart__swatch--neutral"></span>Before launch (DXA scan)</li>
+                                <li class="chart__legend-item"><span class="chart__swatch"></span>Projected at landing</li>
+                            </ul>
+                            <details class="help">
+                                <summary class="help__summary"><span class="help__label">Show data as a table</span></summary>
+                                <div data-bone-table></div>
+                            </details>
+                        </div>
+                        <p class="card__text" data-bone-text>Without exercise, weight-bearing bones lose 1 to 1.5% a month in space. The resistive exercise device (ARED) cuts that loss a lot.</p>
+                        <p class="trends__note" data-bone-note hidden></p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="exercise" aria-labelledby="exercise-title" data-phases="in">
+            <div class="exercise__container">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <h2 class="section-head__title" id="exercise-title">Muscle and exercise</h2>
+                        <p class="section-head__subtitle">About 2 hours a day on three machines keep muscles and heart strong.</p>
+                    </div>
+                </div>
+
+                <div class="exercise__grid">
+                    <article class="card">
+                        <div class="card__header">
+                            <h3 class="card__title">Last 7 days</h3>
+                            <span class="badge badge--soon"><svg class="badge__icon" aria-hidden="true"><use href="#icon-clock"/></svg><span class="badge__text">Today in progress</span></span>
+                        </div>
+                        <div class="chart">
+                            <p class="chart__summary" data-exercise-summary>Average 116 min a day (goal 120).</p>
+                            <svg class="chart__svg" viewBox="0 0 320 168" aria-hidden="true" data-exercise-chart></svg>
+                            <ul class="chart__legend" aria-hidden="true">
+                                <li class="chart__legend-item"><span class="chart__swatch"></span>Minutes of exercise</li>
+                                <li class="chart__legend-item"><span class="chart__swatch chart__swatch--threshold"></span>Daily goal (120 min)</li>
+                            </ul>
+                            <details class="help">
+                                <summary class="help__summary"><span class="help__label">Show data as a table</span></summary>
+                                <div data-exercise-table></div>
+                            </details>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h3 class="card__title">Today's plan</h3>
+                        <ul class="exercise__list">
+                            <li class="exercise__item">
+                                <span class="exercise__name">ARED resistive device</span>
+                                <span class="exercise__meta">45 of 60 min · squats, deadlifts, heel raises</span>
+                            </li>
+                            <li class="exercise__item">
+                                <span class="exercise__name">T2 treadmill</span>
+                                <span class="exercise__meta">0 of 30 min · harness and bungees hold you down</span>
+                            </li>
+                            <li class="exercise__item">
+                                <span class="exercise__name">CEVIS cycle</span>
+                                <span class="exercise__meta">0 of 30 min · heart and lung fitness</span>
+                            </li>
+                        </ul>
+                        <div class="notice notice--info">
+                            <svg class="notice__icon" aria-hidden="true"><use href="#icon-info"/></svg>
+                            <p class="notice__text">Even with 2 hours a day, a NASA study estimated that up to 17% of astronauts may still lose muscle and fitness. Your plan adapts to your results.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="vision" aria-labelledby="vision-title" data-phases="in post">
+            <div class="vision__container">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <h2 class="section-head__title" id="vision-title">Vision</h2>
+                        <p class="section-head__subtitle">Fluids shift toward the head in space and can swell the back of the eye. Regular retina scans catch it early.</p>
+                    </div>
+                </div>
+
+                <article class="card" data-oct-card>
+                    <div class="card__header">
+                        <h3 class="card__title">Retina scans (OCT)</h3>
+                        <span class="badge badge--ok" data-oct-badge><svg class="badge__icon" aria-hidden="true"><use href="#icon-check" data-oct-icon/></svg><span class="badge__text" data-oct-badge-text>Normal</span></span>
+                    </div>
+                    <div class="chart">
+                        <p class="chart__summary" data-oct-summary>8 µm above your launch value.</p>
+                        <svg class="chart__svg vision__chart" viewBox="0 0 320 168" aria-hidden="true" data-oct-chart></svg>
+                        <ul class="chart__legend" aria-hidden="true">
+                            <li class="chart__legend-item"><span class="chart__swatch"></span>Retina thickness at the optic nerve (µm)</li>
+                            <li class="chart__legend-item"><span class="chart__swatch chart__swatch--threshold"></span>Alert level</li>
+                        </ul>
+                        <details class="help">
+                            <summary class="help__summary"><span class="help__label">Show data as a table</span></summary>
+                            <div data-oct-table></div>
+                        </details>
+                    </div>
+                    <p class="card__text" data-oct-text>Next scan today at 10:30 UTC.</p>
+                    <details class="help">
+                        <summary class="help__summary"><span class="help__label">What is SANS?</span></summary>
+                        <p class="help__text">Spaceflight Associated Neuro-ocular Syndrome (SANS) swells the spot where the optic nerve meets the retina and can flatten the eyeball. There is no proven prevention yet, and it appears about three times more often in men.</p>
+                    </details>
+                </article>
+            </div>
+        </section>
+
+        <section class="ultrasound" id="ultrasound" aria-labelledby="ultrasound-title" data-phases="in" data-ultrasound>
+            <div class="ultrasound__container">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <h2 class="section-head__title" id="ultrasound-title">Neck vein ultrasound</h2>
+                        <p class="section-head__subtitle">In weightlessness, blood flows slower in the neck veins, and clots were found in crew members on the space station. A weekly scan catches it early.</p>
+                    </div>
+                    <button class="button button--primary" type="button" data-ultrasound-start><span class="button__text">Start guided exam</span></button>
+                </div>
+                <div class="notice notice--warn" data-ultrasound-notice hidden>
+                    <svg class="notice__icon" aria-hidden="true"><use href="#icon-alert"/></svg>
+                    <p class="notice__text" data-ultrasound-notice-text></p>
+                </div>
+                <div class="ultrasound__grid">
+                    <article class="card" aria-label="Latest scan">
+                        <div class="ultrasound__latest" data-ultrasound-latest></div>
+                        <details class="help">
+                            <summary class="help__summary"><span class="help__label">Why my neck?</span></summary>
+                            <p class="help__text">Without gravity, blood and fluids move toward the head and the jugular vein in the neck widens, so blood flows slower there. NASA research found clots in this vein in some crew members; a portable ultrasound shows them, and the medical team decides what to do.</p>
+                        </details>
+                    </article>
+                    <article class="card" aria-labelledby="ultrasound-history-title">
+                        <h3 class="card__title" id="ultrasound-history-title">Your scans</h3>
+                        <ul class="ultrasound__history" data-ultrasound-history></ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="recovery" aria-labelledby="recovery-title" data-phases="post">
+            <div class="recovery__container">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <h2 class="section-head__title" id="recovery-title">After landing</h2>
+                        <p class="section-head__subtitle">After about six months in space, rehabilitation takes around 45 days.</p>
+                    </div>
+                </div>
+                <ol class="recovery__steps">
+                    <li class="card" data-rehab-step="1">
+                        <p class="recovery__phase">Days 1 to 3</p>
+                        <h3 class="card__title">Gentle start</h3>
+                        <p class="card__text">Massage, stretching and assisted walking.</p>
+                    </li>
+                    <li class="card" data-rehab-step="2">
+                        <p class="recovery__phase">Up to 2 weeks</p>
+                        <h3 class="card__title">Low impact</h3>
+                        <p class="card__text">Walking in water, cycling and light walks.</p>
+                    </li>
+                    <li class="card" data-rehab-step="3">
+                        <p class="recovery__phase">Final phase</p>
+                        <h3 class="card__title">Full strength</h3>
+                        <p class="card__text">Running and heavier weight training.</p>
+                    </li>
+                </ol>
+                <p class="recovery__mode" data-recovery-mode>Your flight surgeon and the recovery team meet you at landing.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="app-footer">
+        <div class="app-footer__container">
+            <p class="app-footer__text">Prototype with simulated health data for the NASA Space Apps Challenge 2026. Radiation limit from the NASA Office of the Chief Health and Medical Officer. Space weather from NASA DONKI (Space Weather Database Of Notifications, Knowledge, Information).</p>
+            <p class="app-footer__text">Fonts: Fira Sans and Overpass, SIL Open Font License.</p>
+        </div>
+    </footer>
+
+    <nav class="tab-bar" aria-label="Main navigation">
+        <div class="tab-bar__container">
+            <ul class="tab-bar__list">
+                <li>
+                    <a class="tab-bar__link" href="../../index.html">
+                        <span class="tab-bar__icon-wrap">
+                            <svg class="tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+                        </span>
+                        Home
+                    </a>
+                </li>
+                <li data-profiles="female male">
+                    <a class="tab-bar__link" href="../../pages/vitals/index.html">
+                        <span class="tab-bar__icon-wrap">
+                            <svg class="tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>
+                        </span>
+                        Vitals
+                    </a>
+                </li>
+                <li data-profiles="female male">
+                    <a class="tab-bar__link" href="../../index.html#tasks">
+                        <span class="tab-bar__icon-wrap">
+                            <svg class="tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+                        </span>
+                        Tasks
+                    </a>
+                </li>
+                <li data-profiles="doctor">
+                    <a class="tab-bar__link" href="../../pages/emergency/index.html">
+                        <span class="tab-bar__icon-wrap">
+                            <svg class="tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.1"/></svg>
+                        </span>
+                        Emergency
+                    </a>
+                </li>
+                <li data-profiles="female male">
+                    <a class="tab-bar__link" href="../../pages/privacy/index.html">
+                        <span class="tab-bar__icon-wrap">
+                            <svg class="tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                        </span>
+                        Privacy
+                    </a>
+                </li>
+                <li>
+                    <a class="tab-bar__link" href="../../pages/profile/index.html">
+                        <span class="tab-bar__icon-wrap">
+                            <svg class="tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                        </span>
+                        Profile
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <dialog class="demo" id="demo-panel" aria-labelledby="demo-title" data-demo-panel>
+        <div class="demo__container">
+            <div class="demo__head">
+                <h2 class="demo__title" id="demo-title">Presentation mode</h2>
+                <button class="demo__close" type="button" aria-label="Close Presentation mode" data-demo-close><svg class="demo__close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <p class="demo__text">For the presentation only. In real use, the mission comes from mission control and the readings come from the sensors on their own.</p>
+            <div class="demo__fields">
+                <div class="field demo__field">
+                    <label class="field__label" for="mode-preview">Mission destination</label>
+                    <select class="field__input" id="mode-preview" data-mode-preview>
+                        <option value="auto" data-demo-auto="mode">Real mission</option>
+                        <option value="station">Simulate: Space station</option>
+                        <option value="moon">Simulate: Moon</option>
+                        <option value="mars">Simulate: Mars</option>
+                    </select>
+                </div>
+                <div class="field demo__field">
+                    <label class="field__label" for="phase-preview">Mission phase</label>
+                    <select class="field__input" id="phase-preview" data-phase-preview>
+                        <option value="auto" data-demo-auto="phase">From the mission dates</option>
+                        <option value="pre">Simulate: Before flight</option>
+                        <option value="in">Simulate: In flight</option>
+                        <option value="post">Simulate: After flight</option>
+                    </select>
+                </div>
+                <div class="field demo__field">
+                    <label class="field__label" for="context-preview">Surface context (Moon and Mars)</label>
+                    <select class="field__input" id="context-preview" data-context-preview>
+                        <option value="auto" data-demo-auto="context">From the mission plan</option>
+                        <option value="transit">Simulate: in transit</option>
+                        <option value="base">Simulate: surface base</option>
+                        <option value="rover">Simulate: rover traverse</option>
+                    </select>
+                </div>
+                <div class="field demo__field">
+                    <label class="field__label" for="link-preview">Connection with Earth (in flight)</label>
+                    <select class="field__input" id="link-preview" data-link-preview>
+                        <option value="connected">Real: follows this device's connection</option>
+                        <option value="lost">Simulate: link lost</option>
+                    </select>
+                </div>
+                <div class="field demo__field">
+                    <label class="field__label" for="sensor-preview">Health sensors</label>
+                    <select class="field__input" id="sensor-preview" data-sensor-preview>
+                        <option value="connected">Real: all sending data</option>
+                        <option value="shirt-off">Simulate: Astroskin shirt off</option>
+                        <option value="dispenser-off">Simulate: water dispenser offline</option>
+                    </select>
+                </div>
+                <div class="field demo__field">
+                    <label class="field__label" for="emergency-preview">Emergency (in flight)</label>
+                    <select class="field__input" id="emergency-preview" data-emergency-preview>
+                        <option value="none">Real: no emergency</option>
+                        <option value="chest-pain">Simulate: chest pain</option>
+                        <option value="collapse">Simulate: collapse, not breathing</option>
+                        <option value="low-oxygen">Simulate: low oxygen</option>
+                        <option value="high-fever">Simulate: high fever</option>
+                    </select>
+                </div>
+            </div>
+            <button class="button button--secondary demo__reminder" type="button" data-demo-reminder hidden><span class="button__text">Show the next reminder now</span></button>
+            <p class="demo__status" role="status" data-demo-status></p>
+            <button class="button button--secondary demo__reset" type="button" data-demo-reset><span class="button__text">Back to the real mission</span></button>
+        </div>
+    </dialog>
+
+    <!-- emergency ui -->
+    <div class="voice-caption" data-voice-caption hidden>
+        <svg class="voice-caption__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        <p class="voice-caption__text" aria-live="polite" data-voice-caption-text></p>
+    </div>
+
+    <dialog class="sos" id="sos-dialog" aria-labelledby="sos-title" data-sos>
+        <div class="sos__container">
+            <div class="sos__head">
+                <div class="sos__heading">
+                    <p class="sos__eyebrow" data-sos-eyebrow>Emergency</p>
+                    <h2 class="sos__title" id="sos-title" tabindex="-1" data-sos-title>Help requested</h2>
+                </div>
+                <button class="sos__minimize" type="button" aria-label="Minimize: the alert stays open" data-sos-minimize><svg class="sos__minimize-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+            </div>
+            <button class="button button--primary sos__hear" type="button" data-sos-hear hidden><span class="button__text">Tap to hear the instructions</span></button>
+            <ul class="sos__vitals" aria-label="Vital signs" data-sos-vitals></ul>
+            <p class="sos__crew" role="status" data-sos-crew></p>
+            <section class="sos__step" aria-labelledby="sos-step-count">
+                <p class="sos__step-count" id="sos-step-count" data-sos-step-count></p>
+                <p class="sos__step-text" aria-live="polite" data-sos-step-text></p>
+                <div class="sos__step-how" data-sos-step-how></div>
+                <div class="field sos__pick" data-sos-pick hidden>
+                    <label class="field__label" for="sos-pick">What is happening?</label>
+                    <select class="field__input" id="sos-pick" data-sos-pick-select>
+                        <option value="">Choose a guide</option>
+                    </select>
+                </div>
+                <div class="metronome" data-sos-metronome hidden>
+                    <button class="button button--primary metronome__toggle" type="button" aria-pressed="false" data-sos-beat><span class="button__text">Start the compression beat</span></button>
+                    <span class="metronome__beat" aria-hidden="true"></span>
+                    <p class="metronome__time"><span class="metronome__label">Time</span> <span class="metronome__clock">0:00</span></p>
+                    <p class="metronome__note">110 compressions a minute, at the beat. Every 2 minutes, check breathing.</p>
+                </div>
+                <div class="sos__actions">
+                    <button class="button button--primary" type="button" data-sos-next><span class="button__text">Next step</span></button>
+                    <button class="button button--secondary" type="button" data-sos-repeat><span class="button__text">Repeat</span></button>
+                    <button class="button button--secondary" type="button" aria-pressed="false" data-sos-commands hidden><span class="button__text">Voice commands</span></button>
+                </div>
+            </section>
+            <div class="sos__responder-actions">
+                <button class="button button--primary" type="button" data-sos-respond hidden><span class="button__text">I'm on my way</span></button>
+                <button class="button button--secondary" type="button" data-sos-resolve hidden><span class="button__text">Resolved</span></button>
+            </div>
+            <section class="sos__where" aria-labelledby="sos-where-title">
+                <h3 class="sos__where-title" id="sos-where-title">Where</h3>
+                <svg class="habitat-map" aria-hidden="true" data-sos-map></svg>
+                <p class="sos__map-text" data-sos-map-text></p>
+                <div class="field sos__location" data-sos-location-field>
+                    <label class="field__label" for="sos-location">I'm in…</label>
+                    <select class="field__input" id="sos-location" data-sos-location></select>
+                </div>
+            </section>
+            <p class="sos__log" data-sos-log></p>
+            <div class="sos__footer">
+                <a class="button button--tertiary" href="#" data-sos-guide-link><span class="button__text">Open the full guide</span></a>
+                <button class="button button--tertiary sos__cancel" type="button" data-sos-cancel><span class="button__text">I'm OK, cancel the alert</span></button>
+            </div>
+            <p class="sos__note">Guides are simplified examples, not medical instructions. In a real emergency, follow the crew medical checklist.</p>
+        </div>
+    </dialog>
+    <!-- /emergency ui -->
+</body>
+</html>

@@ -1,0 +1,32 @@
+Pesquisa UX - app de monitoramento de saúde para astronautas
+Arquivos para importar no FigJam
+
+COMO IMPORTAR
+1. Abra um quadro no FigJam.
+2. Arraste cada arquivo .csv para o quadro (ou use o menu principal > Arquivo > Importar).
+   Cada CSV vira uma tabela editável.
+3. Arraste a imagem 06b-diagrama-fluxo-de-dados.png para o quadro, ao lado da tabela 06.
+4. Sugestão: crie uma seção (Section) para cada número de arquivo e organize da esquerda
+   para a direita: 01 objetivo -> 13 fontes.
+
+ARQUIVOS
+01-objetivo-e-escopo.csv
+02-sintese-pesquisa-de-mesa.csv
+03-usuarios-e-stakeholders.csv
+04-diferencas-homens-e-mulheres.csv
+05-benchmark.csv
+06-tecnologias-para-ui.csv
+06b-diagrama-fluxo-de-dados.png
+07-telas-do-prototipo.csv
+08-perguntas-ux-research.csv
+09-lacunas-de-informacao.csv
+10-levantamento-de-dados.csv
+11-oportunidades.csv
+12-sintese-e-proximos-passos.csv
+13-fontes.csv
+
+OBSERVAÇÕES
+- Necessidades dos usuários, prioridades e regras de UI são hipóteses a validar em entrevistas.
+- Itens marcados como "não verificado" ainda precisam de confirmação em fontes.
+- Se algum acento aparecer errado, abra o CSV no Google Planilhas e copie e cole a tabela
+  direto no FigJam: dados colados de planilhas também viram tabela.

@@ -1,0 +1,175 @@
+/*
+ * Color tokens — single source of truth for every color in the app.
+ * Brand palette names follow the NASA Space Apps 2026 brand guide.
+ * Two themes: light (white, the default) and dark (:root[data-theme="dark"], below).
+ * The theme is set on <html> before the first paint (inline script in every <head>, written by tools/chrome.js):
+ * the saved choice, or the device setting. Every new alias needs a value in both themes.
+ * Contrast ratios: light against white; dark against Deep Blue (cards) and Deep Space (page).
+ */
+:root {
+    color-scheme: light;
+
+    /* Brand palette */
+    --blue-yonder: #2E96F5;
+    --neon-blue: #0960E1;
+    --electric-blue: #0042A6;
+    --deep-blue: #07173F;
+    --rocket-red: #E43700;
+    --martian-red: #8E1100;
+    --neon-yellow: #EAFE07;
+    --white: #FFFFFF;
+
+    /* Deep space behind the 3D astronaut (darker than Deep Blue, same hue) */
+    --deep-space: #020817;
+
+    /* Derived tints (palette colors with alpha) */
+    --blue-yonder-06: rgba(46, 150, 245, 0.06);
+    --blue-yonder-12: rgba(46, 150, 245, 0.12);
+    --deep-blue-08: rgba(7, 23, 63, 0.08);
+    --deep-blue-16: rgba(7, 23, 63, 0.16);
+    --deep-blue-48: rgba(7, 23, 63, 0.48);
+    --deep-blue-72: rgba(7, 23, 63, 0.72);
+    --white-08: rgba(255, 255, 255, 0.08);
+    --white-16: rgba(255, 255, 255, 0.16);
+    --white-24: rgba(255, 255, 255, 0.24);
+    --white-56: rgba(255, 255, 255, 0.56);
+    --neon-blue-40: rgba(9, 96, 225, 0.4);
+    --blue-yonder-24: rgba(46, 150, 245, 0.24);
+    --white-80: rgba(255, 255, 255, 0.8);
+    --white-96: rgba(255, 255, 255, 0.96);
+    --white-72: rgba(255, 255, 255, 0.72);
+    --deep-blue-96: rgba(7, 23, 63, 0.96);
+
+    /* Dark theme only: a lighter Blue Yonder for hover and status text, and the OK chip flattened on Deep Blue */
+    --blue-yonder-light: #7CBCF9;
+    --deep-blue-ok: #0B2D5C;
+    --rocket-red-light: #FF8A66;
+
+    /* Semantic aliases */
+    --color-bg: var(--white);
+    --color-bg-soft: var(--blue-yonder-06);
+    --color-surface: var(--white);
+    --color-surface-hover: var(--blue-yonder-12);
+    --color-line: var(--deep-blue-16);
+    --color-text: var(--deep-blue);              /* ≈ 17:1 */
+    --color-text-muted: var(--deep-blue-72);     /* ≈ 7:1 */
+    --color-text-inverse: var(--white);          /* on Martian Red and on the dark space bands, both themes */
+    --color-on-primary: var(--white);            /* text and icons on a primary or chart fill */
+    --color-primary: var(--electric-blue);       /* ≈ 9:1 */
+    --color-primary-hover: var(--deep-blue);     /* ≈ 17:1 */
+    --color-eyebrow: var(--electric-blue);
+    --color-chart: var(--neon-blue);             /* ≈ 5.6:1 (graphics) */
+    --color-chart-track: var(--deep-blue-08);
+    --color-chart-neutral: var(--deep-blue-48);  /* baseline bars ("before"), ≈ 3.3:1 */
+    --color-accent: var(--rocket-red);           /* ≈ 4.1:1 — graphics only */
+    --color-projection: var(--blue-yonder);      /* ≈ 3.2:1 — graphics only */
+    --color-focus: var(--electric-blue);
+    --color-nav-bg: var(--white-96);
+    --color-footer-bg: var(--deep-blue);         /* separates footer from soft sections */
+    --color-footer-text: var(--white-80);        /* ≈ 12:1 on deep blue */
+    --color-footer-line: var(--white-24);
+    --color-backdrop: var(--deep-blue-48);       /* behind a dialog (Presentation mode) */
+
+    /* Today ring and summary columns (validated with the dataviz palette script) */
+    --color-ring-ok: var(--blue-yonder);         /* ≈ 3.2:1 graphics; white icon on it ≈ 3.2:1 */
+    --color-on-ring-ok: var(--deep-blue);        /* numbers on the ok squares (Vitals Overall): ≈ 5.6:1 */
+    --color-ring-track: var(--blue-yonder-12);   /* empty part of a column, never the only cue */
+
+    /* 3D astronaut on Home: stage colors, and solid colors read by assets/js/astronaut-3d.js */
+    --color-stage: var(--deep-blue);             /* white text ≈ 17:1 */
+    --color-stage-text: var(--white);
+    --color-stage-muted: var(--white-80);
+    --color-stage-line: var(--white-24);
+    --color-suit: var(--white);
+    --color-3d-light: var(--white);              /* scene light, never follows the theme */
+    --logo-filter: none;                          /* the logo file is black and red, made for white */
+    --color-visor: var(--deep-blue);
+    --color-visor-glow: var(--neon-blue);
+
+    /* Space band around the astronaut: stars, Earth's limb and glass cards.
+       On deep space: white ≈ 20:1, white-80 ≈ 13:1, Blue Yonder icon ≈ 6:1, Rocket Red border ≈ 4.6:1 */
+    --color-space: var(--deep-space);
+    --color-space-mid: var(--deep-blue);
+    --color-space-star: var(--white);
+    --color-space-star-dim: var(--white-56);
+    --color-earth-glow: var(--neon-blue-40);
+    --color-earth-rim: var(--blue-yonder-24);
+    --color-space-card: var(--white-08);
+    --color-space-card-hover: var(--white-16);
+    --color-space-icon: var(--blue-yonder);
+
+    /* Waves and orbit lines (shape SVGs in assets/img used as masks; color comes from here).
+       Graphics only, never text. */
+    --color-wave-start: var(--deep-space);
+    --color-wave-mid: var(--electric-blue);
+    --color-wave-end: var(--neon-blue);
+    --color-deco-line: var(--blue-yonder);
+    --color-deco-line-strong: var(--neon-blue);
+    --color-mask: var(--deep-blue);              /* any opaque color: the solid part of a mask */
+
+    /* Status (always paired with icon + text, never color alone).
+       Badges are tonal chips so they never look like solid buttons. */
+    --color-status-ok: var(--electric-blue);         /* white text ≈ 9:1 */
+    --color-status-ok-bg: var(--blue-yonder-12);
+    --color-status-ok-chip: #E6F2FE;                 /* the tint flattened on white: opaque over dark space */
+    --color-surface-done: var(--color-status-ok-chip); /* a done task on a dark band: same tint, opaque */
+    --color-status-ok-text: var(--electric-blue);    /* ≈ 8:1 on the tint */
+    --color-status-ok-line: var(--electric-blue);
+    --color-status-warn: var(--neon-yellow);         /* deep-blue text ≫ 7:1 */
+    --color-status-warn-text: var(--deep-blue);
+    --color-status-warn-line: var(--rocket-red);     /* card border + chart ≥ 3:1 */
+    --color-status-danger: var(--martian-red);       /* white text ≈ 9.8:1 */
+    --color-status-danger-line: var(--rocket-red);
+    --color-error: var(--martian-red);               /* form error text and border, ≈ 9.4:1 */
+
+    /* Shadows (color-bearing, so they live here) */
+    --shadow-card: 0 1px 2px rgba(7, 23, 63, 0.06), 0 4px 16px rgba(7, 23, 63, 0.06);
+    --shadow-header: 0 2px 16px rgba(7, 23, 63, 0.08);
+    --shadow-nav: 0 -2px 16px rgba(7, 23, 63, 0.08);
+    --shadow-dock: 0 8px 32px rgba(7, 23, 63, 0.16);
+}
+
+/* Dark theme: Deep Space page, Deep Blue cards, white text, Blue Yonder as the primary color.
+   The space bands, the 3D stage and the status yellow and red stay as in the light theme. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-bg: var(--deep-space);
+    --color-bg-soft: var(--blue-yonder-06);
+    --color-surface: var(--deep-blue);
+    --color-surface-hover: var(--white-08);
+    --color-line: var(--white-16);
+    --color-text: var(--white);                  /* ≈ 17:1 on Deep Blue, 20:1 on Deep Space */
+    --color-text-muted: var(--white-72);         /* ≈ 9.4:1 */
+    --color-primary: var(--blue-yonder);         /* ≈ 5.7:1 on Deep Blue, 6.5:1 on Deep Space */
+    --color-primary-hover: var(--blue-yonder-light); /* ≈ 8.7:1 */
+    --color-on-primary: var(--deep-space);       /* ≈ 6.5:1 on Blue Yonder, 9.9:1 on the hover */
+    --color-eyebrow: var(--blue-yonder);
+    --color-chart: var(--blue-yonder);           /* ≈ 5.7:1 (graphics) */
+    --color-chart-track: var(--white-08);
+    --color-chart-neutral: var(--white-56);      /* ≈ 6.1:1 */
+    --color-accent: var(--rocket-red);           /* ≈ 4:1 — graphics only */
+    --color-projection: var(--blue-yonder-light);
+    --color-focus: var(--blue-yonder-light);     /* ≈ 8.7:1 */
+    --color-nav-bg: var(--deep-blue-96);
+    --color-footer-bg: var(--deep-blue);
+    --color-ring-ok: var(--blue-yonder);
+    --color-on-ring-ok: var(--deep-blue);        /* same in both themes: Blue Yonder does not change */
+    --color-ring-track: var(--white-08);
+    --color-deco-line: var(--blue-yonder);
+    --color-deco-line-strong: var(--blue-yonder);
+    --logo-filter: invert(1) hue-rotate(180deg); /* black turns white, the red stays red */
+
+    --color-status-ok: var(--blue-yonder);
+    --color-status-ok-bg: var(--blue-yonder-12);
+    --color-status-ok-chip: var(--deep-blue-ok);
+    --color-surface-done: var(--deep-blue-ok);
+    --color-status-ok-text: var(--blue-yonder-light); /* ≈ 6.7:1 on the chip */
+    --color-status-ok-line: var(--blue-yonder);
+    --color-error: var(--rocket-red-light);      /* ≈ 7.5:1 on Deep Blue, 8.6:1 on Deep Space */
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.32), 0 4px 16px rgba(0, 0, 0, 0.32);
+    --shadow-header: 0 2px 16px rgba(0, 0, 0, 0.4);
+    --shadow-nav: 0 -2px 16px rgba(0, 0, 0, 0.4);
+    --shadow-dock: 0 8px 32px rgba(0, 0, 0, 0.48);
+}

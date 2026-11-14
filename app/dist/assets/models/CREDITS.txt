@@ -1,0 +1,4 @@
+emu.glb
+Source: NASA 3D Resources, "Extravehicular Mobility Unit" (EMU spacesuit with SAFER), https://github.com/nasa/NASA-3D-Resources (3D Models/Extravehicular Mobility Unit)
+Use: free to download and use under the NASA Images and Media Usage Guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/).
+Change: the file is published as is (Draco-compressed mesh, decoded by assets/vendor/three/addons/libs/draco/, Apache-2.0). At load time assets/js/astronaut-3d.js removes the backpack (PLSS, SAFER jetpack and the waist tethers that hook onto it), since crew members do not wear it inside the spacecraft.

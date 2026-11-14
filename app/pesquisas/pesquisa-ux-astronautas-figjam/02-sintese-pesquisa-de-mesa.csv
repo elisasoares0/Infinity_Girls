@@ -1,0 +1,10 @@
+#,Achado,Fonte
+1,"A base do monitoramento é igual para todos: coração, sinais vitais, ossos, músculos, visão, sono, saúde mental e radiação.",https://humans-in-space.jaxa.jp/en/biz-lab/med-in-space/healthcare/medops/system
+2,"Já existe uma camisa que capta sinais do corpo (Astroskin / Bio-Monitor): ECG, frequência cardíaca, pressão, respiração, temperatura da pele, oxigenação e atividade. Os dados vão para a Terra quando a bateria é encaixada numa base.",https://www.csa-asc.gc.ca/eng/sciences/astroskin.asp
+3,"Os dados estão espalhados: prontuário eletrônico, LSAH, repositório médico, LSDA e Life Sciences Data Warehouse, com entrada automática, digitada ou importada.",https://ntrs.nasa.gov/api/citations/20170009502/downloads/20170009502.pdf
+4,O cuidado depende hoje de pessoas em terra: médico de voo (conferências privadas semanais) e controladores biomédicos.,https://www.nasa.gov/directorates/esdmd/hhp/flight-surgeons
+5,"Isso não funciona em Marte: até 20 minutos de atraso em cada sentido, sem evacuação e sem reposição de remédios. A tripulação precisará de autonomia médica.",https://ntrs.nasa.gov/api/citations/20160003138/downloads/20160003138.pdf
+6,"Mulheres têm itens realmente adicionais: teste de gravidez, controle da menstruação e anticoncepcional, risco de trombose e efeito nos ossos.",https://www.kcl.ac.uk/archive/news/lsm/newsrecords/2016/apr/menstruation-in-spaceflight-options-for-astronauts
+7,"Para homens, há riscos maiores, não protocolos próprios: visão, audição e saúde reprodutiva.",https://www.psypost.org/spaceflight-alters-brain-fluid-more-in-women-while-men-face-higher-vision-risks/
+8,"Faltam dados sobre mulheres: só 75 foram ao espaço, e poucos estudos foram feitos em voo.",https://worldextrememedicine.com/app/uploads/2025/10/Womens-Health-in-Space-Health-Research-Where-are-the-data-.pdf
+9,"Muito do que funciona na Terra não serve no espaço: balanças, detecção de queda e análise de marcha dependem da gravidade; vários algoritmos foram treinados com dados terrestres.",Análise feita na pesquisa

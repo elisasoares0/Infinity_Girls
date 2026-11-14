@@ -1,0 +1,41 @@
+{
+    "about": "Test accounts of the mission crew (read-only). Demo password for all: Mission2026. New accounts are created in the app and saved on the device.",
+    "accounts": [
+        {
+            "nasaId": "hsilva",
+            "name": "Helena Silva",
+            "idNumber": "AST-0427",
+            "role": "astronaut",
+            "sex": "Female",
+            "birthDate": "1985-03-14",
+            "member": "silva",
+            "salt": "68c5b54bb8ea6efcd544d775c048a40f",
+            "hash": "ad0714a77fa255a21584d209127a26b87bb81dcd1fb40ac8d8328a7df4c9b38b",
+            "demo": true
+        },
+        {
+            "nasaId": "ktanaka",
+            "name": "Kenji Tanaka",
+            "idNumber": "AST-0388",
+            "role": "astronaut",
+            "sex": "Male",
+            "birthDate": "1988-07-02",
+            "member": "tanaka",
+            "salt": "c8e8ecfa2dca4e8bdbffbce92a79d13b",
+            "hash": "3e37a15028f2ef3bc913cdaefd1935f9c1885b0f87bee03dd4c59af6f39de73f",
+            "demo": true
+        },
+        {
+            "nasaId": "cokafor",
+            "name": "Chidi Okafor",
+            "idNumber": "CRM-SP 123456",
+            "role": "doctor",
+            "sex": "Male",
+            "birthDate": "1981-09-23",
+            "member": "okafor",
+            "salt": "4e816fcec62d4fa99320fe1ca323cd39",
+            "hash": "9775feb262b33ff462c9a6a0a0a0ecd13661e39d8ffbea216c48e91494760650",
+            "demo": true
+        }
+    ]
+}
