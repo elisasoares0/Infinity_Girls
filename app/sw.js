@@ -143,6 +143,9 @@ self.addEventListener("fetch", function (event) {
     if (request.method !== "GET" || url.origin !== self.location.origin) {
         return;
     }
+    if (event.request.url.includes('supabase.co')) {
+        return; // Deixa o Supabase ir direto para a internet sem passar pelo cache offline
+    }
 
     event.respondWith(
         caches.open(CACHE_VERSION).then(function (cache) {
