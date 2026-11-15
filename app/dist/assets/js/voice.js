@@ -10,6 +10,9 @@ var activated = false;
 var caption = null;
 var captionText = null;
 var hideTimer = null;
+var quietSince = 0;
+var ECHO_MS = 1200;
+var COMMAND_MAX_WORDS = 3;
 function markActivated() {
 activated = true;
 document.dispatchEvent(new CustomEvent("voice:ready"));
@@ -86,6 +89,7 @@ window.clearTimeout(watchdog);
 if (speaking === item) {
 speaking = null;
 }
+quietSince = Date.now();
 scheduleHide(item.priority);
 next();
 }
@@ -113,6 +117,7 @@ next();
 function stop() {
 queue = [];
 speaking = null;
+quietSince = Date.now();
 if (synth) {
 synth.cancel();
 }
@@ -123,8 +128,21 @@ caption.hidden = true;
 function save() {
 App.store.set("voice", settings);
 }
-function listen(commands) {
+function isTalking() {
+return Boolean(speaking) || queue.length > 0 || Boolean(synth && synth.speaking) || Date.now() - quietSince < ECHO_MS;
+}
+function commandIn(said, commands) {
+var words = said.toLowerCase().replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean);
+if (!words.length || words.length > COMMAND_MAX_WORDS) {
+return null;
+}
+return Object.keys(commands).filter(function (word) {
+return words.indexOf(word) !== -1;
+})[0] || null;
+}
+function listen(commands, options) {
 var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+var onStop = (options && options.onStop) || function () {};
 if (!Recognition || navigator.onLine === false) {
 return null;
 }
@@ -134,12 +152,19 @@ recognizer.lang = "en-US";
 recognizer.continuous = true;
 recognizer.interimResults = false;
 recognizer.onresult = function (event) {
-var said = event.results[event.results.length - 1][0].transcript.toLowerCase();
-Object.keys(commands).forEach(function (word) {
-if (said.indexOf(word) !== -1) {
-commands[word]();
+if (isTalking()) {
+return;
 }
-});
+var command = commandIn(event.results[event.results.length - 1][0].transcript, commands);
+if (command) {
+commands[command]();
+}
+};
+recognizer.onerror = function (event) {
+if (event.error === "not-allowed" || event.error === "service-not-allowed" || event.error === "audio-capture" || event.error === "network") {
+stopped = true;
+onStop(event.error);
+}
 };
 recognizer.onend = function () {
 if (!stopped) {
@@ -147,6 +172,7 @@ try {
 recognizer.start();
 } catch (error) {
 stopped = true;
+onStop("ended");
 }
 }
 };
@@ -198,6 +224,7 @@ canListen: function () {
 return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition) && navigator.onLine !== false;
 },
 listen: listen,
+isTalking: isTalking,
 lastText: function () {
 return last;
 }

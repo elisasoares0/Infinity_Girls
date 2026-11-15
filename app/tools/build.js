@@ -1,12 +1,15 @@
 /*
  * Production build without dependencies: copies the site to dist/ and minifies CSS, JS and HTML.
  * Usage: node tools/build.js
- * The minifiers are conservative (comments + whitespace only) so they never change behavior.
+ * The minifiers are conservative (comments + whitespace only) so they never change behavior. JS block comments are
+ * removed only when they start a line (the project style), so a "/*" inside a string (accept="image/*") is never taken
+ * for a comment. Every minified JS file is then checked with node --check: a broken file stops the build (and the deploy).
  */
 "use strict";
 
 const fs = require("fs");
 const path = require("path");
+const childProcess = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.join(ROOT, "dist");
@@ -26,7 +29,7 @@ function minifyCss(css) {
 
 function minifyJs(js) {
     return js
-        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/^[ \t]*\/\*[\s\S]*?\*\/[ \t]*$/gm, "")
         .split("\n")
         .map(function (line) {
             return line.trim();
@@ -53,6 +56,7 @@ const MINIFIERS = { ".css": minifyCss, ".js": minifyJs, ".html": minifyHtml };
 
 let before = 0;
 let after = 0;
+const minifiedJs = [];
 
 function copy(source, target) {
     const stat = fs.statSync(source);
@@ -71,6 +75,9 @@ function copy(source, target) {
         before += Buffer.byteLength(text);
         after += Buffer.byteLength(output);
         fs.writeFileSync(target, output);
+        if (path.extname(source) === ".js") {
+            minifiedJs.push(target);
+        }
     } else {
         fs.copyFileSync(source, target);
     }
@@ -81,5 +88,16 @@ fs.mkdirSync(DIST, { recursive: true });
 INCLUDE.forEach(function (entry) {
     copy(path.join(ROOT, entry), path.join(DIST, entry));
 });
+
+// A minified file that no longer parses must never reach the deploy
+const broken = minifiedJs.filter(function (file) {
+    return childProcess.spawnSync(process.execPath, ["--check", file], { encoding: "utf8" }).status !== 0;
+});
+if (broken.length) {
+    console.error("Build failed: these minified files do not parse:\n" + broken.map(function (file) {
+        return "  " + path.relative(ROOT, file);
+    }).join("\n"));
+    process.exit(1);
+}
 
 console.log("dist/ ready · CSS, JS and HTML: " + (before / 1024).toFixed(1) + " KB → " + (after / 1024).toFixed(1) + " KB");

@@ -1,11 +1,13 @@
 /*
- * Active reminders (App.reminders), on every page, for the astronaut profiles.
- * The day's plan follows the phase, the destination and the surface context (all times UTC, as on board).
- * At the time of each item, while it is not done or snoozed, a toast shows above the tab bar: it never takes the
- * focus (WCAG 2.2: no change of context), its words go to a polite live region, and it offers Done, In 15 min
- * and Open. Optional: the voice says it once (App.voice), and a device notification shows when the tab is hidden
+ * Active reminders (App.reminders), on every page.
+ * Astronauts: the day's plan follows the phase, the destination and the surface context (all times UTC, as on board):
+ * health tasks, medication (MEDICATION, plus the pill of the women's health module), exams and reading results.
+ * At the time of each item, while it is not done or snoozed, a message arrives in the health messages chat
+ * (App.inbox, assets/js/inbox.js), with Done (or Taken), In 15 min and Open: no toast over the page.
+ * Doctor: each new crew alert (not emergencies: SOS has its own dialog) arrives as a message with Open.
+ * Optional: the voice says it once (App.voice), and a device notification shows when the tab is hidden
  * (only with permission, through the service worker).
- *   App.reminders.today() → [{ id, task, title, why, time, href, done }]   App.reminders.next(count)
+ *   App.reminders.today() → [{ id, task, kind, title, why, time, href, done }]   App.reminders.next(count)
  *   App.reminders.markDone(item) · snooze(item, minutes) · showNext() (Presentation mode)
  *   App.reminders.isUltrasoundDay() · settings() / setSettings({ spoken, notify }) · requestNotifications()
  * Task ids are the data-task values of the Home list; done tasks are saved in "tasks:<member>" ({ date, done }).
@@ -19,10 +21,17 @@
     var CHECK_MS = 30000;
     var profile = App.getProfile();
     var member = profile.member;
-    var toast = null;
-    var announcer = null;
-    var shown = null;
     var forced = null;
+
+    /*
+     * Medication on board (simulated): vitamin D is daily on long missions, since there is no sunlight on board.
+     * The contraceptive pill comes from the women's health module (its own state: "womens-health").
+     */
+    var MEDICATION = {
+        silva: [{ id: "vitamin-d", hours: 8, name: "Vitamin D, 1000 IU", why: "No sunlight on board: it keeps your bones strong.", phases: ["in"] }],
+        tanaka: [{ id: "vitamin-d", hours: 8, name: "Vitamin D, 1000 IU", why: "No sunlight on board: it keeps your bones strong.", phases: ["in"] }]
+    };
+    var PILL_HOURS = 21;
 
     function today() {
         var now = new Date();
@@ -74,7 +83,30 @@
     /* ---------- The day's plan ---------- */
 
     function item(id, hours, title, why, href, task) {
-        return { id: id, task: task === undefined ? id : task, time: at(hours), title: title, why: why, href: App.rootUrl(href) };
+        return { id: id, kind: "task", task: task === undefined ? id : task, time: at(hours), title: title, why: why, href: App.rootUrl(href) };
+    }
+
+    function womensState() {
+        return App.store.get("womens-health", {});
+    }
+
+    // The pill: only for the female profile, with the module on and a plan that uses it
+    function usesPill() {
+        var state = womensState();
+        var plan = state.plan || "pill";
+        return profile.key === "female" && state.enabled !== false && (plan === "pill" || plan === "adjust");
+    }
+
+    function medication(phase) {
+        var list = (MEDICATION[member] || []).filter(function (med) {
+            return med.phases.indexOf(phase) !== -1;
+        }).map(function (med) {
+            return { id: "med-" + med.id, kind: "medication", task: null, time: at(med.hours), title: "Take " + med.name, why: med.why, href: "" };
+        });
+        if (usesPill()) {
+            list.push({ id: "med-pill", kind: "medication", task: null, time: at(PILL_HOURS), title: "Take your contraceptive pill", why: "Same time every day keeps bleeding stopped.", href: App.rootUrl("pages/womens-health/index.html") });
+        }
+        return list;
     }
 
     function plan() {
@@ -106,7 +138,7 @@
             }) : [];
             if (scans[0] && (scans[0].status_leitura === "atencao" || scans[0].status_leitura === "critico")) {
                 list.push({
-                    id: "ultrasound-result-" + scans[0].id, task: null, time: Date.now() - MINUTE,
+                    id: "ultrasound-result-" + scans[0].id, kind: "result", task: null, time: Date.now() - MINUTE,
                     title: "Ultrasound reading: " + (scans[0].status_leitura === "critico" ? "Act now" : "Watch"),
                     why: scans[0].parecer_medico || "Talk to your crew medical officer.",
                     href: App.rootUrl("pages/body/index.html#ultrasound")
@@ -127,13 +159,14 @@
             // Exams booked for today: one hour before
             App.crew.preflightExams(member).forEach(function (exam) {
                 if (exam.status === "scheduled" && exam.at && exam.at >= today() && exam.at < today() + 1440 * MINUTE) {
-                    list.push({ id: "exam-" + exam.key, task: null, time: exam.at - 60 * MINUTE, title: exam.name + " at " + App.formatTime(new Date(exam.at)), why: exam.place + ".", href: App.rootUrl("index.html#tasks") });
+                    list.push({ id: "exam-" + exam.key, kind: "exam", task: null, time: exam.at - 60 * MINUTE, title: exam.name + " at " + App.formatTime(new Date(exam.at)), why: exam.place + ".", href: App.rootUrl("index.html#tasks") });
                 }
             });
         } else {
             list.push(item("stand-test", 10, "Stand-up test", "Heart rate and blood pressure when standing.", "index.html#tasks"));
             list.push(item("walk", 15, "Assisted walk", "Rehab, step by step.", "index.html#tasks"));
         }
+        list = list.concat(medication(phase));
         var done = doneTasks();
         var extra = memory().done;
         list.forEach(function (entry) {
@@ -152,8 +185,11 @@
         }
         if (entry.task === "checkin" && App.records) {
             return App.records.list("avaliacoes_diarias", { usuario_id: member }).some(function (row) {
-                return row.data_registro === App.todayKey();
+                return row.data_registro === App.todayKey() && row.humor_escala != null;
             });
+        }
+        if (entry.id === "med-pill") {
+            return womensState().takenOn === App.todayKey();
         }
         return false;
     }
@@ -177,7 +213,14 @@
     /* ---------- Acting on a reminder ---------- */
 
     function markDone(entry) {
-        if (entry.task) {
+        if (entry.id === "med-pill") {
+            // Same record as the dose card of the women's health page
+            var state = womensState();
+            state.takenOn = App.todayKey();
+            state.takenAt = App.formatTime(new Date());
+            state.logs = (state.logs || 0) + 1;
+            App.store.set("womens-health", state);
+        } else if (entry.task) {
             var done = doneTasks();
             if (done.indexOf(entry.task) === -1) {
                 done.push(entry.task);
@@ -188,7 +231,10 @@
             value.done.push(entry.id);
             remember(value);
         }
-        hide();
+        forced = null;
+        if (App.inbox) {
+            App.inbox.resolve(entry.id, "done", (entry.kind === "medication" ? "Taken at " : "Done at ") + App.formatTime(new Date()) + ".");
+        }
         document.dispatchEvent(new CustomEvent("tasks:change", { detail: { source: "reminders", task: entry.task } }));
     }
 
@@ -196,72 +242,40 @@
         var value = memory();
         value.snoozed[entry.id] = Date.now() + minutes * MINUTE;
         remember(value);
-        hide();
-        announce("Reminder moved to " + App.formatTime(new Date(value.snoozed[entry.id])) + ".");
+        forced = null;
+        if (App.inbox) {
+            App.inbox.resolve(entry.id, "snoozed", "Moved to " + App.formatTime(new Date(value.snoozed[entry.id])) + ".");
+        }
     }
 
-    /* ---------- The toast ---------- */
+    /* ---------- Messages in the health messages chat (App.inbox) ---------- */
 
-    var BELL = "<svg class=\"reminder__icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z\"/><path d=\"M10 20.5a2 2 0 0 0 4 0\"/></svg>";
+    var ACTIONS = {
+        task: [{ key: "done", label: "Done" }, { key: "snooze", label: "In 15 min" }],
+        medication: [{ key: "done", label: "Taken" }, { key: "snooze", label: "In 15 min" }],
+        exam: [{ key: "done", label: "Got it" }, { key: "snooze", label: "In 15 min" }],
+        result: [{ key: "done", label: "Seen" }]
+    };
 
-    function build() {
-        toast = document.createElement("section");
-        toast.className = "reminder";
-        toast.setAttribute("aria-label", "Reminder");
-        toast.hidden = true;
-        toast.innerHTML = BELL +
-            "<div class=\"reminder__content\"><p class=\"reminder__time\"></p><p class=\"reminder__title\"></p><p class=\"reminder__text\"></p></div>" +
-            "<div class=\"reminder__actions\">" +
-            "<button class=\"button button--primary reminder__done\" type=\"button\"><span class=\"button__text\">Done</span></button>" +
-            "<button class=\"button button--secondary reminder__snooze\" type=\"button\"><span class=\"button__text\">In 15 min</span></button>" +
-            "<a class=\"button button--tertiary reminder__open\"><span class=\"button__text\">Open</span></a>" +
-            "</div>";
-        document.body.appendChild(toast);
-        announcer = document.createElement("p");
-        announcer.className = "sr-only";
-        announcer.setAttribute("aria-live", "polite");
-        document.body.appendChild(announcer);
-        toast.querySelector(".reminder__done").addEventListener("click", function () {
-            if (shown) {
-                markDone(shown);
-            }
-        });
-        toast.querySelector(".reminder__snooze").addEventListener("click", function () {
-            if (shown) {
-                snooze(shown, 15);
-            }
-        });
-    }
-
-    function announce(text) {
-        announcer.textContent = "";
-        window.setTimeout(function () {
-            announcer.textContent = text;
-        }, 50);
-    }
-
-    // Sits just above the tab bar, like the voice caption
-    function place() {
-        var tabBar = document.querySelector(".tab-bar");
-        var rect = tabBar && !tabBar.hidden ? tabBar.getBoundingClientRect() : null;
-        var bottom = rect && rect.height ? Math.max(0, window.innerHeight - rect.top) : 0;
-        toast.style.setProperty("--reminder-bottom", Math.round(bottom) + "px");
+    function entryById(id) {
+        return plan().filter(function (entry) {
+            return entry.id === id;
+        })[0] || null;
     }
 
     function show(entry) {
-        if (shown && shown.id === entry.id && !toast.hidden) {
+        if (!App.inbox) {
             return;
         }
-        shown = entry;
-        toast.querySelector(".reminder__time").textContent = "Reminder · " + App.formatTime(new Date(entry.time));
-        toast.querySelector(".reminder__title").textContent = entry.title;
-        toast.querySelector(".reminder__text").textContent = entry.why;
-        toast.querySelector(".reminder__open").href = entry.href;
-        toast.querySelector(".reminder__open").setAttribute("aria-label", "Open: " + entry.title);
-        place();
-        toast.hidden = false;
-        announce("Reminder: " + entry.title + ". " + entry.why);
-
+        App.inbox.post({
+            id: entry.id,
+            kind: entry.kind || "task",
+            title: entry.title,
+            text: entry.why,
+            time: entry.time,
+            href: entry.href,
+            actions: ACTIONS[entry.kind] || ACTIONS.task
+        });
         var value = memory();
         if (value.spoken.indexOf(entry.id) === -1) {
             value.spoken.push(entry.id);
@@ -273,12 +287,17 @@
         }
     }
 
-    function hide() {
-        shown = null;
-        forced = null;
-        if (toast) {
-            toast.hidden = true;
+    function onAction(key, message) {
+        var entry = entryById(message.id);
+        if (!entry) {
+            return { state: "seen", note: "No longer due." };
         }
+        if (key === "done") {
+            markDone(entry);
+        } else if (key === "snooze") {
+            snooze(entry, 15);
+        }
+        return null;
     }
 
     // A device notification, only with permission and while the app is not on screen
@@ -303,16 +322,24 @@
         });
     }
 
+    // Every due item gets its message; what got done somewhere else (a ticked task, a reading) closes its message
     function check() {
+        var now = Date.now();
         if (forced) {
             show(forced);
-            return;
         }
-        var list = due(Date.now());
-        if (list.length) {
-            show(list[0]);
-        } else if (shown) {
-            hide();
+        due(now).forEach(show);
+        if (App.inbox) {
+            var byId = {};
+            plan().forEach(function (entry) {
+                byId[entry.id] = entry;
+            });
+            App.inbox.items().forEach(function (message) {
+                var entry = byId[message.id];
+                if (message.state === "pending" && entry && entry.done) {
+                    App.inbox.resolve(message.id, "done", "Done at " + App.formatTime(new Date()) + ".");
+                }
+            });
         }
     }
 
@@ -320,7 +347,9 @@
     function showNext() {
         var upcoming = next(1)[0];
         if (!upcoming) {
-            announce("Nothing left to remind today.");
+            if (App.inbox) {
+                App.inbox.post({ id: "nothing-" + Date.now(), kind: "info", title: "Nothing left to remind today", text: "Every task and dose of today is done." });
+            }
             return false;
         }
         forced = upcoming;
@@ -328,7 +357,52 @@
         return true;
     }
 
+    /*
+     * Doctor: a message for each new crew alert, in flight (SOS emergencies keep their own dialog). On the first look
+     * of the day, one message sums up the alerts already open, so the chat never floods.
+     */
+    function checkAlerts() {
+        if (!App.inbox || !App.isFlight() || !App.crew.buildAlerts) {
+            return;
+        }
+        var alerts = App.crew.buildAlerts();
+        var open = alerts.list.filter(function (alert) {
+            return alerts.statusOf(alert) !== "resolved";
+        });
+        var seen = App.inbox.seen();
+        var fresh = open.filter(function (alert) {
+            return seen.indexOf(alert.id) === -1;
+        });
+        if (!fresh.length) {
+            return;
+        }
+        var href = App.rootUrl("index.html#alerts-title");
+        if (!seen.length && fresh.length > 1) {
+            App.inbox.post({
+                id: "alerts-summary-" + App.todayKey(), kind: "alert", href: href,
+                title: fresh.length + " open alerts on the crew panel",
+                text: fresh.map(function (alert) {
+                    return alert.who + ": " + alert.title;
+                }).join(" · "),
+                actions: [{ key: "seen", label: "Seen" }]
+            });
+        } else {
+            fresh.forEach(function (alert) {
+                App.inbox.post({
+                    id: "alert-" + alert.id, kind: "alert", href: href,
+                    title: alert.who + ": " + alert.title,
+                    text: alert.text,
+                    actions: [{ key: "seen", label: "Seen" }]
+                });
+            });
+        }
+        App.inbox.markSeen(fresh.map(function (alert) {
+            return alert.id;
+        }));
+    }
+
     var astronaut = App.getSession() && (profile.key === "female" || profile.key === "male");
+    var doctor = App.getSession() && profile.key === "doctor";
 
     App.reminders = {
         today: plan,
@@ -343,18 +417,27 @@
         active: astronaut
     };
 
+    if (doctor) {
+        window.setInterval(checkAlerts, CHECK_MS);
+        document.addEventListener("symptoms:change", checkAlerts);
+        if (document.readyState === "complete") {
+            checkAlerts();
+        } else {
+            window.addEventListener("load", checkAlerts);
+        }
+        return;
+    }
     if (!astronaut) {
         return;
     }
-    build();
+    if (App.inbox) {
+        ["task", "medication", "exam", "result"].forEach(function (kind) {
+            App.inbox.on(kind, onAction);
+        });
+    }
     document.addEventListener("tasks:change", check);
     document.addEventListener("glucose:change", check);
     window.setInterval(check, CHECK_MS);
-    window.addEventListener("resize", function () {
-        if (!toast.hidden) {
-            place();
-        }
-    }, { passive: true });
     if (document.readyState === "complete") {
         check();
     } else {

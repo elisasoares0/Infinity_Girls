@@ -422,11 +422,6 @@
             : phase.key === "post"
                 ? phase.label + " · day " + phase.daysSinceLanding + " home"
                 : phase.label + " · day " + phase.missionDay + (where ? " · " + where : "")) + simulated);
-        // The emergency guide shortcut is neutral; red only when the link with Earth is lost
-        var emergencyLink = document.querySelector("[data-emergency-link]");
-        if (emergencyLink) {
-            emergencyLink.classList.toggle("app-header__emergency--urgent", isLinkLost());
-        }
     }
 
     // Presentation mode only: simulate a destination (null goes back to the assigned mission)
@@ -1115,7 +1110,6 @@
     }
 
     /*
-     * No link with Earth (in flight)    /*
      * No link with Earth (in flight): a banner on every page says the app keeps working on board
      * and points to the offline emergency procedures.
      */

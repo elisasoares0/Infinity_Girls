@@ -62,6 +62,16 @@ checkin_realizado: {},
 sequencia_dias: { range: [0, 100000] },
 conquistas_desbloqueadas: {}
 }
+},
+body_checkin: {
+columns: {
+usuario_id: { required: true },
+regiao_anatomica: { required: true },
+sintoma: { required: true },
+intensidade: { required: true, range: [1, 5] },
+protocolo_acao: {},
+resolvido: {}
+}
 }
 };
 var ENVIRONMENTS = {

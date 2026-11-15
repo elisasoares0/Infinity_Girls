@@ -390,14 +390,18 @@ dialog.close();
 state = null;
 App.store.remove("sos");
 renderBanner();
-if (message && App.voice) {
+if (App.voice) {
+App.voice.stop();
+if (message) {
 App.voice.speak(message, { priority: "info" });
 }
+}
+setCommands(false);
 }
 dialog.addEventListener("cancel", function (event) {
 event.preventDefault();
 });
-nextButton.addEventListener("click", function () {
+function nextStep(fromVoice) {
 var guide = guideOf(state);
 if (!guide) {
 return;
@@ -421,7 +425,12 @@ say("All steps done. Keep checking breathing until the crew medical officer take
 } else {
 speakStep();
 }
+if (!fromVoice) {
 nextButton.focus();
+}
+}
+nextButton.addEventListener("click", function () {
+nextStep(false);
 });
 $("[data-sos-repeat]").addEventListener("click", function () {
 if (App.voice) {
@@ -432,6 +441,9 @@ $("[data-sos-minimize]").addEventListener("click", minimize);
 $("[data-sos-cancel]").addEventListener("click", function () {
 var button = $("[data-sos-cancel]");
 if (button.getAttribute("data-confirm") !== "yes") {
+if (App.voice) {
+App.voice.stop();
+}
 button.setAttribute("data-confirm", "yes");
 button.querySelector(".button__text").textContent = "Tap again to cancel the alert";
 window.setTimeout(function () {
@@ -497,17 +509,37 @@ toggle.setAttribute("aria-pressed", on ? "true" : "false");
 toggle.querySelector(".button__text").textContent = on ? "Stop the beat" : "Start the compression beat";
 });
 })();
+var commandsStatus = $("[data-sos-commands-status]");
+var COMMAND_PROBLEMS = {
+"not-allowed": "Voice commands need the microphone. Allow it in the browser, or use the buttons.",
+"service-not-allowed": "Voice commands need the microphone. Allow it in the browser, or use the buttons.",
+"audio-capture": "No microphone found. Use the buttons.",
+network: "Voice commands need a connection. Use the buttons.",
+ended: "Voice commands stopped. Turn them on again, or use the buttons."
+};
+function setCommands(on, problem) {
+if (!on && stopListening) {
+stopListening();
+}
+if (!on) {
+stopListening = null;
+}
+commandsButton.setAttribute("aria-pressed", on ? "true" : "false");
+commandsButton.querySelector(".button__text").textContent = on ? "Stop voice commands" : "Voice commands";
+commandsStatus.textContent = on
+? "Listening. Say “next”, “repeat” or “help”. The app does not listen while it is talking."
+: problem ? COMMAND_PROBLEMS[problem] || COMMAND_PROBLEMS.ended : "";
+commandsStatus.hidden = !commandsStatus.textContent;
+}
 commandsButton.hidden = !(App.voice && App.voice.canListen());
 commandsButton.addEventListener("click", function () {
 if (stopListening) {
-stopListening();
-stopListening = null;
-commandsButton.setAttribute("aria-pressed", "false");
+setCommands(false);
 return;
 }
 stopListening = App.voice.listen({
 next: function () {
-nextButton.click();
+nextStep(true);
 },
 repeat: function () {
 App.voice.repeat();
@@ -515,8 +547,13 @@ App.voice.repeat();
 help: function () {
 say("Help is on the way. " + crewLine.textContent);
 }
+}, {
+onStop: function (reason) {
+stopListening = null;
+setCommands(false, reason);
+}
 });
-commandsButton.setAttribute("aria-pressed", stopListening ? "true" : "false");
+setCommands(Boolean(stopListening), stopListening ? null : "network");
 });
 var openAlerts = [];
 function renderBanner() {

@@ -321,10 +321,6 @@ setText("[data-phase-label]", (phase.key === "pre"
 : phase.key === "post"
 ? phase.label + " · day " + phase.daysSinceLanding + " home"
 : phase.label + " · day " + phase.missionDay + (where ? " · " + where : "")) + simulated);
-var emergencyLink = document.querySelector("[data-emergency-link]");
-if (emergencyLink) {
-emergencyLink.classList.toggle("app-header__emergency--urgent", isLinkLost());
-}
 }
 function setMode(key) {
 store.set("mode-preview", MODES[key] ? key : null);

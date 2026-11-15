@@ -377,6 +377,17 @@
 
     // Health rows of the record, by phase
     // Latest glucometer reading (assets/js/glucose.js): value, status word and time
+    // Today's body check-ins that are not better yet (assets/js/symptoms.js)
+    function symptomSummary(key) {
+        if (!App.symptoms) {
+            return "None logged";
+        }
+        var open = App.symptoms.today(key).filter(function (row) {
+            return !row.resolvido;
+        });
+        return open.length ? open.map(App.symptoms.label).join(" · ") : "None logged";
+    }
+
     function glucoseSummary(key) {
         var reading = App.glucose.latest(key);
         return reading
@@ -404,6 +415,7 @@
             ["Readiness", shared ? person.readiness + " / 100" : "Not shared"],
             ["Vital signs", shared ? vitalsSummary(key) : "Not shared by crew member"],
             ["Blood glucose", shared ? glucoseSummary(key) : "Not shared by crew member"],
+            ["Symptoms today", shared ? symptomSummary(key) : "Not shared by crew member"],
             ["Mood and sleep", privacy.mood.cmo || key === you ? person.mood : "Not shared by crew member"]
         ];
         if (key === "silva" && womens.enabled !== false && privacy.womens.cmo) {

@@ -683,16 +683,34 @@
     }
 
     // The 3D figure loads after the page is idle; until then (or without WebGL) the poster text stays
+    // WebGL can exist in the browser and still be off (hardware acceleration disabled, blocked GPU): try a context
+    function webglOn() {
+        try {
+            var canvas = document.createElement("canvas");
+            return Boolean(window.WebGLRenderingContext && (canvas.getContext("webgl2") || canvas.getContext("webgl")));
+        } catch (error) {
+            return false;
+        }
+    }
+
     function loadAstronaut() {
         var host = $("[data-astronaut-canvas]");
         var fallback = $("[data-astronaut-fallback]");
-        function unavailable() {
+        var retry = $("[data-astronaut-retry]");
+        // Says why: WebGL off (a browser setting) or a load error (network, file), which "Try again" can fix
+        function unavailable(reason) {
             fallback.hidden = false;
-            fallback.textContent = "3D view unavailable on this device. Your readings are in the cards.";
+            fallback.textContent = reason === "webgl"
+                ? "3D view unavailable: WebGL is off in this browser (turn on hardware acceleration in the browser settings). Your readings are in the cards."
+                : "Could not load the 3D view. Check the connection and try again. Your readings are in the cards.";
+            retry.hidden = reason === "webgl";
             $(".astronaut-view__controls").hidden = true;
         }
-        if (!window.WebGLRenderingContext) {
-            unavailable();
+        fallback.hidden = false;
+        fallback.textContent = "Loading the 3D astronaut…";
+        retry.hidden = true;
+        if (!webglOn()) {
+            unavailable("webgl");
             return;
         }
         import(App.rootUrl("assets/js/astronaut-3d.js")).then(function (module) {
@@ -706,6 +724,20 @@
                         openPop(key, null);
                     }
                 },
+                // Anywhere else on the body: the symptom check-in for that region (pages/home/body-checkin.js)
+                onRegion: function (region) {
+                    if (selectedKey) {
+                        closePop();
+                    }
+                    if (App.bodyCheckin) {
+                        App.bodyCheckin.open(region, null);
+                    }
+                },
+                onHover: function (region, x, y) {
+                    if (App.bodyCheckin) {
+                        App.bodyCheckin.hover(region, x, y);
+                    }
+                },
                 // The floating card follows its dot while the figure turns
                 onProject: function (key, x, y, visible) {
                     if (key === selectedKey && !pop.hidden && visible) {
@@ -717,13 +749,27 @@
         }).then(function (mounted) {
             astronaut = mounted;
             fallback.hidden = true;
+            if (App.bodyCheckin) {
+                App.bodyCheckin.attach(mounted);
+            }
+            // Nausea mode: the figure stops floating and turning on its own
+            // (checked: a cached older module without it must not stop the figure from showing)
+            if (typeof mounted.setCalm === "function") {
+                mounted.setCalm(Boolean(App.nausea && App.nausea.isOn()));
+                document.addEventListener("nausea:change", function (event) {
+                    mounted.setCalm(event.detail.on);
+                });
+            }
             host.classList.add("astronaut-view__canvas--ready");
             renderCards();
             if (selectedKey) {
                 astronaut.select(selectedKey);
             }
-        }).catch(function () {
-            unavailable();
+        }).catch(function (error) {
+            console.error("3D astronaut:", error);
+            // A half-built canvas from the failed attempt goes, so "Try again" starts clean
+            host.textContent = "";
+            unavailable("load");
         });
     }
 
@@ -816,6 +862,12 @@
         document.addEventListener("health:sample", refreshBody);
         refreshBody();
         App.whenIdle(loadAstronaut);
+        // After a load error: try again without reloading the page (focus stays on the stage text)
+        $("[data-astronaut-retry]").addEventListener("click", function () {
+            $(".astronaut-view__controls").hidden = false;
+            loadAstronaut();
+            $("[data-astronaut-fallback]").focus();
+        });
 
         // For tests: the mounted figure
         window.App.astronautView = function () {

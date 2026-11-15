@@ -183,7 +183,134 @@ dialog.innerHTML =
 "<label class=\"choice\" data-scan-camera-choice><input class=\"choice__input\" type=\"radio\" name=\"scan-source\" value=\"camera\"><span class=\"choice__label\">This device's camera, pointed at the ultrasound screen</span></label>" +
 "<label class=\"choice\"><input class=\"choice__input\" type=\"radio\" name=\"scan-source\" value=\"sample\"><span class=\"choice__label\">Example image (presentation)</span></label>" +
 "</div></fieldset>" +
-"<div class=\"scan__panel\" data-scan-panel=\"file\"><label class=\"field__label\" for=\"scan-file\">Choose the image</label><input class=\"scan__file\" id=\"scan-file\" type=\"file\" accept=\"image
+"<div class=\"scan__panel\" data-scan-panel=\"file\"><label class=\"field__label\" for=\"scan-file\">Choose the image</label><input class=\"scan__file\" id=\"scan-file\" type=\"file\" accept=\"image/*\"></div>" +
+"<div class=\"scan__panel\" data-scan-panel=\"camera\" hidden><div class=\"scan__camera\"><video class=\"scan__video\" playsinline muted aria-label=\"Camera view\"></video><span class=\"scan__target\" aria-hidden=\"true\"></span></div>" +
+"<p class=\"scan__hint\">Fit the ultrasound screen inside the frame, then capture.</p>" +
+"<button class=\"button button--secondary\" type=\"button\" data-scan-capture><span class=\"button__text\">Capture</span></button></div>" +
+"<div class=\"scan__panel\" data-scan-panel=\"sample\" hidden><button class=\"button button--secondary\" type=\"button\" data-scan-sample><span class=\"button__text\">Use the example image</span></button></div>" +
+"<p class=\"scan__status\" role=\"status\" data-scan-status></p>" +
+"<img class=\"scan__preview\" alt=\"Preview of the ultrasound image to send\" width=\"480\" height=\"360\" hidden data-scan-preview>" +
+"<div class=\"field scan__note\"><label class=\"field__label\" for=\"scan-note\">Note for the medical team (optional)</label>" +
+"<textarea class=\"field__input scan__textarea\" id=\"scan-note\" maxlength=\"500\" rows=\"3\"></textarea></div>" +
+"<button class=\"button button--primary scan__send\" type=\"button\" disabled data-scan-send><span class=\"button__text\">Send to the medical team</span></button>" +
+"</div>";
+var steps = dialog.querySelector(".scan__steps");
+STEPS.forEach(function (text) {
+var li = document.createElement("li");
+li.className = "scan__step";
+li.textContent = text;
+steps.appendChild(li);
+});
+document.body.appendChild(dialog);
+var status = dialog.querySelector("[data-scan-status]");
+var preview = dialog.querySelector("[data-scan-preview]");
+var send = dialog.querySelector("[data-scan-send]");
+var video = dialog.querySelector(".scan__video");
+if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+dialog.querySelector("[data-scan-camera-choice]").hidden = true;
+}
+function ready(blob, text) {
+pending = blob;
+if (preview.src) {
+URL.revokeObjectURL(preview.src);
+}
+preview.src = URL.createObjectURL(blob);
+preview.hidden = false;
+send.disabled = false;
+status.textContent = text;
+}
+dialog.querySelectorAll("input[name='scan-source']").forEach(function (radio) {
+radio.addEventListener("change", function () {
+dialog.querySelectorAll("[data-scan-panel]").forEach(function (panel) {
+panel.hidden = panel.getAttribute("data-scan-panel") !== radio.value;
+});
+stopCamera();
+if (radio.value === "camera") {
+status.textContent = "Starting the camera…";
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false }).then(function (media) {
+stream = media;
+video.srcObject = media;
+return video.play();
+}).then(function () {
+status.textContent = "Camera on.";
+}).catch(function () {
+status.textContent = "The camera is not available. Use the saved image from the ultrasound device.";
+});
+}
+});
+});
+dialog.querySelector("#scan-file").addEventListener("change", function (event) {
+var file = event.target.files[0];
+if (!file) {
+return;
+}
+createImageBitmap(file).then(function (bitmap) {
+return normalize(bitmap, bitmap.width, bitmap.height);
+}).then(function (blob) {
+ready(blob, "Image ready: check it and send.");
+}).catch(function () {
+status.textContent = "This file is not an image the app can read. Export a JPG, PNG or WebP from the device.";
+});
+});
+dialog.querySelector("[data-scan-capture]").addEventListener("click", function () {
+if (!stream || !video.videoWidth) {
+status.textContent = "The camera is not ready yet.";
+return;
+}
+normalize(video, video.videoWidth, video.videoHeight).then(function (blob) {
+ready(blob, "Captured: check the image and send.");
+});
+});
+dialog.querySelector("[data-scan-sample]").addEventListener("click", function () {
+toBlob(sampleCanvas("sample://" + App.getProfile().member + "/" + Date.now())).then(function (blob) {
+ready(blob, "Example image ready: check it and send.");
+});
+});
+send.addEventListener("click", function () {
+if (!pending) {
+return;
+}
+send.disabled = true;
+var note = dialog.querySelector("#scan-note").value.trim();
+save(App.getProfile().member, pending, note).then(function () {
+dialog.close();
+}).catch(function () {
+send.disabled = false;
+status.textContent = "Could not save the image on this device. Try again.";
+});
+});
+dialog.querySelector(".scan__close").addEventListener("click", function () {
+dialog.close();
+});
+dialog.addEventListener("click", function (event) {
+if (event.target === dialog) {
+dialog.close();
+}
+});
+dialog.addEventListener("close", function () {
+stopCamera();
+if (opener && document.contains(opener)) {
+opener.focus();
+}
+});
+}
+function open(from) {
+if (!dialog) {
+build();
+}
+opener = from || document.activeElement;
+pending = null;
+dialog.querySelector("[data-scan-preview]").hidden = true;
+dialog.querySelector("[data-scan-send]").disabled = true;
+dialog.querySelector("[data-scan-status]").textContent = "";
+dialog.querySelector("#scan-note").value = "";
+dialog.querySelector("#scan-file").value = "";
+var first = dialog.querySelector("input[name='scan-source'][value='file']");
+first.checked = true;
+first.dispatchEvent(new Event("change"));
+dialog.showModal();
+dialog.querySelector(".scan__close").focus();
+}
 function mountAstronaut(root) {
 var member = App.getProfile().member;
 var urls = [];

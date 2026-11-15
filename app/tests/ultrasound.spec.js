@@ -72,5 +72,5 @@ test("an Act now reading reaches the astronaut", async function ({ page }) {
     await page.goto("/pages/body/index.html#ultrasound");
     await expect(page.locator("[data-ultrasound-notice]")).toBeVisible();
     await expect(page.locator("[data-ultrasound-notice-text]")).toContainText("Act now");
-    await expect(page.locator(".reminder__title")).toHaveText("Ultrasound reading: Act now");
+    await expect(page.locator(".inbox__message-title", { hasText: "Ultrasound reading: Act now" })).toBeVisible();
 });

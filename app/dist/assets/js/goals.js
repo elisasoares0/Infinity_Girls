@@ -21,7 +21,7 @@ return date.toISOString().slice(0, 10);
 }
 function checkinOn(key) {
 return App.records.list("avaliacoes_diarias", { usuario_id: member }).filter(function (row) {
-return row.data_registro === key;
+return row.data_registro === key && row.humor_escala != null;
 })[0] || null;
 }
 function pastCheckin(date) {

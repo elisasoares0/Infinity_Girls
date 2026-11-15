@@ -73,9 +73,7 @@ function header(prefix) {
                 <div class="app-header__actions">
                     <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch to dark theme" data-theme-toggle><svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-theme-icon="moon"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg><svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-theme-icon="sun" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="theme-toggle__text" data-theme-label>Dark</span></button>
                     <button class="ask-toggle" type="button" aria-haspopup="dialog" aria-label="Ask the assistant" title="Ask the assistant" data-ask-open><svg class="ask-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v10H10l-4 3.5v-3.5H4z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg><span class="ask-toggle__text">Ask</span></button>
-                    <button class="demo-toggle" type="button" aria-haspopup="dialog" aria-controls="demo-panel" aria-label="Presentation mode (demo)" title="Presentation mode (demo)" data-demo-open><svg class="demo-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span class="demo-toggle__flag" aria-hidden="true" data-demo-badge hidden>!</span></button>
-                    <button class="sos-toggle" type="button" aria-haspopup="dialog" aria-controls="sos-dialog" aria-label="SOS: get help now" data-phases="in" data-profiles="female male doctor" data-sos-open><svg class="sos-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.1"/></svg><span class="sos-toggle__text">SOS</span></button>
-                    <a class="app-header__emergency" href="${prefix}pages/emergency/index.html" data-phases="in" data-emergency-link><svg class="app-header__emergency-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M9 5V3.5h6V5M12 9.5v6M9 12.5h6"/></svg><span class="app-header__emergency-text">Emergency guide</span></a>
+                    <button class="sos-toggle" type="button" aria-haspopup="dialog" aria-controls="sos-dialog" aria-label="SOS: get help now" data-phases="in" data-profiles="female male doctor" data-sos-open data-essential><svg class="sos-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.1"/></svg><span class="sos-toggle__text">SOS</span></button>
                 </div>
             </div>
             <p class="sr-only" aria-live="polite" data-connection-announcer></p>
@@ -90,16 +88,18 @@ function header(prefix) {
     </header>`;
 }
 
-// Footer: the same credits on every page. A note that belongs to one page goes in that page's content, not here.
+// Footer: the same credits on every page, and the Presentation mode (demo) button. A note that belongs to one page
+// goes in that page's content, not here.
 const FOOTER = `<footer class="app-footer">
         <div class="app-footer__container">
             <p class="app-footer__text">Prototype with simulated health data for the NASA Space Apps Challenge 2026. Radiation limit from the NASA Office of the Chief Health and Medical Officer. Space weather from NASA DONKI (Space Weather Database Of Notifications, Knowledge, Information).</p>
             <p class="app-footer__text">Fonts: Fira Sans and Overpass, SIL Open Font License.</p>
+            <button class="demo-toggle" type="button" aria-haspopup="dialog" aria-controls="demo-panel" aria-label="Presentation mode (demo)" title="Presentation mode (demo)" data-demo-open><svg class="demo-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span class="demo-toggle__flag" aria-hidden="true" data-demo-badge hidden>!</span></button>
         </div>
     </footer>`;
 
 /*
- * Presentation mode: the demo controls, kept apart from the real data in a dialog opened by the "Demo" button in the header.
+ * Presentation mode: the demo controls, kept apart from the real data in a dialog opened by the "Demo" button in the footer.
  * In real use the mission comes from mission control and the readings from the sensors; these only simulate them.
  */
 const DEMO = `<dialog class="demo" id="demo-panel" aria-labelledby="demo-title" data-demo-panel>
@@ -179,7 +179,7 @@ const EMERGENCY_UI = `<!-- emergency ui -->
         <p class="voice-caption__text" aria-live="polite" data-voice-caption-text></p>
     </div>
 
-    <dialog class="sos" id="sos-dialog" aria-labelledby="sos-title" data-sos>
+    <dialog class="sos" id="sos-dialog" aria-labelledby="sos-title" data-sos data-essential>
         <div class="sos__container">
             <div class="sos__head">
                 <div class="sos__heading">
@@ -212,6 +212,7 @@ const EMERGENCY_UI = `<!-- emergency ui -->
                     <button class="button button--secondary" type="button" data-sos-repeat><span class="button__text">Repeat</span></button>
                     <button class="button button--secondary" type="button" aria-pressed="false" data-sos-commands hidden><span class="button__text">Voice commands</span></button>
                 </div>
+                <p class="sos__commands" role="status" data-sos-commands-status hidden></p>
             </section>
             <div class="sos__responder-actions">
                 <button class="button button--primary" type="button" data-sos-respond hidden><span class="button__text">I'm on my way</span></button>
@@ -237,7 +238,7 @@ const EMERGENCY_UI = `<!-- emergency ui -->
     <!-- /emergency ui -->`;
 
 // Shared scripts on every page, right after app.js, in this order (each one deferred)
-const SHARED_SCRIPTS = ["crew-data.js", "records.js", "glucose.js", "health-info.js", "guides.js", "voice.js", "habitat.js", "crew-link.js", "emergency-engine.js", "reminders.js", "assistant.js"];
+const SHARED_SCRIPTS = ["crew-data.js", "records.js", "glucose.js", "health-info.js", "guides.js", "voice.js", "habitat.js", "crew-link.js", "emergency-engine.js", "inbox.js", "reminders.js", "symptoms.js", "nausea-mode.js", "assistant-data.js", "assistant.js"];
 
 function sharedScripts(html, prefix, file) {
     SHARED_SCRIPTS.forEach(function (name) {
@@ -285,9 +286,10 @@ ${items}
 /*
  * Runs before the first paint (the only inline script): sets the theme, and the session, profile and mission
  * phase as attributes on <html>, so base.css hides what this person and phase do not see before app.js runs
- * (no layout shift). The phase follows App.getPhase(): Presentation mode preview, otherwise the mission dates.
+ * (no layout shift). Also data-nausea="on" while nausea mode is on (assets/js/nausea-mode.js), so the page
+ * opens already simplified. The phase follows App.getPhase(): Presentation mode preview, otherwise the mission dates.
  */
-const THEME_INIT = '<script data-theme-init>(function(){var d=document.documentElement,g=function(k){try{return JSON.parse(localStorage.getItem("astro-health:"+k));}catch(e){return null;}},t=g("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}d.setAttribute("data-theme",t);var s=g("session"),p=s&&/^(female|male|doctor)$/.test(s.profile)?s.profile:"",v=g("phase-preview"),m=s&&s.mission,h="in";d.setAttribute("data-session",p?"in":"out");if(p){d.setAttribute("data-profile",p);}if(v==="pre"||v==="in"||v==="post"){h=v;}else if(!g("mode-preview")&&m&&!isNaN(Date.parse(m.launchDate))){var n=new Date(),a=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()),l=Date.parse(m.launchDate+"T00:00:00Z");h=a<l?"pre":a>=l+m.lengthDays*864e5?"post":"in";}d.setAttribute("data-phase",h);})();</script>';
+const THEME_INIT = '<script data-theme-init>(function(){var d=document.documentElement,g=function(k){try{return JSON.parse(localStorage.getItem("astro-health:"+k));}catch(e){return null;}},t=g("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}d.setAttribute("data-theme",t);var s=g("session"),p=s&&/^(female|male|doctor)$/.test(s.profile)?s.profile:"",v=g("phase-preview"),m=s&&s.mission,h="in";d.setAttribute("data-session",p?"in":"out");if(p){d.setAttribute("data-profile",p);}if(v==="pre"||v==="in"||v==="post"){h=v;}else if(!g("mode-preview")&&m&&!isNaN(Date.parse(m.launchDate))){var n=new Date(),a=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()),l=Date.parse(m.launchDate+"T00:00:00Z");h=a<l?"pre":a>=l+m.lengthDays*864e5?"post":"in";}d.setAttribute("data-phase",h);var x=s&&s.member&&g("nausea:"+s.member);if(p&&p!=="doctor"&&x&&x.on&&(!x.until||x.until>Date.now())){d.setAttribute("data-nausea","on");}})();</script>';
 
 function replaceOnce(html, pattern, value, file, name) {
     if (!pattern.test(html)) {
@@ -312,7 +314,7 @@ Object.keys(PAGES).forEach(function (file) {
         html = html.replace(viewport[0], viewport[0] + "\n    " + THEME_INIT);
     }
     // Older layouts: demo controls in the footer, or a floating Demo button right before the dialog. Remove them,
-    // and any dialog from a previous run, before writing the header (it holds the Demo button now) and the panel
+    // and any dialog from a previous run, before writing the header, the footer (it holds the Demo button now) and the panel
     html = html.replace(/\s*<div class="app-footer__demo">[\s\S]*?<\/div>/, "");
     html = html.replace(/\s*<button class="demo-toggle"[^\n]*<\/button>\s*<dialog class="demo"[\s\S]*?<\/dialog>/, "");
     html = html.replace(/\s*<dialog class="demo"[\s\S]*?<\/dialog>/, "");

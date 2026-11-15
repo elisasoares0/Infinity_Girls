@@ -3,7 +3,9 @@
  * and always shows the same words as a caption, so the voice is never the only channel.
  *   App.voice.speak(text, { priority: "emergency" | "info" })   emergency interrupts everything else
  *   App.voice.stop() / repeat() / isOn() / setOn(bool) / setRate(n) / canSpeak()
- *   App.voice.listen(commands)   optional voice commands ("next", "repeat", "help") when the browser has them
+ *   App.voice.listen(commands, { onStop(reason) })   optional voice commands ("next", "repeat", "help") when the
+ *   browser has them. While the app is talking (and a moment after) nothing is heard, so its own words ("Help is on
+ *   the way", "next to…") never count as a command; only a short phrase that is the command counts.
  * Browsers only speak after a tap on the page: until then, canSpeak() is false and the alert shows "Tap to hear".
  * What it says always comes from the guides and the measured values (assets/js/guides.js): it never makes up advice.
  */
@@ -20,6 +22,10 @@
     var caption = null;
     var captionText = null;
     var hideTimer = null;
+    // When the app last stopped talking: voice commands ignore what they hear until shortly after
+    var quietSince = 0;
+    var ECHO_MS = 1200;
+    var COMMAND_MAX_WORDS = 3;
 
     // Any tap or key press on the page lets the browser speak from then on
     function markActivated() {
@@ -105,6 +111,7 @@
             if (speaking === item) {
                 speaking = null;
             }
+            quietSince = Date.now();
             scheduleHide(item.priority);
             next();
         }
@@ -135,6 +142,7 @@
     function stop() {
         queue = [];
         speaking = null;
+        quietSince = Date.now();
         if (synth) {
             synth.cancel();
         }
@@ -151,8 +159,24 @@
      * Voice commands, only where the browser offers speech recognition (in Chrome it needs a connection).
      * commands: { next: fn, repeat: fn, help: fn }. Returns a stop function, or null when not available.
      */
-    function listen(commands) {
+    function isTalking() {
+        return Boolean(speaking) || queue.length > 0 || Boolean(synth && synth.speaking) || Date.now() - quietSince < ECHO_MS;
+    }
+
+    // The command in a short phrase ("next", "next step", "repeat please"), or null
+    function commandIn(said, commands) {
+        var words = said.toLowerCase().replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean);
+        if (!words.length || words.length > COMMAND_MAX_WORDS) {
+            return null;
+        }
+        return Object.keys(commands).filter(function (word) {
+            return words.indexOf(word) !== -1;
+        })[0] || null;
+    }
+
+    function listen(commands, options) {
         var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var onStop = (options && options.onStop) || function () {};
         if (!Recognition || navigator.onLine === false) {
             return null;
         }
@@ -162,12 +186,20 @@
         recognizer.continuous = true;
         recognizer.interimResults = false;
         recognizer.onresult = function (event) {
-            var said = event.results[event.results.length - 1][0].transcript.toLowerCase();
-            Object.keys(commands).forEach(function (word) {
-                if (said.indexOf(word) !== -1) {
-                    commands[word]();
-                }
-            });
+            if (isTalking()) {
+                return;
+            }
+            var command = commandIn(event.results[event.results.length - 1][0].transcript, commands);
+            if (command) {
+                commands[command]();
+            }
+        };
+        // Microphone blocked or no speech service: stop for good and say why
+        recognizer.onerror = function (event) {
+            if (event.error === "not-allowed" || event.error === "service-not-allowed" || event.error === "audio-capture" || event.error === "network") {
+                stopped = true;
+                onStop(event.error);
+            }
         };
         recognizer.onend = function () {
             if (!stopped) {
@@ -175,6 +207,7 @@
                     recognizer.start();
                 } catch (error) {
                     stopped = true;
+                    onStop("ended");
                 }
             }
         };
@@ -229,6 +262,7 @@
             return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition) && navigator.onLine !== false;
         },
         listen: listen,
+        isTalking: isTalking,
         lastText: function () {
             return last;
         }

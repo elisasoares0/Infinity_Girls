@@ -568,16 +568,31 @@ renderPop();
 renderExerciseTask();
 announceChanges();
 }
+function webglOn() {
+try {
+var canvas = document.createElement("canvas");
+return Boolean(window.WebGLRenderingContext && (canvas.getContext("webgl2") || canvas.getContext("webgl")));
+} catch (error) {
+return false;
+}
+}
 function loadAstronaut() {
 var host = $("[data-astronaut-canvas]");
 var fallback = $("[data-astronaut-fallback]");
-function unavailable() {
+var retry = $("[data-astronaut-retry]");
+function unavailable(reason) {
 fallback.hidden = false;
-fallback.textContent = "3D view unavailable on this device. Your readings are in the cards.";
+fallback.textContent = reason === "webgl"
+? "3D view unavailable: WebGL is off in this browser (turn on hardware acceleration in the browser settings). Your readings are in the cards."
+: "Could not load the 3D view. Check the connection and try again. Your readings are in the cards.";
+retry.hidden = reason === "webgl";
 $(".astronaut-view__controls").hidden = true;
 }
-if (!window.WebGLRenderingContext) {
-unavailable();
+fallback.hidden = false;
+fallback.textContent = "Loading the 3D astronaut…";
+retry.hidden = true;
+if (!webglOn()) {
+unavailable("webgl");
 return;
 }
 import(App.rootUrl("assets/js/astronaut-3d.js")).then(function (module) {
@@ -591,6 +606,19 @@ closePop();
 openPop(key, null);
 }
 },
+onRegion: function (region) {
+if (selectedKey) {
+closePop();
+}
+if (App.bodyCheckin) {
+App.bodyCheckin.open(region, null);
+}
+},
+onHover: function (region, x, y) {
+if (App.bodyCheckin) {
+App.bodyCheckin.hover(region, x, y);
+}
+},
 onProject: function (key, x, y, visible) {
 if (key === selectedKey && !pop.hidden && visible) {
 placePop(x, y);
@@ -601,13 +629,24 @@ pop.classList.toggle("body-pop--behind", !visible);
 }).then(function (mounted) {
 astronaut = mounted;
 fallback.hidden = true;
+if (App.bodyCheckin) {
+App.bodyCheckin.attach(mounted);
+}
+if (typeof mounted.setCalm === "function") {
+mounted.setCalm(Boolean(App.nausea && App.nausea.isOn()));
+document.addEventListener("nausea:change", function (event) {
+mounted.setCalm(event.detail.on);
+});
+}
 host.classList.add("astronaut-view__canvas--ready");
 renderCards();
 if (selectedKey) {
 astronaut.select(selectedKey);
 }
-}).catch(function () {
-unavailable();
+}).catch(function (error) {
+console.error("3D astronaut:", error);
+host.textContent = "";
+unavailable("load");
 });
 }
 function leadName() {
@@ -688,6 +727,11 @@ astronaut.turn((event.key === "ArrowLeft" ? -1 : 1) * Math.PI / 8);
 document.addEventListener("health:sample", refreshBody);
 refreshBody();
 App.whenIdle(loadAstronaut);
+$("[data-astronaut-retry]").addEventListener("click", function () {
+$(".astronaut-view__controls").hidden = false;
+loadAstronaut();
+$("[data-astronaut-fallback]").focus();
+});
 window.App.astronautView = function () {
 return astronaut;
 };

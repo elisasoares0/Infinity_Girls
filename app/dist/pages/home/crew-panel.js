@@ -315,6 +315,15 @@ return { level: "soon", label: "Not shared" };
 var level = alerts.memberLevel(key);
 return { level: level, label: level === "ok" ? "Fit" : LEVELS[level].label };
 }
+function symptomSummary(key) {
+if (!App.symptoms) {
+return "None logged";
+}
+var open = App.symptoms.today(key).filter(function (row) {
+return !row.resolvido;
+});
+return open.length ? open.map(App.symptoms.label).join(" · ") : "None logged";
+}
 function glucoseSummary(key) {
 var reading = App.glucose.latest(key);
 return reading
@@ -341,6 +350,7 @@ var rows = [
 ["Readiness", shared ? person.readiness + " / 100" : "Not shared"],
 ["Vital signs", shared ? vitalsSummary(key) : "Not shared by crew member"],
 ["Blood glucose", shared ? glucoseSummary(key) : "Not shared by crew member"],
+["Symptoms today", shared ? symptomSummary(key) : "Not shared by crew member"],
 ["Mood and sleep", privacy.mood.cmo || key === you ? person.mood : "Not shared by crew member"]
 ];
 if (key === "silva" && womens.enabled !== false && privacy.womens.cmo) {

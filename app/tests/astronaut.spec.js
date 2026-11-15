@@ -38,3 +38,25 @@ test("the floating card lines up its actions with the text", async function ({ p
         expect(offset).toBeLessThanOrEqual(1);
     });
 });
+
+// The service worker would answer from its cache, out of reach of page.route: blocked here
+test.describe("3D load error", function () {
+    test.use({ serviceWorkers: "block" });
+
+    test("a 3D load error says so and Try again loads it without reloading", async function ({ page }) {
+        await page.route(/emu\.glb$/, function (route) {
+            return route.abort();
+        });
+        await freshStart(page);
+        await signIn(page, "hsilva", "in");
+        const fallback = page.locator("[data-astronaut-fallback]");
+        await expect(fallback).toContainText("Could not load the 3D view", { timeout: 60000 });
+        const retry = page.locator("[data-astronaut-retry]");
+        await expect(retry).toBeVisible();
+        await page.unroute(/emu\.glb$/);
+        await retry.click();
+        await expect(page.locator(".astronaut-view__canvas--ready")).toHaveCount(1, { timeout: 90000 });
+        await expect(fallback).toBeHidden();
+        await expect(retry).toBeHidden();
+    });
+});

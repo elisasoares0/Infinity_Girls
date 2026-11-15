@@ -448,9 +448,13 @@
         state = null;
         App.store.remove("sos");
         renderBanner();
-        if (message && App.voice) {
-            App.voice.speak(message, { priority: "info" });
+        if (App.voice) {
+            App.voice.stop();
+            if (message) {
+                App.voice.speak(message, { priority: "info" });
+            }
         }
+        setCommands(false);
     }
 
     // Esc does not dismiss an active emergency: "Minimize" does, on purpose
@@ -458,7 +462,7 @@
         event.preventDefault();
     });
 
-    nextButton.addEventListener("click", function () {
+    function nextStep(fromVoice) {
         var guide = guideOf(state);
         if (!guide) {
             return;
@@ -483,7 +487,14 @@
         } else {
             speakStep();
         }
-        nextButton.focus();
+        // A voice command never moves focus or scrolls: the button under the finger stays where it is
+        if (!fromVoice) {
+            nextButton.focus();
+        }
+    }
+
+    nextButton.addEventListener("click", function () {
+        nextStep(false);
     });
 
     $("[data-sos-repeat]").addEventListener("click", function () {
@@ -498,6 +509,9 @@
         // Confirm in place: a second tap within 5 s cancels (no extra pop-up over the emergency)
         var button = $("[data-sos-cancel]");
         if (button.getAttribute("data-confirm") !== "yes") {
+            if (App.voice) {
+                App.voice.stop();
+            }
             button.setAttribute("data-confirm", "yes");
             button.querySelector(".button__text").textContent = "Tap again to cancel the alert";
             window.setTimeout(function () {
@@ -569,18 +583,43 @@
         });
     })();
 
-    // Voice commands, only where the browser can listen
+    /*
+     * Voice commands, only where the browser can listen: hands-free "next", "repeat" and "help".
+     * The button says what it does now, and the line under it says whether the app is listening (or why it cannot).
+     */
+    var commandsStatus = $("[data-sos-commands-status]");
+    var COMMAND_PROBLEMS = {
+        "not-allowed": "Voice commands need the microphone. Allow it in the browser, or use the buttons.",
+        "service-not-allowed": "Voice commands need the microphone. Allow it in the browser, or use the buttons.",
+        "audio-capture": "No microphone found. Use the buttons.",
+        network: "Voice commands need a connection. Use the buttons.",
+        ended: "Voice commands stopped. Turn them on again, or use the buttons."
+    };
+
+    function setCommands(on, problem) {
+        if (!on && stopListening) {
+            stopListening();
+        }
+        if (!on) {
+            stopListening = null;
+        }
+        commandsButton.setAttribute("aria-pressed", on ? "true" : "false");
+        commandsButton.querySelector(".button__text").textContent = on ? "Stop voice commands" : "Voice commands";
+        commandsStatus.textContent = on
+            ? "Listening. Say “next”, “repeat” or “help”. The app does not listen while it is talking."
+            : problem ? COMMAND_PROBLEMS[problem] || COMMAND_PROBLEMS.ended : "";
+        commandsStatus.hidden = !commandsStatus.textContent;
+    }
+
     commandsButton.hidden = !(App.voice && App.voice.canListen());
     commandsButton.addEventListener("click", function () {
         if (stopListening) {
-            stopListening();
-            stopListening = null;
-            commandsButton.setAttribute("aria-pressed", "false");
+            setCommands(false);
             return;
         }
         stopListening = App.voice.listen({
             next: function () {
-                nextButton.click();
+                nextStep(true);
             },
             repeat: function () {
                 App.voice.repeat();
@@ -588,8 +627,13 @@
             help: function () {
                 say("Help is on the way. " + crewLine.textContent);
             }
+        }, {
+            onStop: function (reason) {
+                stopListening = null;
+                setCommands(false, reason);
+            }
         });
-        commandsButton.setAttribute("aria-pressed", stopListening ? "true" : "false");
+        setCommands(Boolean(stopListening), stopListening ? null : "network");
     });
 
     /* ---------- Banner on every page while an alert is open ---------- */

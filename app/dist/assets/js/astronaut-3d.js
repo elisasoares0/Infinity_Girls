@@ -14,6 +14,15 @@ spo2: [0.25, 0.62],
 hydration: [0.5, 0.52],
 exercise: [0.6, 0.3]
 };
+const REGION_LIMITS = { head: 0.82, legs: 0.47, arms: 0.2, back: 0.08, chest: 0.665 };
+const REGION_SHAPES = {
+cabeca: [[0.5, 0.905, 0, 0.14, 0.085, 0.42]],
+torax: [[0.5, 0.74, 0.12, 0.19, 0.085, 0.36]],
+abdomen: [[0.5, 0.57, 0.12, 0.18, 0.095, 0.34]],
+costas: [[0.5, 0.66, -0.2, 0.19, 0.15, 0.3]],
+bracos: [[0.235, 0.67, 0, 0.075, 0.15, 0.3], [0.765, 0.67, 0, 0.075, 0.15, 0.3]],
+pernas: [[0.4, 0.24, 0, 0.1, 0.23, 0.3], [0.6, 0.24, 0, 0.1, 0.23, 0.3]]
+};
 function token(name) {
 return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
@@ -144,6 +153,7 @@ await nextFrame();
 }
 export async function mountAstronaut(host, options) {
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let still = reduced;
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -169,7 +179,8 @@ danger: token("--color-status-danger-line"),
 silent: token("--color-suit"),
 light: token("--color-3d-light"),
 ground: token("--color-visor"),
-rim: token("--color-projection")
+rim: token("--color-projection"),
+region: token("--color-3d-region")
 };
 scene.add(new THREE.HemisphereLight(colors.light, colors.ground, 0.6));
 const key = new THREE.DirectionalLight(colors.light, 1.8);
@@ -280,6 +291,56 @@ group.add(dot, halo, outer, beacon, hit);
 hits.push(hit);
 markers[name] = { group: group, dot: dot, halo: halo, outer: outer, ring: beacon, material: material, haloMaterial: haloMaterial, status: "ok" };
 });
+const bodyBox = new THREE.Box3().setFromObject(model);
+const bodySize = bodyBox.getSize(new THREE.Vector3());
+const bodyMid = bodyBox.getCenter(new THREE.Vector3());
+const local = new THREE.Vector3();
+function regionOf(point) {
+root.worldToLocal(local.copy(point));
+const fx = (local.x - bodyBox.min.x) / bodySize.x;
+const fy = (local.y - bodyBox.min.y) / bodySize.y;
+if (fy >= REGION_LIMITS.head) {
+return "cabeca";
+}
+if (fy < REGION_LIMITS.legs) {
+return "pernas";
+}
+if (Math.abs(fx - 0.5) > REGION_LIMITS.arms) {
+return "bracos";
+}
+if (local.z < bodyMid.z - bodySize.z * REGION_LIMITS.back) {
+return "costas";
+}
+return fy >= REGION_LIMITS.chest ? "torax" : "abdomen";
+}
+const regionGlow = {};
+const glowMaterial = new THREE.MeshBasicMaterial({ color: colors.region, transparent: true, opacity: 0.4, depthWrite: false, depthTest: false });
+Object.keys(REGION_SHAPES).forEach(function (name) {
+const group = new THREE.Group();
+REGION_SHAPES[name].forEach(function (shape) {
+const blob = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), glowMaterial);
+blob.position.set(bodyBox.min.x + shape[0] * bodySize.x, bodyBox.min.y + shape[1] * bodySize.y, bodyMid.z + shape[2] * bodySize.z);
+blob.scale.set(shape[3] * bodySize.x, shape[4] * bodySize.y, shape[5] * bodySize.z);
+blob.renderOrder = 2;
+group.add(blob);
+});
+group.visible = false;
+root.add(group);
+regionGlow[name] = group;
+});
+let hovered = null;
+let pinned = null;
+function paintRegions() {
+const lit = hovered || pinned;
+Object.keys(regionGlow).forEach(function (name) {
+regionGlow[name].visible = name === lit;
+});
+wake();
+}
+function highlight(name) {
+pinned = regionGlow[name] ? name : null;
+paintRegions();
+}
 let selected = null;
 let angle = -0.3;
 let target = null;
@@ -363,13 +424,16 @@ wake();
 });
 canvas.addEventListener("pointermove", function (event) {
 if (!dragging) {
+if (event.pointerType === "mouse") {
+hover(event.clientX, event.clientY);
+}
 return;
 }
 const dx = event.clientX - lastX;
 lastX = event.clientX;
 moved = Math.max(moved, Math.abs(event.clientX - startX));
 angle += dx * 0.012;
-velocity = reduced ? 0 : dx * 0.012;
+velocity = still ? 0 : dx * 0.012;
 });
 canvas.addEventListener("pointerup", function (event) {
 dragging = false;
@@ -380,20 +444,71 @@ pick(event.clientX, event.clientY);
 canvas.addEventListener("pointercancel", function () {
 dragging = false;
 });
-function pick(clientX, clientY) {
+canvas.addEventListener("pointerleave", function () {
+clearHover();
+});
+let hoverAt = null;
+let hoverTimer = 0;
+function clearHover() {
+hoverAt = null;
+if (hovered !== null) {
+hovered = null;
+paintRegions();
+}
+canvas.classList.remove("astronaut-view__canvas-el--pointer");
+if (options.onHover) {
+options.onHover(null);
+}
+}
+function hover(clientX, clientY) {
+hoverAt = [clientX, clientY];
+if (hoverTimer) {
+return;
+}
+hoverTimer = setTimeout(function () {
+hoverTimer = 0;
+if (!hoverAt || dragging) {
+return;
+}
+const found = hitAt(hoverAt[0], hoverAt[1]);
+const name = found && !found.dot ? found.region : null;
+canvas.classList.toggle("astronaut-view__canvas-el--pointer", Boolean(found));
+if (name !== hovered) {
+hovered = name;
+paintRegions();
+}
+if (options.onHover) {
+const rect = canvas.getBoundingClientRect();
+options.onHover(name, hoverAt[0] - rect.left, hoverAt[1] - rect.top);
+}
+}, 80);
+}
+function hitAt(clientX, clientY) {
 const rect = canvas.getBoundingClientRect();
 pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
 raycaster.setFromCamera(pointer, camera);
 const found = raycaster.intersectObjects(hits.concat(bodyMeshes), false);
 if (!found.length) {
-return;
+return null;
 }
 const first = found[0];
 const nearby = first.object.userData.key ? first : found.filter(function (entry) {
 return entry.object.userData.key && entry.distance - first.distance < dotSize * 4;
 })[0];
 if (nearby) {
-options.onSelect(nearby.object.userData.key);
+return { dot: nearby.object.userData.key };
+}
+const body = found.filter(function (entry) {
+return !entry.object.userData.key;
+})[0];
+return body ? { region: regionOf(body.point) } : null;
+}
+function pick(clientX, clientY) {
+const found = hitAt(clientX, clientY);
+if (found && found.dot) {
+options.onSelect(found.dot);
+} else if (found && found.region && options.onRegion) {
+options.onRegion(found.region);
 }
 }
 const projected = new THREE.Vector3();
@@ -423,7 +538,7 @@ wake();
 function draw() {
 const time = clock.getElapsedTime();
 if (target !== null) {
-angle += (target - angle) * (reduced ? 1 : 0.12);
+angle += (target - angle) * (still ? 1 : 0.12);
 if (Math.abs(target - angle) < 0.002) {
 angle = target;
 target = null;
@@ -433,12 +548,18 @@ angle += velocity;
 velocity *= 0.92;
 }
 figure.rotation.y = angle;
-shift += (shiftTarget - shift) * (reduced ? 1 : 0.15);
+shift += (shiftTarget - shift) * (still ? 1 : 0.15);
 if (Math.abs(shiftTarget - shift) < 0.001) {
 shift = shiftTarget;
 }
 figure.position.x = shift;
-if (!reduced) {
+if (still) {
+figure.position.y = 0;
+figure.rotation.z = 0;
+KEYS.forEach(function (name) {
+markers[name].halo.scale.setScalar(1);
+});
+} else {
 figure.position.y = Math.sin(time * 0.9) * 0.05;
 figure.rotation.z = Math.sin(time * 0.6) * 0.015;
 KEYS.forEach(function (name) {
@@ -459,7 +580,7 @@ renderer.render(scene, camera);
 project();
 }
 function busy() {
-return !reduced || dragging || target !== null || Math.abs(velocity) > 0.0005 || shift !== shiftTarget;
+return !still || dragging || target !== null || Math.abs(velocity) > 0.0005 || shift !== shiftTarget;
 }
 function loop() {
 frame = 0;
@@ -487,12 +608,32 @@ if ("ResizeObserver" in window) {
 new ResizeObserver(resize).observe(host);
 }
 resize();
+function setCalm(on) {
+still = reduced || Boolean(on);
+if (still) {
+velocity = 0;
+}
+wake();
+}
 return {
 setStatus: setStatus,
 select: select,
 turn: turn,
 setShift: setShift,
+highlight: highlight,
+setCalm: setCalm,
 keys: KEYS,
+regions: Object.keys(REGION_SHAPES),
+regionScreen: function (name) {
+figure.updateMatrixWorld(true);
+const point = regionGlow[name].children[0].getWorldPosition(new THREE.Vector3()).project(camera);
+return { x: (point.x + 1) / 2 * host.clientWidth, y: (1 - point.y) / 2 * host.clientHeight };
+},
+regionAt: function (x, y) {
+const rect = canvas.getBoundingClientRect();
+const found = hitAt(rect.left + x, rect.top + y);
+return found ? found.dot || found.region : null;
+},
 screenOf: function (name) {
 figure.updateMatrixWorld(true);
 const point = markers[name].group.getWorldPosition(new THREE.Vector3()).project(camera);
