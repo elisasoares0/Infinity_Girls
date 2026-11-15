@@ -21,6 +21,8 @@
     <script src="../../assets/js/app.js" defer></script>
     <script src="../../assets/js/crew-data.js" defer></script>
     <script src="../../assets/js/records.js" defer></script>
+    <script src="../../assets/js/api.js" defer></script>
+    <script src="../../assets/js/sync.js" defer></script>
     <script src="../../assets/js/glucose.js" defer></script>
     <script src="../../assets/js/health-info.js" defer></script>
     <script src="../../assets/js/guides.js" defer></script>
@@ -33,7 +35,7 @@
     <script src="../../assets/js/symptoms.js" defer></script>
     <script src="../../assets/js/nausea-mode.js" defer></script>
     <script src="../../assets/js/assistant-data.js" defer></script>
-    <script src="../../assets/js/assistant.js" defer></script>
+    <script src="../../assets/js/assistant.js" defer></script>
     <script src="../../assets/js/accounts.js" defer></script>
     <script src="profile.js" defer></script>
 </head>
@@ -109,12 +111,13 @@
                     <h2 class="card__title" id="personal-title">Personal data</h2>
                     <dl class="account__data">
                         <div class="account__row"><dt class="account__label">Full name</dt><dd class="account__value" data-personal="name"></dd></div>
-                        <div class="account__row"><dt class="account__label">NASA ID</dt><dd class="account__value" data-personal="nasaId"></dd></div>
+                        <div class="account__row" data-personal-nasa-row><dt class="account__label">NASA ID</dt><dd class="account__value" data-personal="nasaId"></dd></div>
                         <div class="account__row"><dt class="account__label" data-personal-id-label>Astronaut ID</dt><dd class="account__value" data-personal="idNumber"></dd></div>
                         <div class="account__row"><dt class="account__label">Role</dt><dd class="account__value" data-personal="roleLabel"></dd></div>
                         <div class="account__row"><dt class="account__label">Sex</dt><dd class="account__value" data-personal="sex"></dd></div>
                         <div class="account__row"><dt class="account__label">Age</dt><dd class="account__value" data-personal="age"></dd></div>
                         <div class="account__row"><dt class="account__label">Date of birth</dt><dd class="account__value" data-personal="birthDate"></dd></div>
+                        <div class="account__row"><dt class="account__label">Health records</dt><dd class="account__value" aria-live="polite" data-sync-status>Saved on this device</dd></div>
                     </dl>
                     <p class="personal__note" data-personal-note></p>
                     <p class="personal__status" role="status" data-personal-status></p>
@@ -127,7 +130,7 @@
 
                     <form class="personal__form" id="personal-edit" novalidate data-personal-form="edit" hidden>
                         <h3 class="personal__form-title">Edit personal data</h3>
-                        <p class="field__hint">Your NASA ID and your astronaut ID or CRM cannot be changed here.</p>
+                        <p class="field__hint">Your astronaut ID or CRM cannot be changed here.</p>
                         <div class="field personal__field">
                             <label class="field__label" for="edit-name">Full name</label>
                             <input class="field__input" id="edit-name" name="name" type="text" autocomplete="name" aria-describedby="edit-name-error">

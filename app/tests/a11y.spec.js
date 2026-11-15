@@ -1,5 +1,5 @@
 // Accessibility: no axe WCAG A/AA violations on the main pages, in both themes @a11y
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn, setTheme, expectNoA11yViolations } = require("./helpers");
 
 const ASTRONAUT_PAGES = ["/index.html", "/pages/vitals/index.html", "/pages/body/index.html", "/pages/privacy/index.html", "/pages/profile/index.html", "/pages/womens-health/index.html", "/pages/learn/index.html"];

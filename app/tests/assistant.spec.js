@@ -1,5 +1,5 @@
 // Ask the assistant: local search over the app's own guides, with the source, a fallback and SOS for emergencies
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn, setTheme, expectNoA11yViolations } = require("./helpers");
 
 async function start(page, phase) {

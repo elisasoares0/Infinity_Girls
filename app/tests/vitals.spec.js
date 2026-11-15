@@ -1,5 +1,5 @@
 // Vitals Overall: one numbered square per mission day
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test("Overall shows one numbered square per day of the long mission", async function ({ page }) {

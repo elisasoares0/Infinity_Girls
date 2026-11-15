@@ -1,5 +1,5 @@
 // Surface context on the Moon and Mars: transit, base or rover traverse change the header, readiness, tasks and map
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 async function simulate(page, values) {

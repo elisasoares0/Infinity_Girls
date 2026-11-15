@@ -1,8 +1,8 @@
 /*
  * Health records shaped like the backend (App.records).
  * Tables and columns keep the backend names (../db/schema.sql, Supabase/Postgres), which are external identifiers in
- * Portuguese; the rest of the app speaks English. Today the rows are saved on this device (App.store,
- * "records:<table>"); a future integration only needs to swap the storage functions below for Supabase calls.
+ * Portuguese; the rest of the app speaks English. Rows are saved on this device first (App.store, "records:<table>"),
+ * so the app works offline; each write fires "records:change", and App.sync (assets/js/sync.js) sends it to the API.
  *   App.records.insert(table, row) → the saved row (with id and registrado_em), or throws on an invalid row
  *   App.records.list(table, { usuario_id }) → rows, newest first
  *   App.records.latest(table, usuario_id) → the newest row or null
@@ -32,6 +32,8 @@
                 ambiente_missao: { values: ["nave", "estacao", "lua_base", "lua_rover", "marte_base", "marte_rover"] },
                 frequencia_cardiaca_bpm: { required: true, range: [20, 250] },
                 pressao_arterial_mmhg: { required: true, range: [40, 300] },
+                // The systolic is pressao_arterial_mmhg; the diastolic was added by SGBD/ajustes_api.sql
+                pressao_diastolica_mmhg: { range: [30, 160] },
                 oxigenacao_spo2: { required: true, range: [50, 100] },
                 glicose_mg_dl: { required: true, range: [0.1, 9999] },
                 cetonas_mmol: {},
@@ -201,7 +203,12 @@
         });
     }
 
-    /* ---------- Storage: on this device today, Supabase later ---------- */
+    /* ---------- Storage: on this device first; App.sync (assets/js/sync.js) sends the changes to the API ---------- */
+
+    // Tells App.sync (and anyone else) that a row was written: { op: "insert" | "update" | "remove", table, row }
+    function changed(op, table, row) {
+        document.dispatchEvent(new CustomEvent("records:change", { detail: { op: op, table: table, row: row } }));
+    }
 
     function readTable(table) {
         var rows = App.store.get("records:" + table, []);
@@ -227,6 +234,10 @@
         saved[SCHEMA[table].stamp || "registrado_em"] = at || new Date().toISOString();
         rows.unshift(saved);
         writeTable(table, rows);
+        // Example rows seeded with a past time stay on this device
+        if (!at) {
+            changed("insert", table, saved);
+        }
         return saved;
     }
 
@@ -261,6 +272,7 @@
             rows[index][SCHEMA[table].stamp] = new Date().toISOString();
         }
         writeTable(table, rows);
+        changed("update", table, rows[index]);
         return rows[index];
     }
 

@@ -1,5 +1,5 @@
 // Daily goals: ring + text list, check-in saved as avaliacoes_diarias, gamificacao_metas row, achievements, celebration
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 async function start(page) {

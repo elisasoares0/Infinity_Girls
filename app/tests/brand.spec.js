@@ -1,5 +1,5 @@
 // Astro Health brand: logo in the header, About & Credits and the design system page
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn, setTheme, expectNoA11yViolations } = require("./helpers");
 
 async function open(page, path) {

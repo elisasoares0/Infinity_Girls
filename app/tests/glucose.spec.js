@@ -1,5 +1,5 @@
 // Blood glucose: guided reading (typed or Bluetooth), backend-shaped rows, recheck, emergency and the doctor's view
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn, setTheme, expectNoA11yViolations } = require("./helpers");
 
 // No real crew alerts from these tests: the app behaves as offline for Firebase

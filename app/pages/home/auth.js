@@ -117,7 +117,7 @@
         var password = fieldOf(signinForm, "password").value;
         var errors = {};
         if (!nasaId.trim()) {
-            errors.nasaId = "Enter your NASA ID.";
+            errors.nasaId = "Enter your crew ID or NASA ID.";
         }
         if (!password) {
             errors.password = "Enter your password.";
@@ -167,7 +167,6 @@
         clearErrors(signupForm);
         var sex = signupForm.querySelector("input[name='sex']:checked");
         var data = {
-            nasaId: fieldOf(signupForm, "nasaId").value,
             name: fieldOf(signupForm, "name").value,
             idNumber: idInput.value,
             sex: sex ? sex.value : "",
@@ -240,7 +239,7 @@
         markActive();
     });
 
-    /* ---------- Demo accounts: one tap fills the sign-in form ---------- */
+    /* ---------- Demo accounts: one tap fills the sign-in form with the crew ID (the server login) ---------- */
     accounts.demoAccounts().then(function (list) {
         var target = root.querySelector("[data-auth-demo]");
         list.forEach(function (account) {
@@ -250,17 +249,23 @@
                 "<div class=\"auth__demo-text\"><p class=\"auth__demo-name\"></p><p class=\"auth__demo-meta\"></p></div>" +
                 "<button class=\"button button--secondary\" type=\"button\"><span class=\"button__text\">Use this account</span></button>";
             li.querySelector(".auth__demo-name").textContent = account.name;
-            li.querySelector(".auth__demo-meta").textContent = accounts.roleLabels[account.role] + (account.role === "astronaut" ? " (" + account.sex.toLowerCase() + ")" : "") + " · NASA ID " + account.nasaId + " · " + account.idNumber;
+            li.querySelector(".auth__demo-meta").textContent = accounts.roleLabels[account.role] + (account.role === "astronaut" ? " (" + account.sex.toLowerCase() + ")" : "") + " · " + account.idNumber;
             var button = li.querySelector("button");
             button.setAttribute("aria-label", "Use the account of " + account.name);
             button.addEventListener("click", function () {
                 selectTab("signin", false);
                 clearErrors(signinForm);
-                fieldOf(signinForm, "nasaId").value = account.nasaId;
+                // The crew ID signs in on the health server (created there from this account the first time)
+                fieldOf(signinForm, "nasaId").value = account.idNumber;
                 fieldOf(signinForm, "password").value = accounts.demoPassword;
                 signinForm.querySelector(".auth__submit").focus();
             });
             target.appendChild(li);
         });
     });
+
+    // Wake the health server while the person types (the free plan sleeps after 15 idle minutes)
+    if (window.App.api) {
+        window.App.api.wake();
+    }
 })();

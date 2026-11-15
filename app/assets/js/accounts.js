@@ -13,6 +13,12 @@
  * The role comes from the ID: "AST-1234" is an astronaut, "CRM-SP 123456" (or "CRM 123456/SP") is a doctor.
  * Astronauts see the module of their sex; every account uses the simulated health data of the crew member
  * with the same profile (assets/js/crew-data.js), with its own name and ID.
+ *
+ * Crew accounts on the server (App.api, assets/js/api.js):
+ *   - signing in with an ID (AST-1234 / CRM-SP 123456) checks the password on the server;
+ *     signing in with a NASA ID (hsilva) keeps working on this device only, as before (test accounts, offline);
+ *   - creating an account creates it on the server; with no connection it is created on this device instead;
+ *   - a copy of a server account is kept here ({ remote: true }, no password) so the Profile page can edit it.
  */
 (function () {
     "use strict";
@@ -264,6 +270,8 @@
             profile: profile,
             member: account.member || MEMBER_BY_PROFILE[profile],
             demo: Boolean(account.demo),
+            remote: Boolean(account.remote),
+            userId: account.userId || null,
             mission: mission
         });
     }
@@ -280,44 +288,137 @@
         });
     }
 
-    // Resolves with the account, or rejects with a message that never says which part was wrong.
-    // missionId: the flight phase chosen on the sign-in screen
-    function signIn(nasaId, password, missionId) {
-        var id = normalizeNasaId(nasaId);
-        return findAccount(id).then(function (account) {
-            if (!account) {
-                throw new Error("NASA ID or password is not correct.");
+    // Local copy of a server account. extra.nasaId keeps the NASA ID typed at sign-up for display
+    function remoteAccount(user, extra) {
+        var known = localAccounts().filter(function (account) {
+            return account.remote && account.idNumber === user.idNumber;
+        })[0];
+        return {
+            nasaId: (extra && extra.nasaId) || (known && known.nasaId) || user.idNumber,
+            name: user.name,
+            idNumber: user.idNumber,
+            role: user.role,
+            sex: user.sex || "",
+            birthDate: user.birthDate,
+            userId: user.id,
+            remote: true,
+            demo: false
+        };
+    }
+
+    function keepRemote(account) {
+        saveLocal(localAccounts().filter(function (item) {
+            return item.nasaId !== account.nasaId && !(item.remote && item.idNumber === account.idNumber);
+        }).concat(account));
+        return account;
+    }
+
+    var LINK_WAIT_MS = 15000;
+
+    /*
+     * An account checked on this device (NASA ID sign-in) also signs in on the health server with its ID and the same
+     * password, so App.sync can send its records. The first time, the server account does not exist yet: it is
+     * created from this account's data. Never blocks the sign-in for long (the page reloads right after it):
+     * after LINK_WAIT_MS, with no connection or with a different password on the server, the person goes on
+     * on this device only. Resolves with "linked", "created" or "local".
+     */
+    function linkServer(account, password) {
+        if (!App.api || !account.idNumber) {
+            return Promise.resolve("local");
+        }
+        // Never keep someone else's server session on this device
+        if (App.api.isSignedIn()) {
+            App.api.signOut();
+        }
+        var link = App.api.signIn(account.idNumber, password).then(function () {
+            return "linked";
+        }, function (problem) {
+            if (!problem || problem.status !== 401) {
+                return "local";
+            }
+            // "ID or password is incorrect": the ID is not on the server yet (or has another password there)
+            return App.api.register({
+                idNumber: account.idNumber,
+                name: account.name,
+                password: password,
+                birthDate: account.birthDate,
+                sex: account.role === "astronaut" ? account.sex : null
+            }).then(function () {
+                return "created";
+            }, function () {
+                return "local";
+            });
+        });
+        var wait = new Promise(function (resolve) {
+            window.setTimeout(function () {
+                resolve("local");
+            }, LINK_WAIT_MS);
+        });
+        return Promise.race([link, wait]);
+    }
+
+    function signInLocal(nasaId, password, missionId) {
+        return findAccount(nasaId).then(function (account) {
+            if (!account || !account.hash) {
+                throw new Error("ID or password is not correct.");
             }
             return hashPassword(account.salt, password).then(function (hash) {
                 if (hash !== account.hash) {
-                    throw new Error("NASA ID or password is not correct.");
+                    throw new Error("ID or password is not correct.");
                 }
-                return startSession(account, missionId).then(function () {
+                return linkServer(account, password).then(function () {
+                    return startSession(account, missionId);
+                }).then(function () {
                     return account;
                 });
             });
         });
     }
 
-    // data: { nasaId, name, password, confirm, idNumber, sex, birthDate }. Rejects with { errors } or an Error.
-    // A new account opens in the last chosen phase, or in flight
-    function register(data) {
-        var errors = check(data, ["nasaId", "name", "idNumber", "sex", "birthDate", "password", "confirm"]);
-        if (Object.keys(errors).length) {
-            return Promise.reject({ errors: errors });
+    // Resolves with the account, or rejects with a message that never says which part was wrong.
+    // login: a NASA ID (this device) or an ID like AST-1234 (server). missionId: the flight phase chosen on the sign-in screen
+    function signIn(login, password, missionId) {
+        var who = identify(login);
+        if (!who) {
+            return signInLocal(normalizeNasaId(login), password, missionId);
         }
-        var who = identify(data.idNumber);
-        var nasaId = normalizeNasaId(data.nasaId);
+        // An account on this device with this ID (a test account, or one created offline); signInLocal also links it
+        // to the server, creating it there the first time
+        function onThisDevice(problem) {
+            return load().then(function (list) {
+                var local = list.filter(function (account) {
+                    return account.idNumber === who.idNumber && account.hash;
+                })[0];
+                if (!local) {
+                    throw new Error((problem && problem.message) || "ID or password is not correct.");
+                }
+                return signInLocal(local.nasaId, password, missionId);
+            });
+        }
+        if (!App.api) {
+            return onThisDevice(null);
+        }
+        return App.api.signIn(who.idNumber, password).then(function (user) {
+            var account = keepRemote(remoteAccount(user));
+            return startSession(account, missionId).then(function () {
+                return account;
+            });
+        }, function (problem) {
+            // No connection, or not on the server yet
+            if (problem && (problem.offline || problem.status === 401)) {
+                return onThisDevice(problem);
+            }
+            throw new Error((problem && problem.message) || "Could not sign in. Try again.");
+        });
+    }
+
+    // The account on this device only (no connection to the server)
+    function registerLocal(data, who, nasaId) {
         return load().then(function (list) {
             if (list.some(function (account) {
-                return account.nasaId === nasaId;
+                return account.idNumber === who.idNumber || account.nasaId === nasaId;
             })) {
-                throw { errors: { nasaId: "This NASA ID already has an account. Sign in instead." } };
-            }
-            if (list.some(function (account) {
-                return account.idNumber === who.idNumber;
-            })) {
-                throw { errors: { idNumber: "This ID is already linked to another account." } };
+                throw { errors: { idNumber: "This ID already has an account. Sign in with it instead." } };
             }
             var salt = newSalt();
             return hashPassword(salt, data.password).then(function (hash) {
@@ -338,6 +439,45 @@
                     return account;
                 });
             });
+        });
+    }
+
+    // data: { name, password, confirm, idNumber, sex, birthDate }. Rejects with { errors } or an Error.
+    // The ID (AST-1234 / CRM-SP 123456) is the login, as on the server; only the test accounts also have a NASA ID.
+    // The account is created on the server; with no connection, on this device.
+    // A new account opens in the last chosen phase, or in flight
+    function register(data) {
+        var errors = check(data, ["name", "idNumber", "sex", "birthDate", "password", "confirm"]);
+        if (Object.keys(errors).length) {
+            return Promise.reject({ errors: errors });
+        }
+        var who = identify(data.idNumber);
+        var nasaId = who.idNumber;
+        if (!App.api) {
+            return registerLocal(data, who, nasaId);
+        }
+        return App.api.register({
+            idNumber: who.idNumber,
+            name: String(data.name).trim(),
+            password: data.password,
+            birthDate: data.birthDate,
+            sex: who.role === "astronaut" ? data.sex : null
+        }).then(function (user) {
+            var account = keepRemote(remoteAccount(user, { nasaId: nasaId }));
+            return startSession(account).then(function () {
+                return account;
+            });
+        }, function (problem) {
+            if (problem && problem.offline) {
+                return registerLocal(data, who, nasaId);
+            }
+            if (problem && problem.status === 409) {
+                throw { errors: { idNumber: "This ID already has an account. Sign in with it instead." } };
+            }
+            if (problem && problem.fields) {
+                throw { errors: problem.fields };
+            }
+            throw new Error((problem && problem.message) || "Could not create the account. Try again.");
         });
     }
 
@@ -387,6 +527,9 @@
             return Promise.reject({ errors: errors });
         }
         return saveCurrent(function (account) {
+            if (account.remote) {
+                throw { errors: { current: "Crew account passwords are changed by mission control for now." } };
+            }
             return hashPassword(account.salt, oldPassword).then(function (hash) {
                 if (hash !== account.hash) {
                     throw { errors: { current: "Your current password is not correct." } };
@@ -409,6 +552,9 @@
             return account.nasaId !== session.nasaId;
         }));
         store.remove("session");
+        if (App.api) {
+            App.api.signOut();
+        }
         return Promise.resolve();
     }
 

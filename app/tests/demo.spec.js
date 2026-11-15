@@ -1,5 +1,5 @@
 // Presentation mode: no hint text under the fields; the automatic option names the real value
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test("Presentation mode shows the real value in each automatic option", async function ({ page }) {

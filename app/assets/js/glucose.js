@@ -142,6 +142,7 @@
             ambiente_missao: App.records.environment(member),
             frequencia_cardiaca_bpm: Math.round(vitals.hr),
             pressao_arterial_mmhg: Math.round(vitals.bp * 10) / 10,
+            pressao_diastolica_mmhg: Math.round(App.crew.todayDiastolic(member) * 10) / 10,
             oxigenacao_spo2: Math.round(vitals.spo2 * 10) / 10,
             glicose_mg_dl: value,
             temperatura_celsius: Math.round(vitals.temp * 10) / 10,

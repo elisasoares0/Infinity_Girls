@@ -1,5 +1,5 @@
 // Emergency guides: listed in flight, each ticked step logged with its UTC time
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test("emergency guides log each step with a UTC time", async function ({ page }) {

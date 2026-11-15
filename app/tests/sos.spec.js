@@ -1,6 +1,6 @@
 // Emergency end to end: an astronaut collapses, the voice speaks, the crew medical officer's device gets the alert
 // in real time (Firestore), answers "I'm on my way", and the astronaut's device announces it.
-const { test, expect } = require("@playwright/test");
+const { test, expect, API } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 // Records what the voice assistant says (speechSynthesis is real, the test only listens)
@@ -25,6 +25,13 @@ test("collapse: voice, crew alert, responder and announcement", async function (
     const doctorContext = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
     await spyVoice(astronautContext);
     await spyVoice(doctorContext);
+    // These devices are not the fixture's page: keep them off the real health server too
+    await astronautContext.route(API, function (route) {
+        return route.abort();
+    });
+    await doctorContext.route(API, function (route) {
+        return route.abort();
+    });
     const astronaut = await astronautContext.newPage();
     const doctor = await doctorContext.newPage();
 

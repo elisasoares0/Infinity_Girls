@@ -1,5 +1,5 @@
 // Shared chrome written by tools/chrome.js: every page carries the same footer (credits and the Presentation mode button)
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const fs = require("fs");
 const path = require("path");
 const { freshStart, signIn } = require("./helpers");

@@ -240,7 +240,7 @@ const EMERGENCY_UI = `<!-- emergency ui -->
     <!-- /emergency ui -->`;
 
 // Shared scripts on every page, right after app.js, in this order (each one deferred)
-const SHARED_SCRIPTS = ["crew-data.js", "records.js", "glucose.js", "health-info.js", "guides.js", "voice.js", "habitat.js", "crew-link.js", "emergency-engine.js", "inbox.js", "reminders.js", "symptoms.js", "nausea-mode.js", "assistant-data.js", "assistant.js"];
+const SHARED_SCRIPTS = ["crew-data.js", "records.js", "api.js", "sync.js", "glucose.js", "health-info.js", "guides.js", "voice.js", "habitat.js", "crew-link.js", "emergency-engine.js", "inbox.js", "reminders.js", "symptoms.js", "nausea-mode.js", "assistant-data.js", "assistant.js"];
 
 function sharedScripts(html, prefix, file) {
     SHARED_SCRIPTS.forEach(function (name) {

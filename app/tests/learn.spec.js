@@ -1,5 +1,5 @@
 // Learn page: your health risks by phase, opened on the right risk from the indicators and the guides
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test("an indicator in Vitals opens its risk on the Learn page", async function ({ page }) {

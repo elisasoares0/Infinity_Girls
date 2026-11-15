@@ -1,5 +1,5 @@
 // Astronaut home: readiness on top of the space band, centered over the figure, and the compact cards
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test("readiness is centered above the 3D astronaut", async function ({ page }) {

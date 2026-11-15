@@ -1,5 +1,5 @@
 // Nausea mode (space accessibility): on after a nausea log, only what matters stays easy to read, on every page
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 async function start(page) {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <script data-theme-init>(function(){var d=document.documentElement,g=function(k){try{return JSON.parse(localStorage.getItem("astro-health:"+k));}catch(e){return null;}},t=g("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}d.setAttribute("data-theme",t);var s=g("session"),p=s&&/^(female|male|doctor)$/.test(s.profile)?s.profile:"",v=g("phase-preview"),m=s&&s.mission,h="in";d.setAttribute("data-session",p?"in":"out");if(p){d.setAttribute("data-profile",p);}if(v==="pre"||v==="in"||v==="post"){h=v;}else if(!g("mode-preview")&&m&&!isNaN(Date.parse(m.launchDate))){var n=new Date(),a=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()),l=Date.parse(m.launchDate+"T00:00:00Z");h=a<l?"pre":a>=l+m.lengthDays*864e5?"post":"in";}d.setAttribute("data-phase",h);var x=s&&s.member&&g("nausea:"+s.member);if(p&&p!=="doctor"&&x&&x.on&&(!x.until||x.until>Date.now())){d.setAttribute("data-nausea","on");}})();</script>
-    <title>Astro Health — Home</title>
+    <title>Home Astro Health</title>
     <meta name="description" content="Astronaut health monitoring app: daily readiness, vital signs, cumulative radiation dose and health tasks in one place, before, during and after the mission.">
     <meta name="theme-color" content="#FFFFFF">
     <link rel="icon" href="assets/img/logo-symbol.svg" type="image/svg+xml">
@@ -22,6 +22,8 @@
     <script src="assets/js/app.js" defer></script>
     <script src="assets/js/crew-data.js" defer></script>
     <script src="assets/js/records.js" defer></script>
+    <script src="assets/js/api.js" defer></script>
+    <script src="assets/js/sync.js" defer></script>
     <script src="assets/js/glucose.js" defer></script>
     <script src="assets/js/health-info.js" defer></script>
     <script src="assets/js/guides.js" defer></script>
@@ -34,7 +36,40 @@
     <script src="assets/js/symptoms.js" defer></script>
     <script src="assets/js/nausea-mode.js" defer></script>
     <script src="assets/js/assistant-data.js" defer></script>
-    <script src="assets/js/assistant.js" defer></script>
+    <script src="assets/js/assistant.js" defer></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <script src="assets/js/accounts.js" defer></script>
     <script src="assets/js/today-ring.js" defer></script>
     <script src="assets/js/glucose-entry.js" defer></script>
@@ -130,8 +165,9 @@
                         <form class="auth__form" novalidate data-auth-form="signin">
                         <div class="auth__fields">
                             <div class="field auth__field">
-                                <label class="field__label" for="signin-nasa-id">NASA ID</label>
-                                <input class="field__input" id="signin-nasa-id" name="nasaId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="signin-nasa-id-error" data-auth-field>
+                                <label class="field__label" for="signin-nasa-id">Crew ID or NASA ID</label>
+                                <p class="field__hint" id="signin-nasa-id-hint">Your astronaut ID (AST-1234) or medical license (CRM-SP 123456). Test accounts also accept the NASA ID, for example hsilva.</p>
+                                <input class="field__input" id="signin-nasa-id" name="nasaId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="signin-nasa-id-hint signin-nasa-id-error" data-auth-field>
                                 <p class="field__error" id="signin-nasa-id-error" hidden></p>
                             </div>
                             <div class="field auth__field">
@@ -161,19 +197,13 @@
                         <form class="auth__form" novalidate data-auth-form="signup">
                         <div class="auth__fields">
                             <div class="field auth__field">
-                                <label class="field__label" for="signup-nasa-id">NASA ID</label>
-                                <p class="field__hint" id="signup-nasa-id-hint">Your NASA digital account, for example hsilva.</p>
-                                <input class="field__input" id="signup-nasa-id" name="nasaId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="signup-nasa-id-hint signup-nasa-id-error" data-auth-field>
-                                <p class="field__error" id="signup-nasa-id-error" hidden></p>
-                            </div>
-                            <div class="field auth__field">
                                 <label class="field__label" for="signup-name">Full name</label>
                                 <input class="field__input" id="signup-name" name="name" type="text" autocomplete="name" aria-describedby="signup-name-error" data-auth-field>
                                 <p class="field__error" id="signup-name-error" hidden></p>
                             </div>
                             <div class="field auth__field">
                                 <label class="field__label" for="signup-id-number">Astronaut ID or CRM</label>
-                                <p class="field__hint" id="signup-id-number-hint">Astronauts: AST-1234. Doctors: your medical license, for example CRM-SP 123456.</p>
+                                <p class="field__hint" id="signup-id-number-hint">Astronauts: AST-1234. Doctors: your medical license, for example CRM-SP 123456. You sign in with this ID.</p>
                                 <input class="field__input" id="signup-id-number" name="idNumber" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="signup-id-number-hint signup-id-number-role signup-id-number-error" data-auth-field>
                                 <p class="auth__role" id="signup-id-number-role" aria-live="polite" data-auth-role></p>
                                 <p class="field__error" id="signup-id-number-error" hidden></p>
@@ -214,7 +244,7 @@
                     <details class="help auth__demo">
                         <summary class="help__summary"><span class="help__label">Demo accounts for the presentation</span></summary>
                         <div class="auth__demo-content">
-                            <p class="help__text">Mission crew test accounts. The password for all of them is <strong class="auth__demo-password">Mission2026</strong>.</p>
+                            <p class="help__text">Mission crew test accounts. They sign in with their crew ID, and the password for all of them is <strong class="auth__demo-password">Mission2026</strong>.</p>
                             <ul class="auth__demo-list" data-auth-demo></ul>
                         </div>
                     </details>

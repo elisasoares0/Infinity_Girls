@@ -965,6 +965,7 @@
         addSpotMetric: addSpotMetric,
         exerciseGoal: exerciseGoal,
         todayVitals: todayVitals,
+        todayDiastolic: todayDiastolic,
         history: history,
         readinessHistory: readinessHistory,
         getRecheck: getRecheck,

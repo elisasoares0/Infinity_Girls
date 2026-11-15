@@ -1,5 +1,5 @@
 // Guided neck vein ultrasound: the astronaut sends an image (exames_imagem + file), the doctor reads it, the astronaut sees it
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 async function start(page, account) {

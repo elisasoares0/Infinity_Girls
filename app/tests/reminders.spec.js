@@ -1,6 +1,6 @@
 // Health messages chat: every reminder (tasks, medication, exams, results) and the doctor's new alerts arrive as
 // messages, the chat opens by itself without taking the focus, and the page cards stay as they are
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn, expectNoA11yViolations } = require("./helpers");
 
 async function start(page, time, account) {

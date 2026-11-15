@@ -1,5 +1,5 @@
 // Doctor before the flight: exam counts on each crew card open that person's exams in a side panel
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test("schedule and cancel a pre-flight exam from a crew card", async function ({ page }) {

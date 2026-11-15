@@ -100,6 +100,8 @@
             setText("[data-personal='" + key + "']", values[key]);
         });
         setText("[data-personal-id-label]", session.role === "doctor" ? "Medical license (CRM)" : "Astronaut ID");
+        // Only the test accounts have a NASA ID; accounts created in the app sign in with their ID
+        document.querySelector("[data-personal-nasa-row]").hidden = !session.nasaId || session.nasaId === session.idNumber;
         setText("[data-personal-note]", session.demo
             ? "Mission crew test account. Changes are saved only on this device."
             : "Account created on this device. Health data in this prototype is simulated.");

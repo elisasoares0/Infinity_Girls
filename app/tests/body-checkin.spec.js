@@ -1,5 +1,5 @@
 // Body check-in: a symptom on a region of the 3D body (body_checkin), with how strong it is; no emergency guide link in the header
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 async function start(page, account, phase) {

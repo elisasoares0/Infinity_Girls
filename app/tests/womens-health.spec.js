@@ -1,5 +1,5 @@
 // Women's health: optional daily log (bleeding, spotting, cramps, symptoms), bone health and blood clot signs
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn, setTheme, expectNoA11yViolations } = require("./helpers");
 
 async function blockFirebase(page) {

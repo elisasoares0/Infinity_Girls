@@ -1,5 +1,5 @@
 // Sign-in with a flight phase, and sign-up without a mission field
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { freshStart, signIn } = require("./helpers");
 
 test.beforeEach(async function ({ page }) {
