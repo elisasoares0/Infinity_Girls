@@ -23,7 +23,6 @@
 [✨ Funcionalidades](#-funcionalidades-principais) •
 [🏗️ Arquitetura](#️-arquitetura-do-sistema) •
 [📂 Estrutura do Repositório](#-Estrutura-do-Repositório) •
-[🚀 Como Executar](#-como-executar-o-projeto) •
 [👩‍🚀 Equipe](#-equipe-infinity-girls)
 
 </div>
@@ -114,41 +113,6 @@ NASA/
 ├── LICENSE                   # Licença MIT do projeto
 └── README.md                 # Documentação oficial do projeto
 ```
----
-## 🚀 Como Executar o Projeto
-
-### Passo a Passo
-
-1. **Clone o repositório:**
-   ```bash
-   git clone 
-   [https://github.com/seu-usuario/astrohealth.git](https://github.com/seu-usuario/astrohealth.git)
-   cd astrohealth
-2. Instale as dependências do Front-end:
-    ```bash
-    cd frontend
-    npm install
-3. Execute o projeto em ambiente local:
-    ```bash
-    # No terminal do backend
-    python main.py
-
-    # No terminal do frontend
-    npm run dev
-    ```
-4. Acesse a aplicação no seu navegador: https://spaceapps2026-infinitygirls.web.app/
-
---- 
-### 🤝 Como Contribuir
-
-Contribuições são bem-vindas! Se você deseja propor melhorias:
-
-1. Faça um Fork do projeto.
-
-2. Crie uma Branch para sua funcionalidade (git checkout -b feature/nova-funcionalidade).
-
-3. Abra um Pull Request.
-
 ---
 ## 👩‍🚀 Equipe Infinity Girls
 
