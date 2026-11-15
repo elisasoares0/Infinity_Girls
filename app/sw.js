@@ -5,7 +5,7 @@
  */
 "use strict";
 
-var CACHE_VERSION = "astro-health-v56";
+var CACHE_VERSION = "astro-health-v57";
 
 var SHELL = [
     "./",
@@ -41,11 +41,16 @@ var SHELL = [
     "assets/js/glucose.js",
     "assets/js/glucose-entry.js",
     "assets/js/health-info.js",
+    "assets/js/inbox.js",
     "assets/js/reminders.js",
+    "assets/js/symptoms.js",
+    "assets/js/nausea-mode.js",
     "assets/js/goals.js",
     "assets/js/ultrasound.js",
+    "assets/js/assistant-data.js",
     "assets/js/assistant.js",
     "pages/home/goals-panel.js",
+    "pages/home/body-checkin.js",
     "assets/js/guides.js",
     "assets/js/voice.js",
     "assets/js/habitat.js",
@@ -100,7 +105,11 @@ self.addEventListener("install", function (event) {
     event.waitUntil(
         caches.open(CACHE_VERSION)
             .then(function (cache) {
-                return cache.addAll(SHELL);
+                // cache: "reload" skips the browser's HTTP cache (JS is kept an hour by firebase.json): a new version
+                // never mixes a new page with an old module
+                return cache.addAll(SHELL.map(function (path) {
+                    return new Request(path, { cache: "reload" });
+                }));
             })
             .then(function () {
                 return self.skipWaiting();
@@ -147,11 +156,15 @@ self.addEventListener("fetch", function (event) {
     if (request.method !== "GET" || url.origin !== self.location.origin) {
         return;
     }
+    if (event.request.url.includes('supabase.co')) {
+        return; // Deixa o Supabase ir direto para a internet sem passar pelo cache offline
+    }
 
     event.respondWith(
         caches.open(CACHE_VERSION).then(function (cache) {
             return cache.match(request, { ignoreSearch: true }).then(function (cached) {
-                var network = fetch(request)
+                // "no-cache" asks the server whether the file changed (cheap when it did not), never the stale HTTP copy
+                var network = fetch(request.url, { cache: "no-cache", credentials: "same-origin" })
                     .then(function (response) {
                         if (response && response.ok) {
                             cache.put(request, response.clone());

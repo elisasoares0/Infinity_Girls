@@ -303,6 +303,36 @@
         render();
     })();
 
+    /* ---------- Nausea mode (App.nausea): on by itself after a nausea log, or by hand here ---------- */
+    (function () {
+        var toggle = document.querySelector("[data-nausea-toggle]");
+        if (!toggle || !App.nausea) {
+            return;
+        }
+        var stateText = document.querySelector("[data-nausea-state]");
+        var statusText = document.querySelector("[data-nausea-status]");
+
+        function render() {
+            var on = App.nausea.isOn();
+            var state = App.nausea.state();
+            toggle.checked = on;
+            stateText.textContent = on ? "On" : "Off";
+            statusText.textContent = !on ? "" : state.until
+                ? "On since your last log. Turns off by itself at " + App.formatTime(new Date(state.until)) + ", or with “I feel better”."
+                : "On until you turn it off here or press “I feel better”.";
+        }
+
+        toggle.addEventListener("change", function () {
+            if (toggle.checked) {
+                App.nausea.on();
+            } else {
+                App.nausea.off();
+            }
+        });
+        document.addEventListener("nausea:change", render);
+        render();
+    })();
+
     /* ---------- Voice assistant (App.voice) and where the crew finds you (App.habitat) ---------- */
     (function () {
         var on = document.querySelector("[data-voice-on]");

@@ -1,11 +1,14 @@
 /*
- * "Ask the assistant" (App.assistant), on every page. A local search over what the app already says: the emergency
- * guides and the medical kit (in flight), what each indicator means, the Learn page risks of this phase and how to
- * use the app. It never writes new text: every answer is a passage quoted word for word, with its source and link,
- * and the same question always gives the same answer. Works offline (the Learn page is kept by the service worker).
+ * "Ask the assistant" (App.assistant), on every page. Two kinds of answer, both local and offline:
+ * 1. From your live data (App.assistantData, assets/js/assistant-data.js): "how is my health today?", "did I sleep
+ *    well and is my heart rate ok?", "heart rate this week", "am I ready for EVA?"… computed from the sensors and
+ *    records with fixed sentence templates, each with where to see it in the app.
+ * 2. From the guides: a search over what the app already says (emergency guides and the medical kit in flight, what
+ *    each indicator means, the Learn page risks of this phase, the body check-in and how to use the app), quoted word
+ *    for word with its source and link. The same question always gives the same answer.
  * Safety rule (CLAUDE.md): no language model decides anything; "Not a medical device" is always on screen, and an
  * emergency question in flight offers SOS first.
- *   App.assistant.ask(question) → Promise<{ answers: [{ title, source, text, href }], emergency }>
+ *   App.assistant.ask(question) → Promise<{ data: [answers from data], answers: [{ title, source, text, href }], emergency }>
  *   App.assistant.open(opener)
  * Search: BM25 over word stems, with a small synonym list (sugar → glucose, faint → collapse…).
  */
@@ -35,7 +38,7 @@
 
     // How to use the app: short passages in the app's own words
     var APP_HELP = [
-        { title: "Reminders", text: "At the time of each health task, a reminder shows above the tab bar with Done, In 15 min and Open. In Profile, Reminders, you can have them spoken out loud and turn on device notifications.", href: "pages/profile/index.html" },
+        { title: "Reminders and health messages", text: "At the time of each health task, dose of medicine or exam, a message arrives in the health messages chat, at the bottom right, with Done (or Taken), In 15 min and Open. In Profile, Reminders, you can have them spoken out loud and turn on device notifications.", href: "pages/profile/index.html" },
         { title: "Daily goals and achievements", text: "Four goals a day: water, exercise, sleep and the check-in. A day counts toward your streak when all four are met. Only you see your goals and achievements.", href: "index.html#goals", profiles: "female male" },
         { title: "Daily check-in", text: "One tap for mood and one for stress, with an optional private note. Only your medical team sees it. Open it from the Mood check-in task or Check in now in Daily goals.", href: "index.html#goals", profiles: "female male" },
         { title: "Measure blood glucose", text: "On Home, Blood glucose, press Measure now: follow the steps, then connect the glucometer by Bluetooth or type the number in mg/dL or mmol/L.", href: "index.html", profiles: "female male" },
@@ -160,6 +163,24 @@
                 });
             });
         }
+        // Body check-in (assets/js/symptoms.js): what helps for each symptom, for astronauts
+        if (App.symptoms && App.getProfile().key !== "doctor") {
+            var seen = {};
+            var lead = App.getMedicalLead().name.replace(/ \(.*\)/, "").toLowerCase();
+            App.symptoms.regions.forEach(function (area) {
+                area.symptoms.forEach(function (item) {
+                    if (seen[item.id]) {
+                        return;
+                    }
+                    seen[item.id] = true;
+                    passages.push({
+                        title: item.label, source: "Body check-in",
+                        text: item.hint + " Log it on your body in “Your body now”: mild (1 or 2) is self-care, moderate (3) means telling your " + lead + " at the next health check, strong (4 or 5) means telling your " + lead + " now.",
+                        href: App.rootUrl("index.html#vitals")
+                    });
+                });
+            });
+        }
         APP_HELP.filter(visible).forEach(function (entry) {
             passages.push({ title: entry.title, source: "Using the app", text: entry.text, href: App.rootUrl(entry.href) });
         });
@@ -238,8 +259,10 @@
                 return item.pattern.test(text);
             })[0] || null;
         }
+        // Answers from live data first (fixed templates over the real numbers), then the guides
+        var fromData = App.assistantData ? App.assistantData.detect(question).map(App.assistantData.answer).filter(Boolean) : [];
         return index.then(function (data) {
-            var results = search(data, question).slice(0, 3).map(function (item) {
+            var results = search(data, question).slice(0, fromData.length ? 2 : 3).map(function (item) {
                 return item.passage;
             });
             // The guide of an emergency question goes first
@@ -253,7 +276,7 @@
                     })).slice(0, 3);
                 }
             }
-            return { answers: results, emergency: emergency, terms: expand(tokens(question)) };
+            return { data: fromData, answers: results, emergency: emergency, terms: expand(tokens(question)) };
         });
     }
 
@@ -262,8 +285,9 @@
     var opener = null;
     var lastAnswer = "";
     var SUGGESTIONS = {
-        in: ["My blood sugar is low", "How is heart rate measured?", "Why is my vision blurry?", "What do I do in a solar storm?", "How do I do the neck ultrasound?"],
-        earth: ["Why do I need a bone scan?", "How do I turn on reminders?", "Why does sleep matter?", "How do I check in?"]
+        in: ["How is my health today?", "Did I sleep well?", "Am I ready for EVA?", "What should I do now?", "Heart rate this week", "How is heart rate measured?"],
+        earth: ["How is my health today?", "What's next today?", "Did I sleep well?", "Why do I need a bone scan?"],
+        doctor: ["How is the crew today?", "Who needs attention?", "How is Tanaka?", "How is heart rate measured?"]
     };
 
     // Writes text with the query's words marked, without HTML injection
@@ -306,7 +330,13 @@
             box.appendChild(urgent);
         }
 
-        if (!result.answers.length) {
+        var spoken = [];
+        (result.data || []).forEach(function (item) {
+            box.appendChild(dataCard(item));
+            spoken.push(item.title + ". " + item.text);
+        });
+
+        if (!result.answers.length && !(result.data || []).length) {
             var none = document.createElement("p");
             none.className = "ask__none";
             none.textContent = "I could not find this in the guides of this app. Ask your " + (App.isFlight() ? "crew medical officer" : "flight surgeon") + ".";
@@ -315,6 +345,12 @@
             return;
         }
 
+        if (result.answers.length && (result.data || []).length) {
+            var guides = document.createElement("h4");
+            guides.className = "ask__group";
+            guides.textContent = "From the guides";
+            box.appendChild(guides);
+        }
         result.answers.forEach(function (passage, position) {
             var card = document.createElement("article");
             card.className = "ask__result" + (position === 0 ? " ask__result--main" : "");
@@ -329,8 +365,42 @@
             link.querySelector(".button__text").textContent = "Open " + passage.title;
             box.appendChild(card);
         });
-        lastAnswer = result.answers[0].title + ". " + result.answers[0].text;
+        lastAnswer = spoken.length ? spoken.join(" ") : result.answers[0].title + ". " + result.answers[0].text;
         dialog.querySelector("[data-ask-speak]").hidden = !(App.voice && App.voice.isSupported());
+    }
+
+    // An answer from live data: title, the computed sentence, the numbers with their status, and where to see it
+    function dataCard(item) {
+        var card = document.createElement("article");
+        card.className = "ask__data";
+        card.innerHTML = "<p class=\"ask__source\">From your data · " + App.formatTime(new Date()) + "</p>" +
+            "<h4 class=\"ask__title\"></h4><p class=\"ask__text\"></p><ul class=\"ask__facts\"></ul>" +
+            "<a class=\"button button--tertiary button--flush ask__where\"><span class=\"button__text\"></span></a>";
+        card.querySelector(".ask__title").textContent = item.title;
+        card.querySelector(".ask__text").textContent = item.text;
+        var facts = card.querySelector(".ask__facts");
+        item.facts.forEach(function (entry) {
+            var li = document.createElement("li");
+            li.className = "ask__fact";
+            li.innerHTML = "<span class=\"ask__fact-label\"></span><span class=\"ask__fact-value\"></span>";
+            li.querySelector(".ask__fact-label").textContent = entry.label;
+            li.querySelector(".ask__fact-value").textContent = entry.value;
+            var word = App.assistantData.statusText(entry.status);
+            if (word) {
+                var level = entry.status === "silent" ? "soon" : entry.status;
+                var badge = document.createElement("span");
+                badge.className = "badge badge--" + level;
+                badge.innerHTML = "<svg class=\"badge__icon\" aria-hidden=\"true\"><use href=\"#" + (entry.status === "ok" ? "icon-check" : entry.status === "silent" ? "icon-info" : "icon-alert") + "\"/></svg><span class=\"badge__text\"></span>";
+                badge.querySelector(".badge__text").textContent = word;
+                li.appendChild(badge);
+            }
+            facts.appendChild(li);
+        });
+        facts.hidden = !item.facts.length;
+        var where = card.querySelector(".ask__where");
+        where.href = item.href;
+        where.querySelector(".button__text").textContent = "Where to see it: " + item.linkText;
+        return card;
     }
 
     function submit(question) {
@@ -344,9 +414,11 @@
         status.textContent = "Searching the guides…";
         return ask(clean).then(function (result) {
             render(result, clean);
-            status.textContent = result.answers.length
-                ? "Found " + result.answers.length + (result.answers.length === 1 ? " answer" : " answers") + " from the app's guides."
-                : "No answer in the guides.";
+            status.textContent = result.data.length
+                ? "Answered from your data" + (result.answers.length ? ", with " + result.answers.length + " related " + (result.answers.length === 1 ? "guide" : "guides") : "") + "."
+                : result.answers.length
+                    ? "Found " + result.answers.length + (result.answers.length === 1 ? " answer" : " answers") + " from the app's guides."
+                    : "No answer in the guides.";
         });
     }
 
@@ -358,7 +430,7 @@
             "<div class=\"ask__container\">" +
             "<div class=\"ask__head\"><div class=\"ask__heading\">" +
             "<h2 class=\"ask__heading-title\" id=\"ask-title\">Ask the assistant</h2>" +
-            "<p class=\"ask__subtitle\">Answers come only from the guides in this app, with their source. It works offline.</p></div>" +
+            "<p class=\"ask__subtitle\">Answers from your live data and the guides in this app, with where to see them. It works offline.</p></div>" +
             "<button class=\"ask__close\" type=\"button\" aria-label=\"Close\"><svg class=\"ask__close-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
             "<form class=\"ask__form\" role=\"search\" novalidate>" +
             "<label class=\"field__label\" for=\"ask-question\">Your question</label>" +
@@ -379,7 +451,7 @@
 
         var input = dialog.querySelector("#ask-question");
         var chips = dialog.querySelector(".ask__chips");
-        SUGGESTIONS[App.isFlight() ? "in" : "earth"].forEach(function (text) {
+        SUGGESTIONS[App.getProfile().key === "doctor" ? "doctor" : App.isFlight() ? "in" : "earth"].forEach(function (text) {
             var chip = document.createElement("button");
             chip.type = "button";
             chip.className = "ask__chip";
@@ -419,7 +491,7 @@
                     mic.setAttribute("aria-pressed", "false");
                 };
                 recognizer.onerror = function () {
-                    dialog.querySelector("[data-ask-status]").textContent = "Could not hear the question. Type it instead.";
+                    dialog.querySelector("[data-ask-status]").textContent = "Could not hear the question. Ask in English, or type it.";
                 };
                 try {
                     recognizer.start();

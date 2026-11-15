@@ -105,6 +105,29 @@
     color: var(--color-text-muted);
 }
 
+/* Nausea mode: simplify the screen by hand (App.nausea) */
+.nausea-settings__container {
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.nausea-settings__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+}
+
+.nausea-settings__status {
+    max-width: var(--text-max);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+.nausea-settings__status:empty {
+    display: none;
+}
+
 .assistant__content {
     display: flex;
     flex-direction: column;
@@ -223,6 +246,11 @@
         padding-right: 6%;
     }
 
+    .nausea-settings__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
     .session__container {
         padding-left: 6%;
         padding-right: 6%;
@@ -257,6 +285,14 @@
 
     .reminder-settings__container {
         width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .nausea-settings__container {
+        width: 1140px;
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;

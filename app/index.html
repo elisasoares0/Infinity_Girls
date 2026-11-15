@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <script data-theme-init>(function(){var d=document.documentElement,g=function(k){try{return JSON.parse(localStorage.getItem("astro-health:"+k));}catch(e){return null;}},t=g("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}d.setAttribute("data-theme",t);var s=g("session"),p=s&&/^(female|male|doctor)$/.test(s.profile)?s.profile:"",v=g("phase-preview"),m=s&&s.mission,h="in";d.setAttribute("data-session",p?"in":"out");if(p){d.setAttribute("data-profile",p);}if(v==="pre"||v==="in"||v==="post"){h=v;}else if(!g("mode-preview")&&m&&!isNaN(Date.parse(m.launchDate))){var n=new Date(),a=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()),l=Date.parse(m.launchDate+"T00:00:00Z");h=a<l?"pre":a>=l+m.lengthDays*864e5?"post":"in";}d.setAttribute("data-phase",h);})();</script>
+    <script data-theme-init>(function(){var d=document.documentElement,g=function(k){try{return JSON.parse(localStorage.getItem("astro-health:"+k));}catch(e){return null;}},t=g("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}d.setAttribute("data-theme",t);var s=g("session"),p=s&&/^(female|male|doctor)$/.test(s.profile)?s.profile:"",v=g("phase-preview"),m=s&&s.mission,h="in";d.setAttribute("data-session",p?"in":"out");if(p){d.setAttribute("data-profile",p);}if(v==="pre"||v==="in"||v==="post"){h=v;}else if(!g("mode-preview")&&m&&!isNaN(Date.parse(m.launchDate))){var n=new Date(),a=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()),l=Date.parse(m.launchDate+"T00:00:00Z");h=a<l?"pre":a>=l+m.lengthDays*864e5?"post":"in";}d.setAttribute("data-phase",h);var x=s&&s.member&&g("nausea:"+s.member);if(p&&p!=="doctor"&&x&&x.on&&(!x.until||x.until>Date.now())){d.setAttribute("data-nausea","on");}})();</script>
     <title>Astro Health — Home</title>
     <meta name="description" content="Astronaut health monitoring app: daily readiness, vital signs, cumulative radiation dose and health tasks in one place, before, during and after the mission.">
     <meta name="theme-color" content="#FFFFFF">
@@ -29,8 +29,12 @@
     <script src="assets/js/habitat.js" defer></script>
     <script src="assets/js/crew-link.js" defer></script>
     <script src="assets/js/emergency-engine.js" defer></script>
+    <script src="assets/js/inbox.js" defer></script>
     <script src="assets/js/reminders.js" defer></script>
-    <script src="assets/js/assistant.js" defer></script>
+    <script src="assets/js/symptoms.js" defer></script>
+    <script src="assets/js/nausea-mode.js" defer></script>
+    <script src="assets/js/assistant-data.js" defer></script>
+    <script src="assets/js/assistant.js" defer></script>
     <script src="assets/js/accounts.js" defer></script>
     <script src="assets/js/today-ring.js" defer></script>
     <script src="assets/js/glucose-entry.js" defer></script>
@@ -38,6 +42,7 @@
     <script src="assets/js/goals.js" defer></script>
     <script src="pages/home/goals-panel.js" defer></script>
     <script src="pages/home/home.js" defer></script>
+    <script src="pages/home/body-checkin.js" defer></script>
     <script src="pages/home/crew-panel.js" defer></script>
     <script src="pages/home/exams.js" defer></script>
     <script src="pages/home/auth.js" defer></script>
@@ -83,9 +88,7 @@
                 <div class="app-header__actions">
                     <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch to dark theme" data-theme-toggle><svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" data-theme-icon="moon"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></svg><svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" data-theme-icon="sun" hidden><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></svg><span class="theme-toggle__text" data-theme-label>Dark</span></button>
                     <button class="ask-toggle" type="button" aria-haspopup="dialog" aria-label="Ask the assistant" title="Ask the assistant" data-ask-open><svg class="ask-toggle__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"/></svg><span class="ask-toggle__text">Ask</span></button>
-                    <button class="demo-toggle" type="button" aria-haspopup="dialog" aria-controls="demo-panel" aria-label="Presentation mode (demo)" title="Presentation mode (demo)" data-demo-open><svg class="demo-toggle__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"/></svg><span class="demo-toggle__flag" aria-hidden="true" data-demo-badge hidden>!</span></button>
-                    <button class="sos-toggle" type="button" aria-haspopup="dialog" aria-controls="sos-dialog" aria-label="SOS: get help now" data-phases="in" data-profiles="female male doctor" data-sos-open><svg class="sos-toggle__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg><span class="sos-toggle__text">SOS</span></button>
-                    <a class="app-header__emergency" href="pages/emergency/index.html" data-phases="in" data-emergency-link><svg class="app-header__emergency-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,56H176V48a24,24,0,0,0-24-24H104A24,24,0,0,0,80,48v8H40A16,16,0,0,0,24,72V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V72A16,16,0,0,0,216,56ZM96,48a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM216,200H40V72H216V200Zm-56-64a8,8,0,0,1-8,8H136v16a8,8,0,0,1-16,0V144H104a8,8,0,0,1,0-16h16V112a8,8,0,0,1,16,0v16h16A8,8,0,0,1,160,136Z"/></svg><span class="app-header__emergency-text">Emergency guide</span></a>
+                    <button class="sos-toggle" type="button" aria-haspopup="dialog" aria-controls="sos-dialog" aria-label="SOS: get help now" data-phases="in" data-profiles="female male doctor" data-sos-open data-essential><svg class="sos-toggle__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg><span class="sos-toggle__text">SOS</span></button>
                 </div>
             </div>
             <p class="sr-only" aria-live="polite" data-connection-announcer></p>
@@ -260,6 +263,7 @@
                         <h2 class="astronaut-view__title" id="astronaut-view-title">Your body now</h2>
                         <p class="astronaut-view__live"><span class="astronaut-view__live-dot" aria-hidden="true"></span><span class="astronaut-view__live-text" data-live-text>Live from your Astroskin shirt, the water dispenser and the exercise devices</span></p>
                     </div>
+                    <button class="button button--secondary astronaut-view__log" type="button" aria-haspopup="dialog" aria-controls="symptom" data-symptom-open><svg class="astronaut-view__log-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M248,144a8,8,0,0,1-16,0,96.11,96.11,0,0,0-96-96,88.1,88.1,0,0,0-88,88,80.09,80.09,0,0,0,80,80,72.08,72.08,0,0,0,72-72,64.07,64.07,0,0,0-64-64,56.06,56.06,0,0,0-56,56,48.05,48.05,0,0,0,48,48,40,40,0,0,0,40-40,32,32,0,0,0-32-32,24,24,0,0,0-24,24,16,16,0,0,0,16,16,8,8,0,0,0,8-8,8,8,0,0,1,0-16,16,16,0,0,1,16,16,24,24,0,0,1-24,24,32,32,0,0,1-32-32,40,40,0,0,1,40-40,48.05,48.05,0,0,1,48,48,56.06,56.06,0,0,1-56,56,64.07,64.07,0,0,1-64-64,72.08,72.08,0,0,1,72-72,80.09,80.09,0,0,1,80,80,88.1,88.1,0,0,1-88,88,96.11,96.11,0,0,1-96-96A104.11,104.11,0,0,1,136,32,112.12,112.12,0,0,1,248,144Z"/></svg><span class="button__text">Log nausea or vomiting</span></button>
                 </div>
 
                 <div class="astronaut-view__notice" data-sensor-notice hidden>
@@ -278,10 +282,20 @@
                     </div>
                     <div class="astronaut-view__stage">
                         <div class="astronaut-view__canvas" data-astronaut-canvas></div>
-                        <p class="astronaut-view__stage-text" data-astronaut-fallback>Loading the 3D astronaut…</p>
+                        <p class="astronaut-view__stage-text" tabindex="-1" role="status" data-astronaut-fallback>Loading the 3D astronaut…</p>
+                        <button class="button button--secondary astronaut-view__retry" type="button" data-astronaut-retry hidden><span class="button__text">Try again</span></button>
+                        <p class="astronaut-view__region-label" aria-hidden="true" data-region-label hidden></p>
+                        <ul class="astronaut-view__regions" aria-label="Log a symptom on a body region">
+                            <li class="astronaut-view__region"><button class="astronaut-view__region-button" type="button" aria-haspopup="dialog" data-symptom-region="cabeca">Log a symptom: Head</button></li>
+                            <li class="astronaut-view__region"><button class="astronaut-view__region-button" type="button" aria-haspopup="dialog" data-symptom-region="torax">Log a symptom: Chest</button></li>
+                            <li class="astronaut-view__region"><button class="astronaut-view__region-button" type="button" aria-haspopup="dialog" data-symptom-region="abdomen">Log a symptom: Abdomen & metabolism</button></li>
+                            <li class="astronaut-view__region"><button class="astronaut-view__region-button" type="button" aria-haspopup="dialog" data-symptom-region="costas">Log a symptom: Back</button></li>
+                            <li class="astronaut-view__region"><button class="astronaut-view__region-button" type="button" aria-haspopup="dialog" data-symptom-region="bracos">Log a symptom: Arms & hands</button></li>
+                            <li class="astronaut-view__region"><button class="astronaut-view__region-button" type="button" aria-haspopup="dialog" data-symptom-region="pernas">Log a symptom: Legs & feet</button></li>
+                        </ul>
                         <div class="astronaut-view__controls">
                             <button class="astronaut-view__turn" type="button" aria-label="Turn the astronaut left" data-astronaut-turn="-1"><svg class="astronaut-view__turn-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z"/></svg></button>
-                            <p class="astronaut-view__hint">Drag to turn · tap a dot</p>
+                            <p class="astronaut-view__hint">Drag to turn · tap a dot or the body</p>
                             <button class="astronaut-view__turn" type="button" aria-label="Turn the astronaut right" data-astronaut-turn="1"><svg class="astronaut-view__turn-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"/></svg></button>
                         </div>
 
@@ -318,6 +332,12 @@
                     <ul class="astronaut-view__cards astronaut-view__cards--left" aria-label="Vital signs" data-body-cards="left"></ul>
                     <ul class="astronaut-view__cards astronaut-view__cards--right" aria-label="Temperature, sleep, water and exercise" data-body-cards="right"></ul>
                 </div>
+
+                <div class="symptoms" data-symptoms hidden>
+                    <h3 class="symptoms__title">Your symptoms today</h3>
+                    <ul class="symptoms__list" data-symptoms-list></ul>
+                </div>
+                <p class="sr-only" aria-live="polite" data-symptoms-status></p>
 
                 <details class="help">
                     <summary class="help__summary"><span class="help__label">What does readiness mean?</span></summary>
@@ -449,6 +469,43 @@
                 </div>
                 <p class="field__error" id="checkin-error" hidden data-checkin-error></p>
                 <button class="button button--primary checkin__save" type="submit"><span class="button__text">Save check-in</span></button>
+            </form>
+        </dialog>
+
+        <dialog class="symptom" id="symptom" aria-labelledby="symptom-title" aria-describedby="symptom-text" data-symptom data-essential>
+            <form class="symptom__container" novalidate data-symptom-form>
+                <div class="symptom__head">
+                    <div class="symptom__heading">
+                        <p class="symptom__eyebrow">Body check-in</p>
+                        <h2 class="symptom__title" id="symptom-title" data-symptom-title>Log a symptom</h2>
+                        <p class="symptom__text" id="symptom-text" data-symptom-text>Choose where you feel it.</p>
+                    </div>
+                    <button class="symptom__close" type="button" aria-label="Close" data-symptom-close><svg class="symptom__close-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button>
+                </div>
+                <fieldset class="symptom__group">
+                    <legend class="symptom__legend"><span class="symptom__step" aria-hidden="true">1</span> What do you feel?</legend>
+                    <div class="symptom__options" data-symptom-options></div>
+                </fieldset>
+                <div class="symptom__group symptom__group--level">
+                    <div class="symptom__level-head">
+                        <label class="symptom__legend" for="symptom-level"><span class="symptom__step" aria-hidden="true">2</span> How strong is it?</label>
+                        <output class="symptom__badge" for="symptom-level" data-symptom-badge>Level 2/5</output>
+                    </div>
+                    <input class="symptom__range" id="symptom-level" type="range" min="1" max="5" step="1" value="2" data-symptom-level>
+                    <p class="symptom__scale" aria-hidden="true"><span class="symptom__scale-item">1 Very mild</span><span class="symptom__scale-item">3 Moderate</span><span class="symptom__scale-item symptom__scale-item--severe">5 Severe</span></p>
+                    <p class="symptom__protocol" data-symptom-protocol></p>
+                </div>
+                <div class="symptom__shortcuts" data-symptom-shortcuts>
+                    <button class="button button--primary symptom__sos" type="button" data-symptom-sos hidden><span class="button__text">Start SOS</span></button>
+                    <button class="button button--secondary" type="button" data-symptom-glucose hidden><span class="button__text">Measure blood sugar</span></button>
+                    <a class="symptom__link" href="pages/learn/index.html" data-symptom-learn hidden>Why this happens in space</a>
+                </div>
+                <p class="symptom__error" data-symptom-error hidden></p>
+                <div class="symptom__actions">
+                    <button class="button button--secondary" type="button" data-symptom-cancel><span class="button__text">Cancel</span></button>
+                    <button class="button button--primary" type="submit"><span class="button__text">Save check-in</span></button>
+                </div>
+                <p class="symptom__note">Saved in your health record. Strong symptoms and warning signs also reach your medical team.</p>
             </form>
         </dialog>
 
@@ -943,6 +1000,7 @@
         <div class="app-footer__container">
             <p class="app-footer__text">Prototype with simulated health data for the NASA Space Apps Challenge 2026. Radiation limit from the NASA Office of the Chief Health and Medical Officer. Space weather from NASA DONKI (Space Weather Database Of Notifications, Knowledge, Information).</p>
             <p class="app-footer__text">Fonts: Fira Sans and Overpass, SIL Open Font License.</p>
+            <button class="demo-toggle" type="button" aria-haspopup="dialog" aria-controls="demo-panel" aria-label="Presentation mode (demo)" title="Presentation mode (demo)" data-demo-open><svg class="demo-toggle__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"/></svg><span class="demo-toggle__flag" aria-hidden="true" data-demo-badge hidden>!</span></button>
         </div>
     </footer>
 
@@ -1074,7 +1132,7 @@
         <p class="voice-caption__text" aria-live="polite" data-voice-caption-text></p>
     </div>
 
-    <dialog class="sos" id="sos-dialog" aria-labelledby="sos-title" data-sos>
+    <dialog class="sos" id="sos-dialog" aria-labelledby="sos-title" data-sos data-essential>
         <div class="sos__container">
             <div class="sos__head">
                 <div class="sos__heading">
@@ -1107,6 +1165,7 @@
                     <button class="button button--secondary" type="button" data-sos-repeat><span class="button__text">Repeat</span></button>
                     <button class="button button--secondary" type="button" aria-pressed="false" data-sos-commands hidden><span class="button__text">Voice commands</span></button>
                 </div>
+                <p class="sos__commands" role="status" data-sos-commands-status hidden></p>
             </section>
             <div class="sos__responder-actions">
                 <button class="button button--primary" type="button" data-sos-respond hidden><span class="button__text">I'm on my way</span></button>

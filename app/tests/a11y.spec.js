@@ -69,3 +69,25 @@ for (const theme of ["light", "dark"]) {
         await expectNoA11yViolations(page, "ultrasound " + theme);
     });
 }
+
+// Body check-in sheet and nausea mode (large essential text, the rest smaller), in both themes
+for (const theme of ["light", "dark"]) {
+    test("body check-in and nausea mode have no violations (" + theme + ") @a11y", async function ({ page }) {
+        await page.route(/googleapis\.com|firebaseio\.com/, function (route) {
+            return route.abort();
+        });
+        await freshStart(page);
+        await signIn(page, "hsilva", "in");
+        await setTheme(page, theme);
+        await page.click("[data-symptom-open]");
+        const dialog = page.locator("[data-symptom]");
+        await dialog.locator("input[name='symptom'][value='nausea']").check();
+        await expectNoA11yViolations(page, "body check-in " + theme);
+        await dialog.locator("button[type='submit']").click();
+        await expect(page.locator("html")).toHaveAttribute("data-nausea", "on");
+        for (const url of ["/index.html", "/pages/vitals/index.html", "/pages/profile/index.html"]) {
+            await page.goto(url);
+            await expectNoA11yViolations(page, "nausea mode " + url + " " + theme);
+        }
+    });
+}

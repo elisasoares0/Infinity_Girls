@@ -62,6 +62,64 @@ test("on Earth there are no flight guides in the answers", async function ({ pag
     await expect(dialog.locator(".ask__disclaimer")).toContainText("call your flight surgeon");
 });
 
+test("how is my health today answers from the data, with where to see it, not privacy", async function ({ page }) {
+    await start(page);
+    const dialog = await ask(page, "how is my health today?");
+    const card = dialog.locator(".ask__data").first();
+    await expect(card.locator(".ask__title")).toHaveText("Your health today");
+    await expect(card.locator(".ask__fact")).toHaveCount(10);
+    await expect(card.locator(".ask__fact .badge").first()).toBeVisible();
+    await expect(card.locator(".ask__where")).toContainText("Where to see it");
+    await expect(dialog.locator(".ask__title", { hasText: "Who sees my data" })).toHaveCount(0);
+    await expect(dialog.locator("[data-ask-status]")).toContainText("Answered from your data");
+});
+
+test("a question with two topics gets two answers with the same numbers as the app", async function ({ page }) {
+    await start(page);
+    const dialog = await ask(page, "did I sleep well and is my heart rate ok?");
+    await expect(dialog.locator(".ask__data")).toHaveCount(2);
+    const values = await page.evaluate(function () {
+        var items = App.crew.todayVitals("silva");
+        return items.filter(function (item) {
+            return item.key === "hr" || item.key === "sleep";
+        }).map(function (item) {
+            return item.text;
+        });
+    });
+    for (const value of values) {
+        await expect(dialog.locator(".ask__data", { hasText: value })).toHaveCount(1);
+    }
+});
+
+test("a week trend gives the average, lowest and highest", async function ({ page }) {
+    await start(page);
+    const dialog = await ask(page, "heart rate this week");
+    const card = dialog.locator(".ask__data").first();
+    await expect(card.locator(".ask__title")).toHaveText("Heart rate this week");
+    await expect(card.locator(".ask__fact-label")).toHaveText(["Average", "Lowest", "Highest", "Days outside the range"]);
+});
+
+test("readiness says the score and what clears a spacewalk", async function ({ page }) {
+    await start(page);
+    const dialog = await ask(page, "am I ready for EVA?");
+    const card = dialog.locator(".ask__data").first();
+    await expect(card.locator(".ask__text")).toContainText("Readiness 86/100");
+    await expect(card.locator(".ask__text")).toContainText("Above 80 clears you for a spacewalk (EVA)");
+});
+
+test("the doctor asks who needs attention and gets the crew in order", async function ({ page }) {
+    await page.route(/googleapis.com|firebaseio.com/, function (route) {
+        return route.abort();
+    });
+    await freshStart(page);
+    await signIn(page, "cokafor", "in");
+    const dialog = await ask(page, "who needs attention?");
+    const card = dialog.locator(".ask__data").first();
+    await expect(card.locator(".ask__title")).toHaveText("The crew today");
+    await expect(card.locator(".ask__text")).toContainText("Needs attention first");
+    await expect(card.locator(".ask__fact")).toHaveCount(4);
+});
+
 for (const theme of ["light", "dark"]) {
     test("the assistant has no accessibility violations (" + theme + ") @a11y", async function ({ page }) {
         await start(page);

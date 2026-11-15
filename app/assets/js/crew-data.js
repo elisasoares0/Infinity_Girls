@@ -658,6 +658,45 @@
             });
         }
 
+        // Body check-in (body_checkin, assets/js/symptoms.js): strong symptoms and warning signs logged today, in flight
+        if (App.symptoms && App.isFlight()) {
+            Object.keys(MEMBERS).forEach(function (member) {
+                if (!App.getPrivacy(member).vitals.cmo) {
+                    return;
+                }
+                App.symptoms.today(member).filter(App.symptoms.needsDoctor).forEach(function (row) {
+                    var area = App.symptoms.region(row.regiao_anatomica);
+                    var item = App.symptoms.symptom(row.regiao_anatomica, row.sintoma);
+                    var nausea = item && item.nausea;
+                    alerts.push({
+                        id: "symptom-" + row.id,
+                        member: member,
+                        level: row.intensidade >= 4 || (item && item.sos) ? "danger" : "warn",
+                        title: "Symptom reported: " + App.symptoms.label(row),
+                        who: MEMBERS[member].name,
+                        text: (area ? area.label : row.regiao_anatomica) + ", logged on the body check-in at " + App.formatTime(new Date(row.registrado_em)) + ". Advice shown: " + row.protocolo_acao,
+                        steps: nausea ? [
+                            "Ask how many times they vomited and whether water stays down.",
+                            "Check the heart rate and blood pressure on the shirt for signs of dehydration.",
+                            "Agree on small sips of water every 15 minutes and rest with the head still."
+                        ] : [
+                            "Talk to the crew member: when it started, what they were doing, and what helps.",
+                            "Check the shirt readings (heart rate, blood pressure, SpO₂) at the time of the log.",
+                            "Agree on what to do and when to check again."
+                        ],
+                        escalate: item && item.sos
+                            ? "Pain or shortness of breath that does not ease with rest, or any change in the shirt readings: start SOS."
+                            : nausea
+                                ? "Vomiting more than twice, water does not stay down, or dizziness when standing."
+                                : "It gets stronger, spreads, or comes with numbness, weakness or a change in the shirt readings.",
+                        urgent: row.intensidade >= 4 || Boolean(item && item.sos),
+                        log: "What the crew member said, the readings checked and the advice given.",
+                        exit: "the crew member marks it “Feeling better” on their body check-in. This updates on its own."
+                    });
+                });
+            });
+        }
+
         // Women's health data from Cmdr. Silva, only if she shares it with the crew medical officer
         var shares = womens.enabled !== false && silvaPrivacy.womens.cmo;
         var bleedingDaysAgo = null;

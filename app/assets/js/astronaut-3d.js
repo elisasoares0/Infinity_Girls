@@ -5,9 +5,13 @@
  * SAFER jetpack and its hand controller (the bars the arms rested on) are removed when the model loads
  * (whole parts only: the suit keeps its original, smooth mesh).
  * 8 sensor dots sit on the suit surface, one per indicator, colored by status. Drag to turn, tap a dot to choose it.
+ * Anywhere else on the body is a region (head, chest, abdomen, back, arms, legs): the mouse lights it (onHover) and
+ * a click or tap opens the symptom check-in for it (onRegion). view.highlight(region) keeps it lit; view.setCalm(true)
+ * stops all motion (nausea mode).
  * The chosen dot becomes a white beacon (status color kept in its halo) and the others dim.
  * Loaded on demand by pages/home/home.js:
- *   const view = await mountAstronaut(host, { modelUrl, dracoPath, onSelect(key), onProject(key, x, y, visible) });
+ *   const view = await mountAstronaut(host, { modelUrl, dracoPath, onSelect(key), onRegion(region), onHover(region, x, y),
+ *       onProject(key, x, y, visible) });
  *   view.setStatus({ hr: "ok", temp: "warn", ... "silent" }); view.select(key); view.turn(radians);
  * onProject reports, every frame, where the chosen dot is on screen (px inside host) so a card can follow it.
  * Colors come from the tokens in assets/css/colors.css. The canvas is decorative (aria-hidden):
@@ -35,6 +39,21 @@ const SPOTS = {
     spo2: [0.25, 0.62],
     hydration: [0.5, 0.52],
     exercise: [0.6, 0.3]
+};
+
+/*
+ * Body regions (backend values of regiao_anatomica), as fractions of the body box without the backpack
+ * (x: 0 = viewer's left, y: 0 = feet, z: 0 = the middle, + toward the front). Calibrated by screenshot.
+ * REGION_LIMITS splits a hit point; REGION_SHAPES are the glows: [x, y, z, radius x, radius y, radius z].
+ */
+const REGION_LIMITS = { head: 0.82, legs: 0.47, arms: 0.2, back: 0.08, chest: 0.665 };
+const REGION_SHAPES = {
+    cabeca: [[0.5, 0.905, 0, 0.14, 0.085, 0.42]],
+    torax: [[0.5, 0.74, 0.12, 0.19, 0.085, 0.36]],
+    abdomen: [[0.5, 0.57, 0.12, 0.18, 0.095, 0.34]],
+    costas: [[0.5, 0.66, -0.2, 0.19, 0.15, 0.3]],
+    bracos: [[0.235, 0.67, 0, 0.075, 0.15, 0.3], [0.765, 0.67, 0, 0.075, 0.15, 0.3]],
+    pernas: [[0.4, 0.24, 0, 0.1, 0.23, 0.3], [0.6, 0.24, 0, 0.1, 0.23, 0.3]]
 };
 
 function token(name) {
@@ -197,6 +216,8 @@ async function removeGear(model) {
 
 export async function mountAstronaut(host, options) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Still: no floating, no inertia, no pulse (reduced motion, or nausea mode through setCalm)
+    let still = reduced;
 
     // Throws when WebGL is not available: the page keeps its poster and the cards
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -229,7 +250,8 @@ export async function mountAstronaut(host, options) {
         silent: token("--color-suit"),
         light: token("--color-3d-light"),
         ground: token("--color-visor"),
-        rim: token("--color-projection")
+        rim: token("--color-projection"),
+        region: token("--color-3d-region")
     };
 
     scene.add(new THREE.HemisphereLight(colors.light, colors.ground, 0.6));
@@ -363,6 +385,68 @@ export async function mountAstronaut(host, options) {
         markers[name] = { group: group, dot: dot, halo: halo, outer: outer, ring: beacon, material: material, haloMaterial: haloMaterial, status: "ok" };
     });
 
+    /*
+     * Body regions for the symptom check-in (App.symptoms): a hover lights the region under the pointer, a click
+     * opens the check-in for it. Classified from the hit point in the figure's own space, as fractions of the body
+     * box (without the backpack): height (fy), side (fx) and depth (z behind the middle = back).
+     * Each region also has a soft glow (ellipsoids, same fractions) drawn over the suit while it is lit.
+     */
+    const bodyBox = new THREE.Box3().setFromObject(model);
+    const bodySize = bodyBox.getSize(new THREE.Vector3());
+    const bodyMid = bodyBox.getCenter(new THREE.Vector3());
+    const local = new THREE.Vector3();
+
+    function regionOf(point) {
+        root.worldToLocal(local.copy(point));
+        const fx = (local.x - bodyBox.min.x) / bodySize.x;
+        const fy = (local.y - bodyBox.min.y) / bodySize.y;
+        if (fy >= REGION_LIMITS.head) {
+            return "cabeca";
+        }
+        if (fy < REGION_LIMITS.legs) {
+            return "pernas";
+        }
+        if (Math.abs(fx - 0.5) > REGION_LIMITS.arms) {
+            return "bracos";
+        }
+        if (local.z < bodyMid.z - bodySize.z * REGION_LIMITS.back) {
+            return "costas";
+        }
+        return fy >= REGION_LIMITS.chest ? "torax" : "abdomen";
+    }
+
+    const regionGlow = {};
+    const glowMaterial = new THREE.MeshBasicMaterial({ color: colors.region, transparent: true, opacity: 0.4, depthWrite: false, depthTest: false });
+    Object.keys(REGION_SHAPES).forEach(function (name) {
+        const group = new THREE.Group();
+        REGION_SHAPES[name].forEach(function (shape) {
+            const blob = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), glowMaterial);
+            blob.position.set(bodyBox.min.x + shape[0] * bodySize.x, bodyBox.min.y + shape[1] * bodySize.y, bodyMid.z + shape[2] * bodySize.z);
+            blob.scale.set(shape[3] * bodySize.x, shape[4] * bodySize.y, shape[5] * bodySize.z);
+            blob.renderOrder = 2;
+            group.add(blob);
+        });
+        group.visible = false;
+        root.add(group);
+        regionGlow[name] = group;
+    });
+    let hovered = null;
+    let pinned = null;
+
+    function paintRegions() {
+        const lit = hovered || pinned;
+        Object.keys(regionGlow).forEach(function (name) {
+            regionGlow[name].visible = name === lit;
+        });
+        wake();
+    }
+
+    // Keeps a region lit while its check-in card is open (null: none)
+    function highlight(name) {
+        pinned = regionGlow[name] ? name : null;
+        paintRegions();
+    }
+
     /* ---------- State, turning and selection ---------- */
     let selected = null;
     let angle = -0.3;
@@ -463,13 +547,16 @@ export async function mountAstronaut(host, options) {
     });
     canvas.addEventListener("pointermove", function (event) {
         if (!dragging) {
+            if (event.pointerType === "mouse") {
+                hover(event.clientX, event.clientY);
+            }
             return;
         }
         const dx = event.clientX - lastX;
         lastX = event.clientX;
         moved = Math.max(moved, Math.abs(event.clientX - startX));
         angle += dx * 0.012;
-        velocity = reduced ? 0 : dx * 0.012;
+        velocity = still ? 0 : dx * 0.012;
     });
     canvas.addEventListener("pointerup", function (event) {
         dragging = false;
@@ -480,22 +567,85 @@ export async function mountAstronaut(host, options) {
     canvas.addEventListener("pointercancel", function () {
         dragging = false;
     });
+    canvas.addEventListener("pointerleave", function () {
+        clearHover();
+    });
 
-    // A dot counts only when it is not hidden behind the body
-    function pick(clientX, clientY) {
+    /*
+     * Hover: light the region under the mouse and tell the page (for its label). The suit has about 340 000
+     * triangles, so the raycast runs at most every 80 ms, on the latest position.
+     */
+    let hoverAt = null;
+    let hoverTimer = 0;
+
+    function clearHover() {
+        hoverAt = null;
+        if (hovered !== null) {
+            hovered = null;
+            paintRegions();
+        }
+        canvas.classList.remove("astronaut-view__canvas-el--pointer");
+        if (options.onHover) {
+            options.onHover(null);
+        }
+    }
+
+    function hover(clientX, clientY) {
+        hoverAt = [clientX, clientY];
+        if (hoverTimer) {
+            return;
+        }
+        hoverTimer = setTimeout(function () {
+            hoverTimer = 0;
+            if (!hoverAt || dragging) {
+                return;
+            }
+            const found = hitAt(hoverAt[0], hoverAt[1]);
+            const name = found && !found.dot ? found.region : null;
+            canvas.classList.toggle("astronaut-view__canvas-el--pointer", Boolean(found));
+            if (name !== hovered) {
+                hovered = name;
+                paintRegions();
+            }
+            if (options.onHover) {
+                const rect = canvas.getBoundingClientRect();
+                options.onHover(name, hoverAt[0] - rect.left, hoverAt[1] - rect.top);
+            }
+        }, 80);
+    }
+
+    /*
+     * What is under a point on screen: a sensor dot (counts only when not hidden behind the body), or a body region.
+     * Returns { dot: key } or { region: name }, or null on empty space.
+     */
+    function hitAt(clientX, clientY) {
         const rect = canvas.getBoundingClientRect();
         pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
         const found = raycaster.intersectObjects(hits.concat(bodyMeshes), false);
         if (!found.length) {
-            return;
+            return null;
         }
         const first = found[0];
         const nearby = first.object.userData.key ? first : found.filter(function (entry) {
             return entry.object.userData.key && entry.distance - first.distance < dotSize * 4;
         })[0];
         if (nearby) {
-            options.onSelect(nearby.object.userData.key);
+            return { dot: nearby.object.userData.key };
+        }
+        const body = found.filter(function (entry) {
+            return !entry.object.userData.key;
+        })[0];
+        return body ? { region: regionOf(body.point) } : null;
+    }
+
+    // A tap or click: a dot opens its reading; anywhere else on the body opens the symptom check-in for that region
+    function pick(clientX, clientY) {
+        const found = hitAt(clientX, clientY);
+        if (found && found.dot) {
+            options.onSelect(found.dot);
+        } else if (found && found.region && options.onRegion) {
+            options.onRegion(found.region);
         }
     }
 
@@ -531,7 +681,7 @@ export async function mountAstronaut(host, options) {
     function draw() {
         const time = clock.getElapsedTime();
         if (target !== null) {
-            angle += (target - angle) * (reduced ? 1 : 0.12);
+            angle += (target - angle) * (still ? 1 : 0.12);
             if (Math.abs(target - angle) < 0.002) {
                 angle = target;
                 target = null;
@@ -541,12 +691,18 @@ export async function mountAstronaut(host, options) {
             velocity *= 0.92;
         }
         figure.rotation.y = angle;
-        shift += (shiftTarget - shift) * (reduced ? 1 : 0.15);
+        shift += (shiftTarget - shift) * (still ? 1 : 0.15);
         if (Math.abs(shiftTarget - shift) < 0.001) {
             shift = shiftTarget;
         }
         figure.position.x = shift;
-        if (!reduced) {
+        if (still) {
+            figure.position.y = 0;
+            figure.rotation.z = 0;
+            KEYS.forEach(function (name) {
+                markers[name].halo.scale.setScalar(1);
+            });
+        } else {
             // Floating in microgravity, and a pulse on dots that need attention
             figure.position.y = Math.sin(time * 0.9) * 0.05;
             figure.rotation.z = Math.sin(time * 0.6) * 0.015;
@@ -570,7 +726,7 @@ export async function mountAstronaut(host, options) {
     }
 
     function busy() {
-        return !reduced || dragging || target !== null || Math.abs(velocity) > 0.0005 || shift !== shiftTarget;
+        return !still || dragging || target !== null || Math.abs(velocity) > 0.0005 || shift !== shiftTarget;
     }
 
     function loop() {
@@ -602,12 +758,35 @@ export async function mountAstronaut(host, options) {
     }
     resize();
 
+    function setCalm(on) {
+        still = reduced || Boolean(on);
+        if (still) {
+            velocity = 0;
+        }
+        wake();
+    }
+
     return {
         setStatus: setStatus,
         select: select,
         turn: turn,
         setShift: setShift,
+        highlight: highlight,
+        setCalm: setCalm,
         keys: KEYS,
+        regions: Object.keys(REGION_SHAPES),
+        // For tests and the page: screen position (px inside host) of a region's middle (its first glow piece)
+        regionScreen: function (name) {
+            figure.updateMatrixWorld(true);
+            const point = regionGlow[name].children[0].getWorldPosition(new THREE.Vector3()).project(camera);
+            return { x: (point.x + 1) / 2 * host.clientWidth, y: (1 - point.y) / 2 * host.clientHeight };
+        },
+        // For tests: what is under a point (px inside host): a dot key, a region, or null
+        regionAt: function (x, y) {
+            const rect = canvas.getBoundingClientRect();
+            const found = hitAt(rect.left + x, rect.top + y);
+            return found ? found.dot || found.region : null;
+        },
         // For tests and the page: screen position (px inside host) of a dot
         screenOf: function (name) {
             figure.updateMatrixWorld(true);

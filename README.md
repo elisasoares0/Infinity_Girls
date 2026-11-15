@@ -4,7 +4,7 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:030F26,45:0B3D91,80:FF4D94,100:00D2FF&height=210&section=header&text=AstroHealth&fontSize=58&fontColor=FFFFFF&fontAlignY=38&desc=Infinity%20Girls%20%E2%80%A2%20NASA%20Space%20Apps%20Challenge%202026&descSize=18&descAlignY=62&descColor=FFFFFF&animation=twinkling" width="100%" alt="Banner AstroHealth" />
 
 <!-- TYPING SVG DINÂMICO -->
-<a href="https://spaceapps-infinitygirls.web.app/">
+<a href="https://spaceapps2026-infinitygirls.web.app/">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=19&duration=3000&pause=1000&color=FF66B2&center=true&vCenter=true&multiline=false&width=780&height=42&lines=Monitoramento+Biom%C3%A9dico+Aut%C3%B4nomo+para+Miss%C3%B5es+Espaciais;Mitigando+os+5+Riscos+do+Human+Research+Program+da+NASA;Telemetria+em+Tempo+Real+%E2%80%A2+PostgreSQL+%2B+RLS+%E2%80%A2+Python+%2B+Web" alt="Typing SVG" />
 </a>
 
@@ -22,7 +22,7 @@
 [🎨 Identidade Visual](#-identidade-visual-azul--branco) •
 [✨ Funcionalidades](#-funcionalidades-principais) •
 [🏗️ Arquitetura](#️-arquitetura-do-sistema) •
-[🚀 Como Executar](#-como-executar-o-projeto) •
+[📂 Estrutura do Repositório](#-Estrutura-do-Repositório) •
 [👩‍🚀 Equipe](#-equipe-infinity-girls)
 
 </div>
@@ -90,7 +90,7 @@ flowchart LR
     D --> E[🗂️ Storage Privado\nBucket: exames-imagem]
 ```
 ---
-### 📂 Estrutura do Repositório
+## 📂 Estrutura do Repositório
 
 ```text
 NASA/
@@ -114,48 +114,13 @@ NASA/
 └── README.md                 # Documentação oficial do projeto
 ```
 ---
-## 🚀 Como Executar o Projeto
-
-### Passo a Passo
-
-1. **Clone o repositório:**
-   ```bash
-   git clone 
-   [https://github.com/seu-usuario/astrohealth.git](https://github.com/seu-usuario/astrohealth.git)
-   cd astrohealth
-2. Instale as dependências do Front-end:
-    ```bash
-    cd frontend
-    npm install
-3. Execute o projeto em ambiente local:
-    ```bash
-    # No terminal do backend
-    python main.py
-
-    # No terminal do frontend
-    npm run dev
-    ```
-4. Acesse a aplicação no seu navegador: https://spaceapps-infinitygirls.web.app
-
---- 
-### 🤝 Como Contribuir
-
-Contribuições são bem-vindas! Se você deseja propor melhorias:
-
-1. Faça um Fork do projeto.
-
-2. Crie uma Branch para sua funcionalidade (git checkout -b feature/nova-funcionalidade).
-
-3. Abra um Pull Request.
-
----
 ## 👩‍🚀 Equipe Infinity Girls
 
 | Avatar | Nome | Função / Especialidade | Redes & Contato |
 | :---: | :--- | :--- | :---: |
 | <img src="https://github.com/elisasoares0.png" width="80" style="border-radius:50%;"> | **Elisa Soares** | Data Engineer | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/elisaosoares0) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/elisasoarestech) |
 | <img src="https://github.com/jennyttavares-dotcom.png" width="80" style="border-radius:50%;"> | **Jeniffer Tavares** | Ajustar | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/jennyttavares-dotcom) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jeniffer-tavares-2a0852a6/i/) |
-| <img src="https://github.com/laramour.png" width="80" style="border-radius:50%;"> | **Lara Moura** | Ajustar | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/laramour) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/laranogueirabsi/) |
+| <img src="https://github.com/laramour.png" width="80" style="border-radius:50%;"> | **Lara Moura** | Product Manager/ Owner | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/laramour) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/laranogueirabsi/) |
 | <img src="https://github.com/Rafa-Protasio.png" width="80" style="border-radius:50%;"> | **Rafaela Protasio** | QA Enginner | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/elisaosoares0) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/rafaela-protasio) |
 | <img src="https://github.com/itstfs.png" width="80" style="border-radius:50%;"> | **Thaiza Favarelli** | Frontend Developer & Ergonomics | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/itstfs) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/thaiza-favarelli-da-silva/) |
 | <img src="https://github.com/yaabdon.png" width="80" style="border-radius:50%;"> | **Yasmin Abdon** | Ajustar | [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/yaabdon) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/yasminabdon) |

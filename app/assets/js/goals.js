@@ -34,9 +34,10 @@
         return date.toISOString().slice(0, 10);
     }
 
+    // A check-in counts when mood was answered (a nausea log alone also writes the day's row: enjoo_gravidade_escala)
     function checkinOn(key) {
         return App.records.list("avaliacoes_diarias", { usuario_id: member }).filter(function (row) {
-            return row.data_registro === key;
+            return row.data_registro === key && row.humor_escala != null;
         })[0] || null;
     }
 

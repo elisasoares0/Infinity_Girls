@@ -130,6 +130,17 @@
                 sinais: { items: ["inchaco_um_lado", "dor_panturrilha", "calor_vermelhidao", "inchaco_pescoco", "dor_cabeca_forte", "falta_ar_subita", "dor_peito"] },
                 status_alerta: { required: true, values: ["normal", "atencao", "critico"] }
             }
+        },
+        // Body check-in: a symptom on a region of the 3D body (assets/js/symptoms.js)
+        body_checkin: {
+            columns: {
+                usuario_id: { required: true },
+                regiao_anatomica: { required: true },
+                sintoma: { required: true },
+                intensidade: { required: true, range: [1, 5] },
+                protocolo_acao: {},
+                resolvido: {}
+            }
         }
     };
 

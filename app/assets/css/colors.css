@@ -159,6 +159,8 @@
     --color-on-tint-ok: var(--status-green);
     --color-tint-neutral: var(--tint-neutral);
     --color-nav-active: var(--electric-blue);        /* active tab: ≈ 9:1 on the white bar */
+
+    --color-3d-region: var(--blue-yonder);       /* glow on a body region (symptom check-in), on the dark stage; never follows the theme */
     --color-visor: var(--deep-blue);
     --color-visor-glow: var(--neon-blue);
 
@@ -173,6 +175,7 @@
     --color-space-card: var(--white-08);
     --color-space-card-hover: var(--white-16);
     --color-space-icon: var(--blue-yonder);
+    --color-space-error: var(--rocket-red-light);   /* form errors on the space band and dark sheets (Deep Blue): ≈ 7.5:1 */
 
     /* Waves and orbit lines (shape SVGs in assets/img used as masks; color comes from here).
        Graphics only, never text. */
