@@ -135,11 +135,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    padding: var(--space-4);
-    border: 1px solid var(--sys-card-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
 }
 
 .stats__label {
@@ -404,8 +399,8 @@
 
 .day-detail__icon {
     flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
+    width: var(--icon-md);
+    height: var(--icon-md);
     color: var(--color-primary);
 }
 
@@ -427,8 +422,8 @@
 
 .week__icon {
     flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
     color: var(--color-primary);
 }
 
@@ -441,8 +436,8 @@
 
 .mission__icon {
     flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
     color: var(--color-primary);
 }
 

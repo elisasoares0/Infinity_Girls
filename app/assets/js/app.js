@@ -656,11 +656,43 @@
         return el;
     }
 
-    var CHART = { width: 320, height: 168, left: 40, right: 12, top: 12, bottom: 28 };
+    /*
+     * Charts are drawn at their real size (Material data visualization: axis and legend labels at 12, the lowest level of
+     * the hierarchy, below the 18px card title). The viewBox takes the SVG's own width, so 1 unit is 1 CSS pixel and a
+     * 12px label stays 12px on a phone and on a wide desktop card. Margins and label gaps sit on the 8px grid.
+     * Each chart keeps its data on the SVG and is redrawn when its width changes (rotation, a tab or <details> opening).
+     */
+    var CHART = { width: 320, height: 168, left: 40, right: 16, top: 16, bottom: 32, gap: 8 };
+    var chartObserver = null;
+
+    function chartWidth(svg) {
+        var width = Math.round(svg.getBoundingClientRect().width);
+        return width >= 160 ? width : CHART.width;
+    }
+
+    function remember(svg, draw, data, opts, width) {
+        svg.__chart = { draw: draw, data: data, opts: opts, width: width };
+        if (!window.ResizeObserver) {
+            return;
+        }
+        if (!chartObserver) {
+            chartObserver = new ResizeObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    var chart = entry.target.__chart;
+                    var width = Math.round(entry.contentRect.width);
+                    if (chart && width >= 160 && Math.abs(width - chart.width) > 8) {
+                        chart.draw(entry.target, chart.data, chart.opts);
+                    }
+                });
+            });
+        }
+        chartObserver.observe(svg);
+    }
 
     // points: [{ x, y, title }]; opts: { yMin, yMax, yTicks, xTicks: [{ x, label }], xMax, band: [lo, hi], threshold, isWarn(point) }
     function lineChart(svg, points, opts) {
-        var w = CHART.width, h = CHART.height;
+        var w = chartWidth(svg), h = CHART.height;
+        remember(svg, lineChart, points, opts, w);
         var plotW = w - CHART.left - CHART.right, plotH = h - CHART.top - CHART.bottom;
         var xMax = opts.xMax || points[points.length - 1].x;
         var sx = function (x) { return CHART.left + (x / xMax) * plotW; };
@@ -674,10 +706,10 @@
         }
         opts.yTicks.forEach(function (tick) {
             svg.appendChild(svgEl("line", { "class": "chart__grid", x1: CHART.left, x2: w - CHART.right, y1: sy(tick), y2: sy(tick) }));
-            svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: CHART.left - 6, y: sy(tick) + 4, "text-anchor": "end" }, String(tick)));
+            svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: CHART.left - CHART.gap, y: sy(tick) + 4, "text-anchor": "end" }, String(tick)));
         });
         (opts.xTicks || []).forEach(function (tick) {
-            svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: sx(tick.x), y: h - 8, "text-anchor": "middle" }, tick.label));
+            svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: sx(tick.x), y: h - CHART.gap - 4, "text-anchor": "middle" }, tick.label));
         });
         if (typeof opts.threshold === "number") {
             svg.appendChild(svgEl("line", { "class": "chart__threshold", x1: CHART.left, x2: w - CHART.right, y1: sy(opts.threshold), y2: sy(opts.threshold) }));
@@ -709,11 +741,13 @@
     // bars: [{ label, group, value, valueLabel, neutral, title }]; opts: { max, goal }
     // When bars have a "group", its name is drawn once under each group, on a second axis line.
     function barChart(svg, bars, opts) {
-        var w = CHART.width, h = CHART.height;
+        var w = chartWidth(svg), h = CHART.height;
+        remember(svg, barChart, bars, opts, w);
         var grouped = bars.some(function (bar) { return bar.group; });
-        var extra = grouped ? 14 : 0;
-        var plotW = w - CHART.left - CHART.right, plotH = h - CHART.top - CHART.bottom - 14 - extra;
-        var top = CHART.top + 14;
+        var extra = grouped ? 16 : 0;
+        // 16px above the bars for their value labels
+        var plotW = w - CHART.left - CHART.right, plotH = h - CHART.top - CHART.bottom - 16 - extra;
+        var top = CHART.top + 16;
         var slot = plotW / bars.length;
         var barW = Math.min(36, slot - 8);
         var sy = function (v) { return top + (1 - v / opts.max) * plotH; };
@@ -725,7 +759,7 @@
 
         if (typeof opts.goal === "number") {
             svg.appendChild(svgEl("line", { "class": "chart__threshold", x1: CHART.left, x2: w - CHART.right, y1: sy(opts.goal), y2: sy(opts.goal) }));
-            svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: CHART.left - 6, y: sy(opts.goal) + 4, "text-anchor": "end" }, String(opts.goal)));
+            svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: CHART.left - CHART.gap, y: sy(opts.goal) + 4, "text-anchor": "end" }, String(opts.goal)));
         }
 
         bars.forEach(function (bar, index) {
@@ -739,10 +773,10 @@
             path.appendChild(svgEl("title", {}, bar.title || bar.label + ": " + bar.valueLabel));
             svg.appendChild(path);
             if (bar.valueLabel) {
-                svg.appendChild(svgEl("text", { "class": "chart__value", x: x + barW / 2, y: y - 6, "text-anchor": "middle" }, bar.valueLabel));
+                svg.appendChild(svgEl("text", { "class": "chart__value", x: x + barW / 2, y: y - CHART.gap, "text-anchor": "middle" }, bar.valueLabel));
             }
             if (bar.label) {
-                svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: x + barW / 2, y: h - 8 - extra, "text-anchor": "middle" }, bar.label));
+                svg.appendChild(svgEl("text", { "class": "chart__axis-label", x: x + barW / 2, y: h - CHART.gap - 4 - extra, "text-anchor": "middle" }, bar.label));
             }
         });
 
@@ -756,7 +790,7 @@
             });
             Object.keys(groups).forEach(function (name) {
                 var center = CHART.left + slot * (groups[name].first + groups[name].last + 1) / 2;
-                svg.appendChild(svgEl("text", { "class": "chart__value", x: center, y: h - 6, "text-anchor": "middle" }, name));
+                svg.appendChild(svgEl("text", { "class": "chart__value", x: center, y: h - CHART.gap, "text-anchor": "middle" }, name));
             });
         }
     }

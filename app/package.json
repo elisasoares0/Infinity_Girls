@@ -14,7 +14,8 @@
     "rules": "firebase deploy --only firestore:rules"
   },
   "dependencies": {
-    "firebase": "13.3.0"
+    "firebase": "13.3.0",
+    "lottie-web": "5.12.2"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

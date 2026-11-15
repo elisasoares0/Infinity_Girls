@@ -424,14 +424,14 @@
 
     function buildDialog() {
         dialog = document.createElement("dialog");
-        dialog.className = "ask";
+        dialog.className = "sheet sheet--wide ask";
         dialog.setAttribute("aria-labelledby", "ask-title");
         dialog.innerHTML =
             "<div class=\"ask__container\">" +
             "<div class=\"ask__head\"><div class=\"ask__heading\">" +
             "<h2 class=\"ask__heading-title\" id=\"ask-title\">Ask the assistant</h2>" +
             "<p class=\"ask__subtitle\">Answers from your live data and the guides in this app, with where to see them. It works offline.</p></div>" +
-            "<button class=\"ask__close\" type=\"button\" aria-label=\"Close\"><svg class=\"ask__close-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
+            "<button class=\"icon-button ask__close\" type=\"button\" aria-label=\"Close\"><svg class=\"icon-button__icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
             "<form class=\"ask__form\" role=\"search\" novalidate>" +
             "<label class=\"field__label\" for=\"ask-question\">Your question</label>" +
             "<div class=\"ask__row\"><input class=\"field__input ask__input\" id=\"ask-question\" type=\"text\" autocomplete=\"off\" enterkeyhint=\"search\">" +

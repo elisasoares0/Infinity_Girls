@@ -38,24 +38,13 @@
 
 .sharing__fixed-icon {
     flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
-    margin-top: 2px;
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    margin-top: var(--space-0);
 }
 
 .sharing__fixed-text {
     max-width: var(--text-max);
-}
-
-.sharing__list {
-    display: flex;
-    flex-direction: column;
-}
-
-.sharing__row {
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
-    border-top: 1px solid var(--color-line);
 }
 
 /* Outside the medical team */

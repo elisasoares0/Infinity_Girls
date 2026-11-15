@@ -108,6 +108,8 @@ fieldset {
     font-size: var(--text-base);
 }
 
+/* No motion in nausea mode, and none for anyone who asked the device for less motion (WCAG 2.3.3, Apple "Reduce Motion").
+   Lottie animations (App.motion) show their last frame in both cases. */
 :root[data-nausea] *,
 :root[data-nausea] *::before,
 :root[data-nausea] *::after {
@@ -115,6 +117,17 @@ fieldset {
     animation-iteration-count: 1;
     transition-duration: 0.001ms;
     scroll-behavior: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms;
+        animation-iteration-count: 1;
+        transition-duration: 0.001ms;
+        scroll-behavior: auto;
+    }
 }
 
 ul {
@@ -334,8 +347,8 @@ a {
 
 .ask-toggle__icon {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .ask-toggle__text {
@@ -378,8 +391,8 @@ a {
 
 .theme-toggle__icon {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .theme-toggle__text {
@@ -503,8 +516,8 @@ a {
 }
 
 .badge__icon {
-    width: 12px;
-    height: 12px;
+    width: var(--icon-xs);
+    height: var(--icon-xs);
 }
 
 /* Help (disclosure with plain-language explanation) */
@@ -582,8 +595,8 @@ a {
 }
 
 .page-intro__back-icon {
-    width: 16px;
-    height: 16px;
+    width: var(--icon-sm);
+    height: var(--icon-sm);
     transform: scaleX(-1);
 }
 
@@ -625,6 +638,57 @@ a {
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
+}
+
+/* Card sizes: --spacious for a card that is a whole panel (sign in, crew overview); --flush when the content
+   draws its own padding (a <details> that fills the card, an emergency guide) */
+.card--spacious {
+    padding: var(--space-5);
+}
+
+.card--flush {
+    padding: 0;
+}
+
+/*
+ * Motion: the host of a Lottie micro-interaction (App.motion, assets/js/motion.js). Decoration only: always
+ * aria-hidden, the news is in text next to it. It takes the text color of where it sits (currentColor).
+ * Sizes follow the icon tokens; --lg is a celebration (96px). Still on its last frame with reduced motion.
+ */
+.motion {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    color: inherit;
+    pointer-events: none;
+}
+
+.motion--sm {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+}
+
+.motion--md {
+    width: var(--icon-md);
+    height: var(--icon-md);
+}
+
+.motion--lg {
+    width: 96px;
+    height: 96px;
+}
+
+/* Over a checkbox (a task ticked by hand): the check draws itself on top for a moment */
+.motion--overlay {
+    position: absolute;
+    top: 50%;
+    left: var(--space-4);
+    width: var(--space-6);
+    height: var(--space-6);
+    margin-left: calc(var(--space-1) * -1);
+    transform: translateY(-50%);
+    color: var(--color-status-ok-text);
 }
 
 /* Status cards keep the plain card look: the badge inside says the status (soft UI, no colored outlines) */
@@ -716,7 +780,7 @@ a {
     height: 20px;
     border-radius: var(--radius-pill);
     background-color: var(--color-text-muted);
-    transition: transform 0.15s ease-out;
+    transition: transform var(--motion-state) var(--ease-standard);
 }
 
 .switch__input:checked {
@@ -768,9 +832,9 @@ a {
 .notice__icon {
     flex: 0 0 auto;
     box-sizing: content-box;
-    width: 18px;
-    height: 18px;
-    padding: 7px;
+    width: var(--icon-md);
+    height: var(--icon-md);
+    padding: calc(var(--space-2) - var(--hairline));
     border-radius: var(--radius-pill);
     background-color: var(--color-surface);
     color: var(--notice-accent);
@@ -880,6 +944,252 @@ a {
     border-color: var(--color-text);
 }
 
+/*
+ * List: rows of label and value, settings or records. Apple's list; Framework7: <div class="list">, inset:
+ * <div class="list inset">; Ionic: <ion-list>, inset: <ion-list inset="true"> with <ion-item>.
+ *   .list            rows with a hairline between them, inside a card (Personal data, a crew card, sharing)
+ *   .list--inset     Apple's inset grouped list: one rounded surface, the hairline starts where the text starts
+ *   .list--compact   smaller text (dense facts on a card)
+ *   .list__row       label and value on one line, wrapping when narrow
+ *   .list__row--stack  a row with several lines (an exam, a symptom)
+ *   .list__row--block  a row whose child takes the full width (a switch)
+ *   .list__row--done   a row that is done (opaque tint, always with text that says so)
+ * Rows of an inset list are at least 48px high (touch target). Spacing inside comes from --list-pad, so no selector
+ * ever combines two classes.
+ */
+.list {
+    --list-pad: 0;
+    --list-pad-y: var(--space-2);
+    --list-row-min: 0;
+    --list-text: var(--text-base);
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--list-text);
+}
+
+.list--inset {
+    --list-pad: var(--space-4);
+    --list-pad-y: var(--space-3);
+    --list-row-min: var(--touch-target);
+    overflow: hidden;
+    border: var(--hairline) solid var(--sys-card-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.list--compact {
+    --list-text: var(--text-sm);
+}
+
+.list__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+    min-height: var(--list-row-min);
+    padding: var(--list-pad-y) var(--list-pad);
+    background-image: linear-gradient(var(--color-line), var(--color-line));
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-size: calc(100% - var(--list-pad)) var(--hairline);
+}
+
+.list__row:first-child {
+    background-image: none;
+}
+
+.list__row--stack {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--space-2);
+}
+
+.list__row--block {
+    display: block;
+}
+
+.list__row--done {
+    background-color: var(--color-surface-done);
+}
+
+.list__label {
+    color: var(--color-text-muted);
+}
+
+.list__value {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+}
+
+/* A value with a state animation before it (App.motion), e.g. "Health records" on the Profile */
+.list__value--status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+
+@media (forced-colors: active) {
+    .list--inset {
+        border-color: CanvasText;
+    }
+}
+
+/*
+ * Sheet: every dialog that is not the SOS. Apple's sheet: a bottom sheet with a grabber on phones; from 768px a
+ * side drawer at the right edge, full height. Framework7: <div class="sheet-modal">; Ionic: <ion-modal> with breakpoints.
+ * Markup: <dialog class="sheet [--wide|--narrow] block"> with the block's own __container and __head inside.
+ * Opens with showModal(); Esc and the close button (.icon-button) close it; focus goes back to whoever opened it.
+ * Enters with transform + opacity only (none with reduced motion or nausea mode).
+ */
+.sheet {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    margin: auto 0 0;
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: none;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-dock);
+    color: var(--color-text);
+}
+
+.sheet[open] {
+    animation: sheet-up var(--motion-enter) var(--ease-emphasized);
+}
+
+.sheet::backdrop {
+    background-color: var(--color-backdrop);
+}
+
+/* Grabber: Apple's handle at the top of a bottom sheet (decorative, aria-hidden; the sheet closes by button or Esc) */
+.sheet::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: var(--space-1);
+    margin: var(--space-2) auto 0;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-line);
+}
+
+@keyframes sheet-up {
+    from {
+        opacity: 0;
+        transform: translateY(var(--space-6));
+    }
+}
+
+@keyframes sheet-in {
+    from {
+        opacity: 0;
+        transform: translateX(var(--space-6));
+    }
+}
+
+@media (min-width: 768px) {
+    .sheet {
+        width: min(480px, 100vw);
+        height: 100%;
+        max-height: 100%;
+        margin: 0 0 0 auto;
+        border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+    }
+
+    .sheet[open] {
+        animation-name: sheet-in;
+    }
+
+    /* A side drawer has no grabber */
+    .sheet::before {
+        display: none;
+    }
+
+    .sheet--wide {
+        width: min(520px, 100vw);
+    }
+
+    .sheet--narrow {
+        width: min(440px, 100vw);
+    }
+}
+
+/*
+ * Icon button: a round 48 × 48 button with only an icon (close, minimize, turn). Apple's circular action button;
+ * Framework7: <a class="link icon-only">; Ionic: <ion-button fill="clear" shape="round">.
+ * Always with aria-label (and title when the icon is not universal). The icon goes in .icon-button__icon.
+ *   default   soft tint on light surfaces
+ *   --ghost   no fill until hover (inside cards)
+ *   --on-dark glass on the dark space band and dark sheets
+ */
+.icon-button {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    padding: 0;
+    border: var(--hairline) solid transparent;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg-soft);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color var(--motion-state) var(--ease-standard);
+}
+
+.icon-button:hover {
+    background-color: var(--color-surface-hover);
+}
+
+.icon-button:active {
+    transform: scale(0.94);
+}
+
+.icon-button:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.icon-button:disabled {
+    opacity: var(--state-disabled-content);
+    cursor: not-allowed;
+}
+
+.icon-button--ghost {
+    background-color: transparent;
+}
+
+.icon-button--on-dark {
+    border-color: var(--color-stage-line);
+    background-color: var(--color-space-card);
+    color: var(--color-stage-text);
+}
+
+.icon-button--on-dark:hover {
+    background-color: var(--color-space-card-hover);
+}
+
+.icon-button--on-dark:focus-visible {
+    outline-color: var(--color-stage-text);
+}
+
+.icon-button__icon {
+    width: var(--icon-md);
+    height: var(--icon-md);
+}
+
 /* Pressed: a short press-in (transform only); disabled: 38% content, no pointer */
 .button:active {
     transform: scale(0.98);
@@ -915,7 +1225,14 @@ a {
 
 /* Tabs (role="tablist"): Vitals views and the sign-in screen */
 /* Segmented control (iOS): a neutral track, the chosen option is a raised white thumb */
-.tabs {
+/*
+ * Segmented control: two to four options of the same view (Sign in / Create account, Today / Weekly / Overall).
+ * Apple's segmented control; Framework7: <div class="segmented segmented-strong">; Ionic: <ion-segment>.
+ * Semantics: role="tablist" + role="tab" + aria-selected when it swaps panels (arrow keys move, as in auth.js and
+ * vitals.js); a group of buttons with aria-pressed when it changes what one panel shows (women's health).
+ * Every option is at least 48px high; the selected one is a raised surface, never color alone (shadow + weight).
+ */
+.segmented {
     display: flex;
     gap: var(--space-1);
     max-width: 28rem;
@@ -925,7 +1242,7 @@ a {
     background-color: var(--color-tint-neutral);
 }
 
-.tabs__tab {
+.segmented__option {
     flex: 1 1 0;
     min-height: var(--space-7);
     padding: 0 var(--space-3);
@@ -939,29 +1256,39 @@ a {
     cursor: pointer;
 }
 
-.tabs__tab:hover {
+.segmented__option:hover {
     color: var(--color-text);
 }
 
-.tabs__tab:focus-visible {
+.segmented__option:focus-visible {
     outline: 3px solid var(--color-focus);
     outline-offset: 2px;
 }
 
-.tabs__tab--active {
+.segmented__option--active {
     border-color: transparent;
     background-color: var(--color-surface);
     color: var(--color-text);
-    box-shadow: 0 1px 3px rgba(7, 23, 63, 0.12), 0 1px 2px rgba(7, 23, 63, 0.08);
+    box-shadow: var(--shadow-segment);
 }
 
-.tabs__tab--active:hover {
-    color: var(--color-on-primary);
+.segmented__option--active:hover {
+    color: var(--color-text);
 }
 
-.tabs__text {
+.segmented__text {
     display: block;
     text-box: trim-both cap alphabetic;
+}
+
+/*
+ * Chip group: a wrapping row of .choice--chip options (radio or checkbox), as in a fieldset of the women's and
+ * men's health logs. Framework7: chips; Ionic: <ion-chip>. Each chip keeps its 48px target and its text label.
+ */
+.chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
 }
 
 /* Filter chips (toggle buttons with aria-pressed): Vitals mission view and the doctor's crew search */
@@ -1007,8 +1334,8 @@ a {
 }
 
 .filter-chips__icon {
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .filter-chips__text {
@@ -1127,8 +1454,8 @@ a {
 .nausea__icon {
     flex: 0 0 auto;
     align-self: flex-start;
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
     color: var(--color-primary);
 }
 
@@ -1394,7 +1721,7 @@ a {
     border-radius: var(--radius-pill);
     cursor: pointer;
     transform: rotate(var(--angle)) translateY(calc(-1 * var(--ring-radius)));
-    transition: box-shadow 0.15s ease-out;
+    transition: box-shadow var(--motion-state) var(--ease-standard);
 }
 
 .health-ring__segment:hover {
@@ -1440,8 +1767,8 @@ a {
 }
 
 .health-ring__icon {
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 .health-ring__flag {
@@ -1522,8 +1849,8 @@ a {
 }
 
 .health-ring__detail-icon {
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
     color: var(--color-primary);
 }
 
@@ -1629,8 +1956,8 @@ a {
 
 .health-ring__live-icon {
     flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
+    width: var(--icon-sm);
+    height: var(--icon-sm);
     color: var(--color-primary);
 }
 
@@ -1766,8 +2093,8 @@ a {
 }
 
 .summary-bars__icon {
-    width: 20px;
-    height: 20px;
+    width: var(--icon-md);
+    height: var(--icon-md);
     color: var(--color-primary);
 }
 
@@ -1777,11 +2104,18 @@ a {
     color: var(--color-text-muted);
 }
 
-/* Chart (inline SVG drawn from data; the summary text carries the meaning) */
+/*
+ * Chart (inline SVG drawn from data; the summary text carries the meaning). Hierarchy from Material data
+ * visualization: 1. the card title (18px 700) · 2. the summary, the key data in a sentence (16px regular) ·
+ * 3. direct value labels on the marks (12px 700) · 4. axis and legend labels (12px, muted), the lowest level.
+ * Bold only on the title and the badge. The SVG is drawn at its real size (App.charts), so 12px is 12px everywhere.
+ * The legend sits above the chart on phones (visible while touching it) and below it from 768px.
+ * Markup order: summary, legend, svg, "Show data as a table".
+ */
 .chart {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-2);
 }
 
 .chart__svg {
@@ -1858,15 +2192,27 @@ a {
 .chart__summary {
     max-width: var(--text-max);
     font-size: var(--text-base);
-    font-weight: 700;
+    font-weight: 400;
+    color: var(--color-text);
 }
 
 .chart__legend {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1) var(--space-4);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     color: var(--color-text-muted);
+}
+
+/* Desktop and tablet: the legend goes below the chart (summary and chart move up; the table toggle stays last) */
+@media (min-width: 768px) {
+    .chart__summary {
+        order: -2;
+    }
+
+    .chart__svg {
+        order: -1;
+    }
 }
 
 .chart__legend-item {
@@ -1876,8 +2222,9 @@ a {
 }
 
 .chart__swatch {
-    width: 12px;
-    height: 12px;
+    flex: 0 0 auto;
+    width: var(--icon-xs);
+    height: var(--icon-xs);
     border-radius: var(--radius-pill);
     background-color: var(--color-chart);
 }
@@ -1966,8 +2313,8 @@ a {
 
 .demo-toggle__icon {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 /* On while something is simulated: a "!" mark in the corner (shape and color); the header and the panel say it in words */
@@ -1991,23 +2338,6 @@ a {
 
 /* The panel: a sheet at the bottom on phones, a drawer on the right from 768px */
 /* Ask the assistant dialog: sheet at the bottom on phones, drawer from 768px */
-.ask {
-    width: 100%;
-    max-width: 100%;
-    max-height: 92vh;
-    margin: auto 0 0;
-    padding: 0;
-    overflow-y: auto;
-    border: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-text);
-}
-
-.ask::backdrop {
-    background-color: var(--color-backdrop);
-}
 
 .ask__container {
     display: flex;
@@ -2040,35 +2370,6 @@ a {
 .ask__subtitle {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-}
-
-.ask__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.ask__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.ask__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.ask__close-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .ask__form {
@@ -2113,8 +2414,8 @@ a {
 }
 
 .ask__mic-icon {
-    width: 20px;
-    height: 20px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .ask__submit {
@@ -2222,7 +2523,7 @@ a {
 }
 
 .ask__mark {
-    padding: 0 2px;
+    padding: 0 var(--space-0);
     border-radius: 2px;
     background-color: var(--color-status-ok-bg);
     color: inherit;
@@ -2298,23 +2599,6 @@ a {
 }
 
 /* Neck vein ultrasound (assets/js/ultrasound.js): sheet at the bottom on phones, drawer from 768px */
-.scan {
-    width: 100%;
-    max-width: 100%;
-    max-height: 92vh;
-    margin: auto 0 0;
-    padding: 0;
-    overflow-y: auto;
-    border: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-text);
-}
-
-.scan::backdrop {
-    background-color: var(--color-backdrop);
-}
 
 .scan__container {
     display: flex;
@@ -2347,35 +2631,6 @@ a {
 .scan__subtitle {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-}
-
-.scan__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.scan__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.scan__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.scan__close-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .scan__steps {
@@ -2486,23 +2741,6 @@ a {
 }
 
 /* Blood glucose reading (assets/js/glucose-entry.js): sheet at the bottom on phones, drawer from 768px */
-.glucose-entry {
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-    margin: auto 0 0;
-    padding: 0;
-    overflow-y: auto;
-    border: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-text);
-}
-
-.glucose-entry::backdrop {
-    background-color: var(--color-backdrop);
-}
 
 .glucose-entry__container {
     display: flex;
@@ -2535,35 +2773,6 @@ a {
 .glucose-entry__subtitle {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-}
-
-.glucose-entry__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.glucose-entry__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.glucose-entry__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.glucose-entry__close-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .glucose-entry__steps {
@@ -2617,23 +2826,6 @@ a {
     align-self: flex-start;
 }
 
-.demo {
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-    margin: auto 0 0;
-    padding: 0;
-    border: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-text);
-}
-
-.demo::backdrop {
-    background-color: var(--color-backdrop);
-}
-
 .demo__container {
     display: flex;
     flex-direction: column;
@@ -2652,35 +2844,6 @@ a {
     font-family: var(--font-heading);
     font-size: var(--text-lg);
     font-weight: 700;
-}
-
-.demo__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.demo__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.demo__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.demo__close-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .demo__text {
@@ -2741,8 +2904,8 @@ a {
 
 .sos-toggle__icon {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .sos-toggle__text {
@@ -2766,8 +2929,8 @@ a {
 
 .crew-alert__icon {
     flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 .crew-alert__text {
@@ -2838,35 +3001,6 @@ a {
     color: var(--color-text-muted);
 }
 
-.inbox__minimize {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.inbox__minimize:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.inbox__minimize:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.inbox__minimize-icon {
-    width: 20px;
-    height: 20px;
-}
-
 .inbox__list {
     display: flex;
     flex-direction: column;
@@ -2895,8 +3029,8 @@ a {
 }
 
 .inbox__avatar-icon {
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .inbox__bubble {
@@ -2998,8 +3132,8 @@ a {
 }
 
 .inbox__toggle-icon {
-    width: 26px;
-    height: 26px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 /* New messages: a count in the corner (number + shape, never color alone) */
@@ -3059,9 +3193,9 @@ a {
 
 .voice-caption__icon {
     flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
-    margin-top: 2px;
+    width: var(--icon-md);
+    height: var(--icon-md);
+    margin-top: var(--space-0);
 }
 
 .voice-caption__text {
@@ -3122,35 +3256,6 @@ a {
     font-size: var(--text-h2);
     font-weight: 900;
     line-height: 1.2;
-}
-
-.sos__minimize {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.sos__minimize:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.sos__minimize:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.sos__minimize-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .sos__hear {
@@ -3519,8 +3624,8 @@ a {
 }
 
 .tab-bar__icon {
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 /* Glass navigation (header and tab bar): opaque where blur is missing, or when the person asks for
@@ -3617,7 +3722,6 @@ a {
         border-color: CanvasText;
     }
 
-
     .theme-toggle {
         border-color: ButtonText;
     }
@@ -3641,48 +3745,17 @@ a {
 
 /* Tablet */
 @media (min-width: 768px) {
-    .glucose-entry {
-        width: min(480px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
-    }
 
     .glucose-entry__container {
         padding: var(--space-6) var(--space-5);
-    }
-
-    .ask {
-        width: min(520px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
     }
 
     .ask__container {
         padding: var(--space-6) var(--space-5);
     }
 
-    .scan {
-        width: min(520px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
-    }
-
     .scan__container {
         padding: var(--space-6) var(--space-5);
-    }
-
-    .demo {
-        width: min(440px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
     }
 
     .demo__container {
@@ -3696,7 +3769,6 @@ a {
     .ask-toggle {
         padding: 0 var(--space-4);
     }
-
 
     .ask-toggle__text {
         position: static;

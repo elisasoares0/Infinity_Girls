@@ -203,14 +203,14 @@
 
     function build() {
         dialog = document.createElement("dialog");
-        dialog.className = "scan";
+        dialog.className = "sheet sheet--wide scan";
         dialog.setAttribute("aria-labelledby", "scan-title");
         dialog.innerHTML =
             "<div class=\"scan__container\">" +
             "<div class=\"scan__head\"><div class=\"scan__heading\">" +
             "<h2 class=\"scan__title\" id=\"scan-title\">Neck vein ultrasound</h2>" +
             "<p class=\"scan__subtitle\">Guided, about 3 minutes. The medical team reads the image: the app never gives a diagnosis.</p></div>" +
-            "<button class=\"scan__close\" type=\"button\" aria-label=\"Close\"><svg class=\"scan__close-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
+            "<button class=\"icon-button scan__close\" type=\"button\" aria-label=\"Close\"><svg class=\"icon-button__icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
             "<ol class=\"scan__steps\"></ol>" +
             "<fieldset class=\"scan__source\"><legend class=\"scan__legend\">Image from</legend><div class=\"scan__choices\">" +
             "<label class=\"choice\"><input class=\"choice__input\" type=\"radio\" name=\"scan-source\" value=\"file\" checked><span class=\"choice__label\">The ultrasound device (saved image)</span></label>" +

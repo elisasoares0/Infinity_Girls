@@ -339,10 +339,30 @@
         setText("[data-tasks-counter]", done + " of " + visible + " done");
     }
 
+    // A task ticked by hand: a check draws itself over the box for a moment (Lottie, decoration only;
+    // the counter and the "done" text already say it)
+    function cheerTask(task) {
+        if (!App.motion || !task.checked) {
+            return;
+        }
+        var label = task.closest(".tasks__label");
+        var host = document.createElement("span");
+        host.className = "motion motion--overlay";
+        host.setAttribute("aria-hidden", "true");
+        label.appendChild(host);
+        App.motion.play("success-check", host).then(function () {
+            window.setTimeout(function () {
+                App.motion.stop(host);
+                host.remove();
+            }, 1200);
+        });
+    }
+
     tasks.forEach(function (task) {
         task.addEventListener("change", function () {
             renderTasks();
             saveTasks();
+            cheerTask(task);
         });
     });
 

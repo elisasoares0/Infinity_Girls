@@ -152,31 +152,6 @@
     padding-right: 4%;
 }
 
-.account__data {
-    display: flex;
-    flex-direction: column;
-}
-
-.account__row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-1) var(--space-3);
-    padding-top: var(--space-2);
-    padding-bottom: var(--space-2);
-    border-top: 1px solid var(--color-line);
-    font-size: var(--text-base);
-}
-
-.account__label {
-    color: var(--color-text-muted);
-}
-
-.account__value {
-    font-weight: 700;
-    text-align: right;
-}
-
 .account__links {
     display: flex;
     flex-wrap: wrap;
@@ -198,8 +173,8 @@
 }
 
 .account__link-icon {
-    width: 14px;
-    height: 14px;
+    width: var(--icon-sm);
+    height: var(--icon-sm);
 }
 
 /* Sign out: back to the sign-in screen */
@@ -220,8 +195,8 @@
 
 .session__icon {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 /* Tablet */

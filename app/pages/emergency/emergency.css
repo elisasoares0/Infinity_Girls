@@ -112,10 +112,7 @@
 
 /* One guide: a large disclosure row that opens the steps */
 .guide {
-    border: 1px solid var(--sys-card-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
+    display: block;
 }
 
 .guide__summary {
@@ -154,8 +151,8 @@
 }
 
 .guide__icon-svg {
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 .guide__heading {

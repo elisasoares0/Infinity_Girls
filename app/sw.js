@@ -5,7 +5,7 @@
  */
 "use strict";
 
-var CACHE_VERSION = "astro-health-v58";
+var CACHE_VERSION = "astro-health-v59";
 
 var SHELL = [
     "./",
@@ -29,6 +29,7 @@ var SHELL = [
     "pages/learn/learn.css",
     "pages/about/about.css",
     "pages/design-system/design-system.css",
+    "pages/design-system/design-system.js",
     "pages/womens-health/womens-health.css",
     "pages/body/body.css",
     "pages/mens-health/mens-health.css",
@@ -40,6 +41,7 @@ var SHELL = [
     "assets/js/records.js",
     "assets/js/api.js",
     "assets/js/sync.js",
+    "assets/js/motion.js",  // the Lottie player and assets/motion/*.json are cached on first use, never precached
     "assets/js/glucose.js",
     "assets/js/glucose-entry.js",
     "assets/js/health-info.js",

@@ -18,7 +18,7 @@
     function selectTab(name, moveFocus) {
         tabs.forEach(function (tab) {
             var on = tab.getAttribute("data-auth-tab") === name;
-            tab.classList.toggle("tabs__tab--active", on);
+            tab.classList.toggle("segmented__option--active", on);
             tab.setAttribute("aria-selected", on ? "true" : "false");
             tab.tabIndex = on ? 0 : -1;
             document.getElementById(tab.getAttribute("aria-controls")).hidden = !on;
@@ -103,10 +103,23 @@
         }
     }
 
+    // While it waits (the health server can take a few seconds): the text says so, and an orbit turns next to it
     function busy(form, on, text) {
         var button = form.querySelector(".auth__submit");
         button.disabled = on;
         button.querySelector(".button__text").textContent = text;
+        form.setAttribute("aria-busy", on ? "true" : "false");
+        var loader = button.querySelector(".motion");
+        if (on && !loader && window.App.motion) {
+            loader = document.createElement("span");
+            loader.className = "motion motion--md";
+            loader.setAttribute("aria-hidden", "true");
+            button.insertBefore(loader, button.firstChild);
+            window.App.motion.play("orbit-loader", loader, { loop: true });
+        } else if (!on && loader) {
+            window.App.motion.stop(loader);
+            loader.remove();
+        }
     }
 
     /* ---------- Sign in ---------- */

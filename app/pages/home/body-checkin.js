@@ -233,7 +233,7 @@
             var area = App.symptoms.region(row.regiao_anatomica);
             var item = App.symptoms.symptom(row.regiao_anatomica, row.sintoma);
             var li = document.createElement("li");
-            li.className = "symptoms__item" + (row.resolvido ? " symptoms__item--better" : "");
+            li.className = "list__row symptoms__item" + (row.resolvido ? " list__row--done symptoms__item--better" : "");
             li.innerHTML =
                 "<span class=\"symptoms__icon\">" + App.symptoms.icon(item ? item.icon : "pain", "symptoms__svg") + "</span>" +
                 "<div class=\"symptoms__text\">" +

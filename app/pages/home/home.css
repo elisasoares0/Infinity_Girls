@@ -140,11 +140,7 @@
 }
 
 .auth__panel {
-    padding: var(--space-5);
-    border: 1px solid var(--sys-card-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
+    display: block;
 }
 
 .auth__form {
@@ -399,31 +395,6 @@
     color: var(--color-text-muted);
 }
 
-.crew__data {
-    display: flex;
-    flex-direction: column;
-}
-
-.crew__row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-1) var(--space-3);
-    padding-top: var(--space-2);
-    padding-bottom: var(--space-2);
-    border-top: 1px solid var(--color-line);
-    font-size: var(--text-sm);
-}
-
-.crew__label {
-    color: var(--color-text-muted);
-}
-
-.crew__value {
-    font-weight: 700;
-    text-align: right;
-}
-
 .crew__link {
     align-self: stretch;
 }
@@ -491,11 +462,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-4);
-    padding: var(--space-5);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
     color: var(--color-text);
-    box-shadow: var(--shadow-card);
 }
 
 .crew__overview-text {
@@ -639,29 +606,12 @@
 
 .crew__exams-icon {
     flex: 0 0 auto;
-    width: 12px;
-    height: 12px;
+    width: var(--icon-xs);
+    height: var(--icon-xs);
 }
 
 /* Exam panel (doctor, before the flight): one crew member's exams by status, with booking.
    Sheet at the bottom on phones, drawer on the right from 768px, like the Presentation mode panel */
-.exam-panel {
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-    margin: auto 0 0;
-    padding: 0;
-    overflow-y: auto;
-    border: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-text);
-}
-
-.exam-panel::backdrop {
-    background-color: var(--color-backdrop);
-}
 
 .exam-panel__container {
     display: flex;
@@ -696,35 +646,6 @@
     color: var(--color-text-muted);
 }
 
-.exam-panel__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.exam-panel__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.exam-panel__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.exam-panel__close-icon {
-    width: 20px;
-    height: 20px;
-}
-
 .exam-panel__status {
     font-weight: 700;
     color: var(--color-primary);
@@ -750,26 +671,9 @@
     color: var(--color-text-muted);
 }
 
-.exam-panel__list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    list-style: none;
-}
-
 .exam-panel__none {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-}
-
-.exam-panel__item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-4);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
 }
 
 .exam-panel__item-head {
@@ -990,11 +894,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    padding: var(--space-4);
-    border: 1px solid var(--sys-card-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
 }
 
 .radiation--danger {
@@ -1168,11 +1067,6 @@
     flex-direction: column;
     gap: var(--space-3);
     min-width: 0;
-    padding: var(--space-4);
-    border: 1px solid var(--sys-card-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
 }
 
 .vital-card__header {
@@ -1493,7 +1387,7 @@
     bottom: 0;
     left: 0;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity var(--motion-screen) var(--ease-standard);
 }
 
 .astronaut-view__canvas--ready {
@@ -1566,8 +1460,8 @@
 }
 
 .astronaut-view__turn-icon {
-    width: 22px;
-    height: 22px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 .astronaut-view__hint {
@@ -1647,8 +1541,8 @@
 
 .body-card__icon {
     flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
+    width: var(--icon-md);
+    height: var(--icon-md);
     color: var(--color-space-icon);
 }
 
@@ -1706,8 +1600,8 @@
 }
 
 .body-card__tag-icon {
-    width: 10px;
-    height: 10px;
+    width: var(--icon-xs);
+    height: var(--icon-xs);
 }
 
 .body-card__tag-text {
@@ -1797,35 +1691,6 @@
     font-family: var(--font-heading);
     font-size: var(--text-base);
     font-weight: 700;
-}
-
-.body-pop__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-pill);
-    background-color: transparent;
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.body-pop__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.body-pop__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.body-pop__close-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .body-pop__reading {
@@ -2099,8 +1964,8 @@
 
 .goals__item-icon {
     flex: 0 0 auto;
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
     color: var(--color-chart);
 }
 
@@ -2216,8 +2081,8 @@
 }
 
 .goals__badge-icon {
-    width: 24px;
-    height: 24px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 }
 
 .goals__badge-text {
@@ -2262,66 +2127,21 @@
     font-weight: 700;
 }
 
-/* Celebration: pieces fall once (transform and opacity only); none with reduced motion */
-.goals__confetti {
+/* Celebration: a heart (Lottie, App.motion) over the goals once a day; the text in [data-goals-live] says it */
+.goals__cheer {
     position: absolute;
     inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
 }
 
-.goals__piece {
-    position: absolute;
-    top: -12px;
-    left: var(--x, 50%);
-    width: 8px;
-    height: 14px;
-    border-radius: 2px;
-    opacity: 0;
-    animation: goals-fall 1.6s ease-in var(--delay, 0ms) forwards;
-}
-
-.goals__piece--1 {
-    background-color: var(--color-chart);
-}
-
-.goals__piece--2 {
-    background-color: var(--color-status-warn);
-}
-
-.goals__piece--3 {
-    background-color: var(--color-status-danger-line);
-}
-
-@keyframes goals-fall {
-    0% {
-        opacity: 1;
-        transform: translateY(0) rotate(0deg);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translateY(420px) rotate(var(--turn, 180deg));
-    }
+.goals__heart {
+    color: var(--color-primary);
 }
 
 /* Daily check-in dialog: sheet at the bottom on phones, drawer from 768px */
-.checkin {
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-    margin: auto 0 0;
-    padding: 0;
-    overflow-y: auto;
-    border: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-text);
-}
-
-.checkin::backdrop {
-    background-color: var(--color-backdrop);
-}
 
 .checkin__container {
     display: flex;
@@ -2354,35 +2174,6 @@
 .checkin__subtitle {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-}
-
-.checkin__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--color-bg-soft);
-    color: var(--color-text);
-    cursor: pointer;
-}
-
-.checkin__close:hover {
-    background-color: var(--color-surface-hover);
-}
-
-.checkin__close:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
-.checkin__close-icon {
-    width: 20px;
-    height: 20px;
 }
 
 .checkin__scale {
@@ -2479,8 +2270,8 @@
 }
 
 .astronaut-view__log-icon {
-    width: 20px;
-    height: 20px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 /*
@@ -2555,23 +2346,6 @@
  * a drawer on the right from 768px, so the lit region of the figure stays in view.
  * On Deep Blue: white ≈ 15:1, white-80 ≈ 11:1, Blue Yonder icons and borders ≈ 5.6:1.
  */
-.symptom {
-    width: 100%;
-    max-width: 100%;
-    max-height: 92vh;
-    margin: auto 0 0;
-    padding: 0;
-    overflow-y: auto;
-    border: 1px solid var(--color-space-icon);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-stage);
-    box-shadow: var(--shadow-dock);
-    color: var(--color-stage-text);
-}
-
-.symptom::backdrop {
-    background-color: var(--color-backdrop);
-}
 
 .symptom__container {
     display: flex;
@@ -2586,7 +2360,7 @@
     justify-content: space-between;
     gap: var(--space-3);
     padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--color-stage-line);
+    border-bottom: 1px solid var(--color-line);
 }
 
 .symptom__heading {
@@ -2601,7 +2375,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-space-icon);
+    color: var(--color-primary);
 }
 
 .symptom__title {
@@ -2613,36 +2387,7 @@
 
 .symptom__text {
     font-size: var(--text-sm);
-    color: var(--color-stage-muted);
-}
-
-.symptom__close {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: var(--space-7);
-    height: var(--space-7);
-    padding: 0;
-    border: 1px solid var(--color-stage-line);
-    border-radius: 50%;
-    background-color: var(--color-space-card);
-    color: var(--color-stage-text);
-    cursor: pointer;
-}
-
-.symptom__close:hover {
-    background-color: var(--color-space-card-hover);
-}
-
-.symptom__close:focus-visible {
-    outline: 3px solid var(--color-stage-text);
-    outline-offset: 2px;
-}
-
-.symptom__close-icon {
-    width: 20px;
-    height: 20px;
+    color: var(--color-text-muted);
 }
 
 .symptom__group {
@@ -2659,9 +2404,9 @@
 .symptom__group--level {
     gap: var(--space-3);
     padding: var(--space-4);
-    border: 1px solid var(--color-stage-line);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-md);
-    background-color: var(--color-space-card);
+    background-color: var(--color-tint-neutral);
 }
 
 .symptom__legend {
@@ -2682,18 +2427,16 @@
     width: var(--space-5);
     height: var(--space-5);
     border-radius: 50%;
-    background-color: var(--color-space-icon);
+    background-color: var(--color-primary);
     font-size: var(--text-xs);
-    color: var(--color-stage);
+    color: var(--color-on-primary);
 }
-
 
 .symptom__options {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
 }
-
 
 /* Choice cards: the radio stays visible (state not only by color), the icon and text sit beside it */
 .symptom__option {
@@ -2702,9 +2445,9 @@
     gap: var(--space-3);
     min-height: var(--space-7);
     padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--color-stage-line);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-md);
-    background-color: var(--color-space-card);
+    background-color: var(--color-tint-neutral);
     cursor: pointer;
 }
 
@@ -2713,17 +2456,17 @@
 }
 
 .symptom__option:hover {
-    background-color: var(--color-space-card-hover);
+    background-color: var(--color-surface-hover);
 }
 
 .symptom__option:focus-within {
-    outline: 3px solid var(--color-stage-text);
+    outline: 3px solid var(--color-focus);
     outline-offset: 2px;
 }
 
 .symptom__option--checked {
-    border: 2px solid var(--color-space-icon);
-    background-color: var(--color-space-card-hover);
+    border: 2px solid var(--color-primary);
+    background-color: var(--color-surface-hover);
 }
 
 .symptom__input {
@@ -2731,9 +2474,8 @@
     width: 18px;
     height: 18px;
     margin: 0;
-    accent-color: var(--color-space-icon);
+    accent-color: var(--color-primary);
 }
-
 
 .symptom__option-icon {
     display: flex;
@@ -2743,8 +2485,8 @@
     width: var(--space-6);
     height: var(--space-6);
     border-radius: var(--radius-sm);
-    background-color: var(--color-space-card-hover);
-    color: var(--color-space-icon);
+    background-color: var(--color-surface-hover);
+    color: var(--color-primary);
 }
 
 .symptom__option-svg {
@@ -2768,12 +2510,12 @@
 /* Level chip: the band in text ("Level 4/5") and color (Blue Yonder, Neon Yellow, Martian Red) */
 .symptom__badge {
     padding: var(--space-1) var(--space-3);
-    border: 1px solid var(--color-space-icon);
+    border: 1px solid var(--color-primary);
     border-radius: var(--radius-sm);
     font-family: var(--font-heading);
     font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--color-stage-text);
+    color: var(--color-text);
 }
 
 .symptom__badge--moderate {
@@ -2783,7 +2525,7 @@
 }
 
 .symptom__badge--severe {
-    border-color: var(--color-stage-text);
+    border-color: var(--color-status-danger);
     background-color: var(--color-status-danger);
     color: var(--color-text-inverse);
 }
@@ -2792,12 +2534,12 @@
     width: 100%;
     min-height: var(--space-7);
     margin: 0;
-    accent-color: var(--color-space-icon);
+    accent-color: var(--color-primary);
     cursor: pointer;
 }
 
 .symptom__range:focus-visible {
-    outline: 3px solid var(--color-stage-text);
+    outline: 3px solid var(--color-focus);
     outline-offset: 2px;
 }
 
@@ -2806,12 +2548,12 @@
     justify-content: space-between;
     gap: var(--space-2);
     font-size: var(--text-xs);
-    color: var(--color-stage-muted);
+    color: var(--color-text-muted);
 }
 
 .symptom__scale-item--severe {
     font-weight: 700;
-    color: var(--color-space-error);
+    color: var(--color-error);
 }
 
 .symptom__protocol {
@@ -2833,7 +2575,7 @@
 
 /* SOS from the check-in: red like the header SOS (white text ≈ 9.8:1) */
 .symptom__sos {
-    border-color: var(--color-stage-text);
+    border-color: var(--color-status-danger);
     background-color: var(--color-status-danger);
     color: var(--color-text-inverse);
 }
@@ -2843,23 +2585,23 @@
     border-color: var(--color-status-warn);
 }
 
-/* Link on the dark sheet: white and underlined, a 48px touch target */
+/* Link in the sheet: primary color and underlined, a 48px touch target */
 .symptom__link {
     display: inline-flex;
     align-items: center;
     min-height: var(--space-7);
     font-weight: 700;
-    color: var(--color-stage-text);
+    color: var(--color-primary);
 }
 
 .symptom__link:focus-visible {
-    outline: 3px solid var(--color-stage-text);
+    outline: 3px solid var(--color-focus);
     outline-offset: 2px;
 }
 
 .symptom__error {
     font-weight: 700;
-    color: var(--color-space-error);
+    color: var(--color-error);
 }
 
 .symptom__actions {
@@ -2870,17 +2612,10 @@
 
 .symptom__note {
     font-size: var(--text-xs);
-    color: var(--color-stage-muted);
+    color: var(--color-text-muted);
 }
 
 @media (min-width: 768px) {
-    .symptom {
-        width: min(480px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
-    }
 
     .symptom__container {
         padding: var(--space-6) var(--space-5);
@@ -2901,25 +2636,11 @@
     font-weight: 700;
 }
 
-.symptoms__list {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-3);
-}
-
 .symptoms__item {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2) var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-}
-
-.symptoms__item--better {
-    background-color: var(--color-surface-done);
 }
 
 .symptoms__icon {
@@ -2983,17 +2704,7 @@
     flex: 0 0 auto;
 }
 
-@media (min-width: 768px) {
-    .symptoms__list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
-    .goals__confetti {
-        display: none;
-    }
-
     .astronaut-view__live-dot {
         animation: none;
     }
@@ -3039,8 +2750,8 @@
 
 .tasks__next-icon {
     flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
+    width: var(--icon-md);
+    height: var(--icon-md);
 }
 
 .tasks__next-label {
@@ -3056,7 +2767,7 @@
 .tasks__list {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: var(--hairline);
     overflow: hidden;
     border-radius: var(--radius-md);
     background-color: var(--color-line);
@@ -3073,6 +2784,7 @@
 }
 
 .tasks__label {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--space-3);
@@ -3158,11 +2870,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    padding: var(--space-4);
-    border: 1px solid var(--sys-card-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
     color: var(--color-text);
 }
 
@@ -3213,7 +2920,7 @@
 .modules__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1px;
+    gap: var(--hairline);
     overflow: hidden;
     border-radius: var(--radius-md);
     background-color: var(--color-line);
@@ -3320,14 +3027,6 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .checkin {
-        width: min(480px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
-    }
-
     .checkin__container {
         padding: var(--space-6) var(--space-5);
     }
@@ -3414,14 +3113,6 @@
 
     .crew__overview-button {
         grid-column: 1 / -1;
-    }
-
-    .exam-panel {
-        width: min(480px, 100vw);
-        height: 100%;
-        max-height: 100%;
-        margin: 0 0 0 auto;
-        border-radius: var(--radius-md) 0 0 var(--radius-md);
     }
 
     .exam-panel__container {

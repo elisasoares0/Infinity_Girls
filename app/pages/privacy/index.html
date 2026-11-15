@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="privacy.css">
 
     <script src="../../assets/js/app.js" defer></script>
+    <script src="../../assets/js/motion.js" defer></script>
     <script src="../../assets/js/crew-data.js" defer></script>
     <script src="../../assets/js/records.js" defer></script>
     <script src="../../assets/js/api.js" defer></script>
@@ -35,7 +36,7 @@
     <script src="../../assets/js/symptoms.js" defer></script>
     <script src="../../assets/js/nausea-mode.js" defer></script>
     <script src="../../assets/js/assistant-data.js" defer></script>
-    <script src="../../assets/js/assistant.js" defer></script>
+    <script src="../../assets/js/assistant.js" defer></script>
     <script src="privacy.js" defer></script>
 </head>
 <body>
@@ -128,14 +129,14 @@
                             <p class="card__text">Heart rate, blood pressure, oxygen, breathing and temperature from your Astroskin shirt.</p>
                         </div>
                                                 <p class="sharing__fixed"><svg class="sharing__fixed-icon" aria-hidden="true"><use href="#icon-info"/></svg><span class="sharing__fixed-text">Always shared with you and your flight surgeon (required for flight safety).</span></p>
-                        <ul class="sharing__list">
-<li class="sharing__row">
+                        <ul class="list">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Crew medical officer</span><span class="switch__state" data-switch-state>Can see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" checked data-privacy="vitals.cmo" data-name="Vital signs">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Researchers</span><span class="switch__state" data-switch-state>Not shared</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="vitals.research" data-name="Vital signs">
@@ -150,8 +151,8 @@
                             <p class="card__text">Your personal dosimeter readings and the projected dose for the mission.</p>
                         </div>
                                                 <p class="sharing__fixed"><svg class="sharing__fixed-icon" aria-hidden="true"><use href="#icon-info"/></svg><span class="sharing__fixed-text">Always shared with you, your flight surgeon (required for flight safety) and the crew medical officer (needed for storm shelter calls).</span></p>
-                        <ul class="sharing__list">
-<li class="sharing__row">
+                        <ul class="list">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Researchers</span><span class="switch__state" data-switch-state>Not shared</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="radiation.research" data-name="Radiation dose">
@@ -166,20 +167,20 @@
                             <p class="card__text">Body mass, bone density, muscle and eye exams across the mission.</p>
                         </div>
                                                 <p class="sharing__fixed"><svg class="sharing__fixed-icon" aria-hidden="true"><use href="#icon-info"/></svg><span class="sharing__fixed-text">Always shared with you.</span></p>
-                        <ul class="sharing__list">
-<li class="sharing__row">
+                        <ul class="list">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Flight surgeon</span><span class="switch__state" data-switch-state>Can see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" checked data-privacy="body.surgeon" data-name="Body">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Crew medical officer</span><span class="switch__state" data-switch-state>Can see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" checked data-privacy="body.cmo" data-name="Body">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Researchers</span><span class="switch__state" data-switch-state>Not shared</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="body.research" data-name="Body">
@@ -194,20 +195,20 @@
                             <p class="card__text">Cycle plan, contraception and urinary symptoms. Only used if you turn the module on.</p>
                         </div>
                                                 <p class="sharing__fixed"><svg class="sharing__fixed-icon" aria-hidden="true"><use href="#icon-info"/></svg><span class="sharing__fixed-text">Always shared with you.</span></p>
-                        <ul class="sharing__list">
-<li class="sharing__row">
+                        <ul class="list">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Flight surgeon</span><span class="switch__state" data-switch-state>Cannot see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="womens.surgeon" data-name="Women's health">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Crew medical officer</span><span class="switch__state" data-switch-state>Cannot see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="womens.cmo" data-name="Women's health">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Researchers</span><span class="switch__state" data-switch-state>Not shared</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="womens.research" data-name="Women's health">
@@ -222,20 +223,20 @@
                             <p class="card__text">Vision check-ins, hearing tests and reproductive health notes. Only used if you turn the module on.</p>
                         </div>
                                                 <p class="sharing__fixed"><svg class="sharing__fixed-icon" aria-hidden="true"><use href="#icon-info"/></svg><span class="sharing__fixed-text">Always shared with you.</span></p>
-                        <ul class="sharing__list">
-<li class="sharing__row">
+                        <ul class="list">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Flight surgeon</span><span class="switch__state" data-switch-state>Cannot see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="mens.surgeon" data-name="Men's health focus">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Crew medical officer</span><span class="switch__state" data-switch-state>Cannot see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="mens.cmo" data-name="Men's health focus">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Researchers</span><span class="switch__state" data-switch-state>Not shared</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="mens.research" data-name="Men's health focus">
@@ -250,20 +251,20 @@
                             <p class="card__text">Your quick daily check-in about how you feel and how you slept.</p>
                         </div>
                                                 <p class="sharing__fixed"><svg class="sharing__fixed-icon" aria-hidden="true"><use href="#icon-info"/></svg><span class="sharing__fixed-text">Always shared with you.</span></p>
-                        <ul class="sharing__list">
-<li class="sharing__row">
+                        <ul class="list">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Flight surgeon</span><span class="switch__state" data-switch-state>Can see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" checked data-privacy="mood.surgeon" data-name="Mood and sleep log">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Crew medical officer</span><span class="switch__state" data-switch-state>Cannot see</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="mood.cmo" data-name="Mood and sleep log">
                                 </label>
                             </li>
-<li class="sharing__row">
+<li class="list__row list__row--block">
                                 <label class="switch">
                                     <span class="switch__text"><span class="switch__label">Researchers</span><span class="switch__state" data-switch-state>Not shared</span></span>
                                     <input class="switch__input" type="checkbox" role="switch" data-privacy="mood.research" data-name="Mood and sleep log">
@@ -384,11 +385,11 @@
         </div>
     </nav>
 
-    <dialog class="demo" id="demo-panel" aria-labelledby="demo-title" data-demo-panel>
+    <dialog class="sheet sheet--narrow demo" id="demo-panel" aria-labelledby="demo-title" data-demo-panel>
         <div class="demo__container">
             <div class="demo__head">
                 <h2 class="demo__title" id="demo-title">Presentation mode</h2>
-                <button class="demo__close" type="button" aria-label="Close Presentation mode" data-demo-close><svg class="demo__close-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button>
+                <button class="icon-button demo__close" type="button" aria-label="Close Presentation mode" data-demo-close><svg class="icon-button__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button>
             </div>
             <p class="demo__text">For the presentation only. In real use, the mission comes from mission control and the readings come from the sensors on their own.</p>
             <div class="demo__fields">
@@ -464,7 +465,7 @@
                     <p class="sos__eyebrow" data-sos-eyebrow>Emergency</p>
                     <h2 class="sos__title" id="sos-title" tabindex="-1" data-sos-title>Help requested</h2>
                 </div>
-                <button class="sos__minimize" type="button" aria-label="Minimize: the alert stays open" data-sos-minimize><svg class="sos__minimize-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></svg></button>
+                <button class="icon-button sos__minimize" type="button" aria-label="Minimize: the alert stays open" data-sos-minimize><svg class="icon-button__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></svg></button>
             </div>
             <button class="button button--primary sos__hear" type="button" data-sos-hear hidden><span class="button__text">Tap to hear the instructions</span></button>
             <ul class="sos__vitals" aria-label="Vital signs" data-sos-vitals></ul>

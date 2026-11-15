@@ -33,7 +33,19 @@ async function firebase() {
     console.log("assets/vendor/firebase/firebase.js · " + (size / 1024).toFixed(1) + " KB");
 }
 
-firebase().catch(function (error) {
+// lottie-web (MIT): the light build (SVG renderer only), copied as it ships; assets/js/motion.js loads it on demand
+function lottie() {
+    const out = path.join(ROOT, "assets/vendor/lottie");
+    const src = path.join(ROOT, "node_modules/lottie-web");
+    fs.mkdirSync(out, { recursive: true });
+    const code = fs.readFileSync(path.join(src, "build/player/lottie_light.min.js"), "utf8");
+    fs.writeFileSync(path.join(out, "lottie_light.min.js"), "/* lottie-web " + pkg.dependencies["lottie-web"] + " (MIT), see LICENSE. Copied by tools/vendor.js */\n" + code);
+    fs.copyFileSync(path.join(src, "LICENSE.md"), path.join(out, "LICENSE"));
+    const size = fs.statSync(path.join(out, "lottie_light.min.js")).size;
+    console.log("assets/vendor/lottie/lottie_light.min.js · " + (size / 1024).toFixed(1) + " KB");
+}
+
+firebase().then(lottie).catch(function (error) {
     console.error(error);
     process.exit(1);
 });

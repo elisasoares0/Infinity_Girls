@@ -1,6 +1,6 @@
 // Body check-in: a symptom on a region of the 3D body (body_checkin), with how strong it is; no emergency guide link in the header
 const { test, expect } = require("./fixtures");
-const { freshStart, signIn } = require("./helpers");
+const { freshStart, signIn, setTheme } = require("./helpers");
 
 async function start(page, account, phase) {
     await page.route(/googleapis\.com|firebaseio\.com/, function (route) {
@@ -129,4 +129,30 @@ test("on Earth a warning sign says to call the flight surgeon, without SOS", asy
     await dialog.locator("#symptom-level").fill("4");
     await expect(dialog.locator("[data-symptom-sos]")).toBeHidden();
     await expect(dialog.locator("[data-symptom-protocol]")).toContainText("Warning sign: tell your flight surgeon now.");
+});
+
+// The check-in sheet follows the theme like the vital signs card (it used the fixed colors of the 3D stage)
+test("the symptom sheet changes with the light and dark themes, like the vital signs card", async function ({ page }) {
+    await start(page);
+    const colors = {};
+    for (const theme of ["light", "dark"]) {
+        await setTheme(page, theme);
+        const dialog = await openRegion(page, "costas");
+        colors[theme] = await dialog.evaluate(function (element) {
+            var style = window.getComputedStyle(element);
+            var surface = window.getComputedStyle(document.documentElement).getPropertyValue("--color-surface").trim();
+            var probe = document.createElement("div");
+            probe.style.backgroundColor = "var(--color-surface)";
+            document.body.appendChild(probe);
+            var expected = window.getComputedStyle(probe).backgroundColor;
+            probe.remove();
+            return { background: style.backgroundColor, text: style.color, surface: expected, declared: surface };
+        });
+        await page.keyboard.press("Escape");
+        await expect(dialog).toBeHidden();
+    }
+    expect(colors.light.background).toBe(colors.light.surface);
+    expect(colors.dark.background).toBe(colors.dark.surface);
+    expect(colors.light.background).not.toBe(colors.dark.background);
+    expect(colors.light.text).not.toBe(colors.dark.text);
 });

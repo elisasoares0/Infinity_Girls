@@ -329,6 +329,7 @@
     // state: what the last attempt found ("sending", "error"…); without one, worked out from the session and the queue
     function announce(state) {
         var count = pending();
+        var previous = lastState;
         if (!signedIn()) {
             lastState = "local";
         } else if (navigator.onLine === false) {
@@ -344,7 +345,25 @@
                 element.textContent = text;
             }
         });
+        animate(previous, lastState);
         document.dispatchEvent(new CustomEvent("sync:status", { detail: { state: lastState, pending: count } }));
+    }
+
+    // Decoration next to the text (App.motion): an orbit while sending, a closing circle + check when it is all sent
+    var shown = null;
+    function animate(from, to) {
+        var host = document.querySelector("[data-sync-motion]");
+        if (!host || !App.motion || to === shown) {
+            return;
+        }
+        shown = to;
+        if (to === "sending") {
+            App.motion.play("orbit-loader", host, { loop: true });
+        } else if (to === "synced" && from === "sending") {
+            App.motion.play("sync-done", host);
+        } else if (to !== "synced") {
+            App.motion.stop(host);
+        }
     }
 
     document.addEventListener("records:change", function (event) {

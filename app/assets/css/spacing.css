@@ -3,6 +3,7 @@
  * Proximity rule: the weaker the relation between elements, the larger the space.
  */
 :root {
+    --space-0: 0.125rem; /* 2px  — optical nudges only (icon baseline, tiny tags), never between components */
     --space-1: 0.25rem;  /* 4px  — icon to text, inside a component */
     --space-2: 0.5rem;   /* 8px  — items in the same group (label to value) */
     --space-3: 0.75rem;  /* 12px — list rows, chips, card inner gap */
@@ -33,6 +34,18 @@
     --ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
 
     --text-max: 65ch;    /* max paragraph width */
+
+    /* Icons (Phosphor): one size per role. xs is the 12px bold sprite next to badge text */
+    --icon-xs: 12px;
+    --icon-sm: 16px;     /* inside buttons and chips, next to --text-sm */
+    --icon-md: 20px;     /* list rows, icon buttons, cards */
+    --icon-lg: 24px;     /* tab bar, headers of sheets */
+
+    /* Touch target (WCAG 2.5.8 + project rule): 48px, a little more than Apple's 44pt */
+    --touch-target: var(--space-7);
+
+    /* Hairline: dividers and component borders (a border, never a space) */
+    --hairline: 1px;
 
     --footer-wave: 0px;  /* the footer has a straight top edge (no wave since the product redesign) */
 }

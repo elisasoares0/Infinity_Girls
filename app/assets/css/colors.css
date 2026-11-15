@@ -4,7 +4,12 @@
  * Two themes: light (white, the default) and dark (:root[data-theme="dark"], below).
  * The theme is set on <html> before the first paint (inline script in every <head>, written by tools/chrome.js):
  * the saved choice, or the device setting. Every new alias needs a value in both themes.
- * Contrast ratios: light against white; dark against Deep Blue (cards) and Deep Space (page).
+ * Contrast ratios: light against white; dark against the neutral page (#121212) and cards (#1C1C1E).
+ * Brand rules (pesquisas/brand.pdf): Neon Yellow is never a background (only text, buttons and symbols, sparingly);
+ * Rocket Red is never a background; running text only on Deep Blue, Electric Blue or white; contrast ≥ 4.5:1;
+ * the only gradient is linear, Electric Blue (top left) → Deep Blue (bottom right) at 45°.
+ * Team decision (15/11/2026), an exception to the running-text rule: the dark theme uses neutral black and dark gray
+ * backgrounds, like most sites, with Deep Blue and the brand blues kept for the details.
  */
 :root {
     color-scheme: light;
@@ -22,6 +27,14 @@
     /* Deep space behind the 3D astronaut (darker than Deep Blue, same hue) */
     --deep-space: #020817;
 
+    /* Neutral grays for the dark theme's backgrounds (close to the Material and Apple dark system colors) */
+    --gray-950: #121212;                /* page */
+    --gray-900: #1C1C1E;                /* cards, sheets, popovers */
+    --gray-850: #242426;                /* one step up */
+    --gray-800: #2C2C2E;                /* tracks and neutral chips (segmented control, fields) */
+    --gray-950-96: rgba(18, 18, 18, 0.96);
+    --gray-900-86: rgba(28, 28, 30, 0.86);
+
     /* Derived tints (palette colors with alpha) */
     --blue-yonder-06: rgba(46, 150, 245, 0.06);
     --blue-yonder-12: rgba(46, 150, 245, 0.12);
@@ -38,7 +51,6 @@
     --white-80: rgba(255, 255, 255, 0.8);
     --white-96: rgba(255, 255, 255, 0.96);
     --white-72: rgba(255, 255, 255, 0.72);
-    --deep-blue-96: rgba(7, 23, 63, 0.96);
     --neon-yellow-40: rgba(234, 254, 7, 0.4);
 
     /* Health status colors (not in the Space Apps palette: it has no green or amber). Validated for WCAG AA */
@@ -63,7 +75,6 @@
     --tint-primary-dark: #14305E;
     --tint-warn-dark: #3A3C4F;         /* amber ≈ 6.2:1, white ≈ 10.8:1 */
     --tint-danger-dark: #353354;       /* Rocket Red light ≈ 5.2:1 */
-    --tint-neutral-dark: #1A2C5C;
 
     /* Tonal steps for the Material 3 surface roles (derived from Deep Blue and Electric Blue) */
     --electric-blue-container: #D8E6FF;
@@ -71,12 +82,8 @@
     --surface-light-2: #EEF1F6;
     --surface-light-3: #E6EAF2;
     --outline-light: #5B6B8C;          /* ≈ 5:1 on white */
-    --surface-dark-1: #0B1D4A;
-    --surface-dark-2: #0F2251;
-    --surface-dark-3: #152B60;
     --outline-dark: #9AA8C7;           /* ≈ 7.3:1 on Deep Blue */
     --white-86: rgba(255, 255, 255, 0.86);
-    --deep-blue-86: rgba(7, 23, 63, 0.86);
 
     /* Dark theme only: a lighter Blue Yonder for hover and status text, and the OK chip flattened on Deep Blue */
     --blue-yonder-light: #7CBCF9;
@@ -239,64 +246,67 @@
     --shadow-dock: 0 8px 32px rgba(7, 23, 63, 0.16);
     --shadow-button: 0 1px 2px rgba(7, 23, 63, 0.16);
     --shadow-button-hover: 0 4px 12px rgba(0, 66, 166, 0.28);
+    --shadow-segment: 0 1px 3px rgba(7, 23, 63, 0.12), 0 1px 2px rgba(7, 23, 63, 0.08); /* the selected option of a segmented control */
 }
 
-/* Dark theme: Deep Space page, Deep Blue cards, white text, Blue Yonder as the primary color.
-   The space bands, the 3D stage and the status yellow and red stay as in the light theme. */
+/* Dark theme: neutral black and dark gray backgrounds, like most sites (team decision, 15/11/2026): page #121212,
+   cards #1C1C1E, tracks #2C2C2E. The brand blues stay in the details: the primary color (Blue Yonder), tinted badges
+   and notices, the filled button and the selected tab (Electric Blue), the Deep Blue footer, the hero gradient, and the
+   space band and 3D stage behind the astronaut (Deep Space). Status amber and red stay as in the light theme. */
 :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --color-bg: var(--deep-space);
+    --color-bg: var(--gray-950);
     --color-bg-soft: var(--blue-yonder-06);
-    --color-surface: var(--surface-dark-2);       /* tonal elevation: cards one step lighter than Deep Blue; white ≈ 15:1, Blue Yonder ≈ 5:1 */
+    --color-surface: var(--gray-900);            /* cards one step lighter than the page; white ≈ 17:1, Blue Yonder ≈ 5.5:1 */
     --color-surface-hover: var(--white-08);
     --color-line: var(--white-16);
-    --color-text: var(--white);                  /* ≈ 17:1 on Deep Blue, 20:1 on Deep Space */
-    --color-text-muted: var(--white-72);         /* ≈ 9.4:1 */
-    --color-primary: var(--blue-yonder);         /* ≈ 5.7:1 on Deep Blue, 6.5:1 on Deep Space */
-    --color-primary-hover: var(--blue-yonder-light); /* ≈ 8.7:1 */
+    --color-text: var(--white);                  /* ≈ 18.7:1 on the page, 17:1 on the cards */
+    --color-text-muted: var(--white-72);         /* ≈ 10:1 on the page, 9.3:1 on the cards, 8:1 on the tracks */
+    --color-primary: var(--blue-yonder);         /* ≈ 6.1:1 on the page, 5.5:1 on the cards, 4.5:1 on the tracks */
+    --color-primary-hover: var(--blue-yonder-light); /* ≈ 8.4:1 on the cards */
     --color-on-primary: var(--deep-space);       /* ≈ 6.5:1 on Blue Yonder, 9.9:1 on the hover */
     --color-eyebrow: var(--blue-yonder);
-    --color-chart: var(--blue-yonder);           /* ≈ 5.7:1 (graphics) */
+    --color-chart: var(--blue-yonder);           /* ≈ 5.5:1 on the cards (graphics) */
     --color-chart-track: var(--white-08);
     --color-chart-neutral: var(--white-56);      /* ≈ 6.1:1 */
     --color-accent: var(--rocket-red);           /* ≈ 4:1 — graphics only */
     --color-projection: var(--blue-yonder-light);
-    --color-focus: var(--neon-yellow);           /* the satellite of the dark logo: ≈ 15.5:1 on Deep Blue */
-    --color-nav-bg: var(--deep-blue-96);
-    --color-footer-bg: var(--deep-blue);
-    --color-ring-ok: var(--status-green-light);  /* ≈ 11:1 on Deep Space */
+    --color-focus: var(--neon-yellow);           /* the satellite of the dark logo: ≈ 15:1 on the cards */
+    --color-nav-bg: var(--gray-950-96);
+    --color-footer-bg: var(--deep-blue);         /* a brand detail, as in the light theme: Deep Blue under the gray page */
+    --color-ring-ok: var(--status-green-light);  /* ≈ 9.6:1 on the cards */
     --color-on-ring-ok: var(--deep-blue);        /* ≈ 9.9:1 on the light green */
     --color-ring-track: var(--white-08);
     --color-deco-line: var(--blue-yonder);
     --color-deco-line-strong: var(--blue-yonder);
     --color-logo-orbit: var(--neon-yellow);          /* the yellow orbit and star of the dark logo file */
     --color-logo-orbit-back: var(--neon-yellow-40);
-    --color-logo-halo: var(--deep-space);
-    --color-logo-outline: var(--deep-space);
-    --color-logo-word: var(--white);                 /* ≈ 20:1 on Deep Space */
+    --color-logo-halo: var(--gray-900);              /* the header surface */
+    --color-logo-outline: var(--gray-900);
+    --color-logo-word: var(--white);                 /* ≈ 17:1 on the header */
     --color-logo-word-accent: var(--blue-yonder-light); /* ≈ 9:1 */
 
     --color-status-ok: var(--status-green-light);
     --color-status-ok-bg: var(--status-green-12);
     --color-status-ok-chip: var(--status-green-chip-dark);
     --color-surface-done: var(--status-green-chip-dark);
-    --color-status-ok-text: var(--status-green-light); /* ≈ 9.9:1 on Deep Blue, 7.6:1 on the chip */
+    --color-status-ok-text: var(--status-green-light); /* ≈ 9.6:1 on the cards, 7.6:1 on the chip */
     --color-status-ok-line: var(--status-green-light);
-    --color-status-warn-line: var(--status-amber);   /* ≈ 9.9:1 on Deep Blue */
-    --color-status-danger-line: var(--status-red-light); /* ≈ 6.2:1 on Deep Blue */
-    --color-error: var(--rocket-red-light);      /* ≈ 7.5:1 on Deep Blue, 8.6:1 on Deep Space */
+    --color-status-warn-line: var(--status-amber);   /* ≈ 9.7:1 on the cards */
+    --color-status-danger-line: var(--status-red-light); /* ≈ 6:1 on the cards */
+    --color-error: var(--rocket-red-light);      /* ≈ 7.4:1 on the cards, 8.1:1 on the page */
 
-    /* Material 3 roles, dark: tonal elevation (higher surfaces are lighter) instead of heavy shadows */
+    /* Material 3 roles, dark: tonal elevation in neutral grays (higher surfaces are lighter) instead of heavy shadows */
     --sys-primary-container: var(--electric-blue);
     --sys-on-primary-container: var(--white);        /* ≈ 9:1 */
-    --sys-surface-container-low: var(--surface-dark-1);
-    --sys-surface-container: var(--surface-dark-2);
-    --sys-surface-container-high: var(--surface-dark-3);
+    --sys-surface-container-low: var(--gray-900);
+    --sys-surface-container: var(--gray-850);
+    --sys-surface-container-high: var(--gray-800);
     --sys-outline: var(--outline-dark);
     --sys-accent: var(--neon-yellow);                /* the brand spark: ≤ 10% of the screen */
     --sys-on-accent: var(--deep-blue);               /* ≈ 15.5:1 */
-    --sys-glass: var(--deep-blue-86);
+    --sys-glass: var(--gray-900-86);
     --sys-glass-rim: var(--white-16);
     --sys-filled-hover: var(--neon-blue);            /* white text ≈ 5.6:1 */
     --sys-filled-rim: var(--blue-yonder);            /* ≈ 5:1 on the cards, so the button edge is seen */
@@ -311,8 +321,8 @@
     --color-on-tint-danger: var(--rocket-red-light);
     --color-tint-ok: var(--status-green-chip-dark);
     --color-on-tint-ok: var(--status-green-light);
-    --color-tint-neutral: var(--tint-neutral-dark);
-    --color-nav-active: var(--blue-yonder-light);    /* ≈ 8.7:1 on the dark bar */
+    --color-tint-neutral: var(--gray-800);
+    --color-nav-active: var(--blue-yonder-light);    /* ≈ 9.3:1 on the gray bar */
 
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.24);
     --shadow-header: 0 2px 16px rgba(0, 0, 0, 0.4);
@@ -320,4 +330,5 @@
     --shadow-dock: 0 8px 32px rgba(0, 0, 0, 0.48);
     --shadow-button: none;
     --shadow-button-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-segment: 0 1px 3px rgba(0, 0, 0, 0.4);
 }

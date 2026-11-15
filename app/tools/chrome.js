@@ -104,11 +104,11 @@ const FOOTER = `<footer class="app-footer">
  * Presentation mode: the demo controls, kept apart from the real data in a dialog opened by the "Demo" button in the footer.
  * In real use the mission comes from mission control and the readings from the sensors; these only simulate them.
  */
-const DEMO = `<dialog class="demo" id="demo-panel" aria-labelledby="demo-title" data-demo-panel>
+const DEMO = `<dialog class="sheet sheet--narrow demo" id="demo-panel" aria-labelledby="demo-title" data-demo-panel>
         <div class="demo__container">
             <div class="demo__head">
                 <h2 class="demo__title" id="demo-title">Presentation mode</h2>
-                <button class="demo__close" type="button" aria-label="Close Presentation mode" data-demo-close><svg class="demo__close-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button>
+                <button class="icon-button demo__close" type="button" aria-label="Close Presentation mode" data-demo-close><svg class="icon-button__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button>
             </div>
             <p class="demo__text">For the presentation only. In real use, the mission comes from mission control and the readings come from the sensors on their own.</p>
             <div class="demo__fields">
@@ -188,7 +188,7 @@ const EMERGENCY_UI = `<!-- emergency ui -->
                     <p class="sos__eyebrow" data-sos-eyebrow>Emergency</p>
                     <h2 class="sos__title" id="sos-title" tabindex="-1" data-sos-title>Help requested</h2>
                 </div>
-                <button class="sos__minimize" type="button" aria-label="Minimize: the alert stays open" data-sos-minimize><svg class="sos__minimize-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></svg></button>
+                <button class="icon-button sos__minimize" type="button" aria-label="Minimize: the alert stays open" data-sos-minimize><svg class="icon-button__icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></svg></button>
             </div>
             <button class="button button--primary sos__hear" type="button" data-sos-hear hidden><span class="button__text">Tap to hear the instructions</span></button>
             <ul class="sos__vitals" aria-label="Vital signs" data-sos-vitals></ul>
@@ -240,18 +240,22 @@ const EMERGENCY_UI = `<!-- emergency ui -->
     <!-- /emergency ui -->`;
 
 // Shared scripts on every page, right after app.js, in this order (each one deferred)
-const SHARED_SCRIPTS = ["crew-data.js", "records.js", "api.js", "sync.js", "glucose.js", "health-info.js", "guides.js", "voice.js", "habitat.js", "crew-link.js", "emergency-engine.js", "inbox.js", "reminders.js", "symptoms.js", "nausea-mode.js", "assistant-data.js", "assistant.js"];
+const SHARED_SCRIPTS = ["motion.js", "crew-data.js", "records.js", "api.js", "sync.js", "glucose.js", "health-info.js", "guides.js", "voice.js", "habitat.js", "crew-link.js", "emergency-engine.js", "inbox.js", "reminders.js", "symptoms.js", "nausea-mode.js", "assistant-data.js", "assistant.js"];
 
+// Pages are saved with Windows line endings (\r\n): every tag is removed with its whole line ending and written back
+// with the page's own, so running this script again never leaves a stray \r (an "empty line" in the editor) behind
 function sharedScripts(html, prefix, file) {
+    const nl = html.indexOf("\r\n") !== -1 ? "\r\n" : "\n";
     SHARED_SCRIPTS.forEach(function (name) {
-        html = html.split("\n    <script src=\"" + prefix + "assets/js/" + name + "\" defer></script>").join("");
+        const tag = "<script src=\"" + prefix + "assets/js/" + name + "\" defer></script>";
+        html = html.split("\r\n    " + tag).join("").split("\n    " + tag).join("");
     });
     const app = "<script src=\"" + prefix + "assets/js/app.js\" defer></script>";
     if (html.indexOf(app) === -1) {
         throw new Error(file + ": app.js script not found");
     }
     const block = SHARED_SCRIPTS.map(function (name) {
-        return "\n    <script src=\"" + prefix + "assets/js/" + name + "\" defer></script>";
+        return nl + "    <script src=\"" + prefix + "assets/js/" + name + "\" defer></script>";
     }).join("");
     return html.replace(app, app + block);
 }
@@ -318,13 +322,21 @@ Object.keys(PAGES).forEach(function (file) {
     // Older layouts: demo controls in the footer, or a floating Demo button right before the dialog. Remove them,
     // and any dialog from a previous run, before writing the header, the footer (it holds the Demo button now) and the panel
     html = html.replace(/\s*<div class="app-footer__demo">[\s\S]*?<\/div>/, "");
-    html = html.replace(/\s*<button class="demo-toggle"[^\n]*<\/button>\s*<dialog class="demo"[\s\S]*?<\/dialog>/, "");
-    html = html.replace(/\s*<dialog class="demo"[\s\S]*?<\/dialog>/, "");
+    // The Demo dialog with its sheet classes, or with the older class="demo" alone
+    html = html.replace(/\s*<button class="demo-toggle"[^\n]*<\/button>\s*<dialog class="(?:sheet[^"]* )?demo"[\s\S]*?<\/dialog>/, "");
+    html = html.replace(/\s*<dialog class="(?:sheet[^"]* )?demo"[\s\S]*?<\/dialog>/, "");
     html = html.replace(/\s*<!-- emergency ui -->[\s\S]*?<!-- \/emergency ui -->/, "");
     html = sharedScripts(html, prefix, file);
     html = replaceOnce(html, /<header class="app-header">[\s\S]*?<\/header>/, header(prefix), file, "header");
     html = replaceOnce(html, /<footer class="app-footer">[\s\S]*?<\/footer>/, FOOTER, file, "footer");
     html = replaceOnce(html, /<nav class="tab-bar"[\s\S]*?<\/nav>/, tabBar(file, prefix, PAGES[file]) + "\n\n    " + DEMO + "\n\n    " + EMERGENCY_UI, file, "tab bar");
+    // The blocks above are written with \n (template literals): the whole page gets one line ending, the one it had,
+    // and no stray \r (a run of them shows as empty lines) or empty lines between two script tags
+    const nl = fs.readFileSync(full, "utf8").indexOf("\r\n") !== -1 ? "\r\n" : "\n";
+    html = html.replace(/\r*\n/g, "\n").replace(/(<script [^\n]*><\/script>)\n(?:[ \t]*\n)+(?=[ \t]*<script )/g, "$1\n");
+    if (nl === "\r\n") {
+        html = html.replace(/\n/g, "\r\n");
+    }
     fs.writeFileSync(full, html);
 });
 

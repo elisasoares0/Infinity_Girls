@@ -27,6 +27,26 @@ test("the dark theme draws the orbit in Neon Yellow", async function ({ page }) 
     expect(stroke).toBe("rgb(234, 254, 7)");
 });
 
+// Team decision: neutral black and dark gray backgrounds in the dark theme, the brand blues kept for the details
+test("the dark theme has neutral gray backgrounds and keeps the blue for the details", async function ({ page }) {
+    await open(page, "/pages/profile/index.html");
+    await setTheme(page, "dark");
+    const colors = await page.evaluate(function () {
+        function bg(selector) {
+            return getComputedStyle(document.querySelector(selector)).backgroundColor;
+        }
+        return {
+            page: bg("body"),
+            card: bg(".card"),
+            footer: bg(".app-footer"),
+            link: getComputedStyle(document.querySelector(".page-intro__back") || document.querySelector("a")).color
+        };
+    });
+    expect(colors.page).toBe("rgb(18, 18, 18)");
+    expect(colors.card).toBe("rgb(28, 28, 30)");
+    expect(colors.footer).toBe("rgb(7, 23, 63)");
+});
+
 test("Profile links to the design system and to About & Credits", async function ({ page }) {
     await open(page, "/pages/profile/index.html");
     await page.getByRole("link", { name: "About & Credits" }).click();

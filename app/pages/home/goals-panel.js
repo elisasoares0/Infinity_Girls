@@ -130,28 +130,22 @@
         });
     }
 
-    // All four goals: a short burst of confetti (only transform and opacity) and a spoken-friendly message
+    // All four goals: a heart beats twice over the section (Lottie, App.motion) and a spoken-friendly message.
+    // The message is the news; the heart is decoration (aria-hidden), still with reduced motion or nausea mode.
     function celebrate(streak) {
         live.textContent = "All four goals done today. Streak: " + streak + (streak === 1 ? " day." : " days.");
-        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        var confetti = $("[data-goals-confetti]", section);
-        if (reduce || !confetti) {
+        var cheer = $("[data-goals-cheer]", section);
+        if (!cheer || !App.motion) {
             return;
         }
-        confetti.textContent = "";
-        for (var i = 0; i < 28; i++) {
-            var piece = document.createElement("span");
-            piece.className = "goals__piece goals__piece--" + (i % 3 + 1);
-            piece.style.setProperty("--x", (Math.round(((i * 37) % 100))) + "%");
-            piece.style.setProperty("--delay", ((i % 7) * 60) + "ms");
-            piece.style.setProperty("--turn", ((i * 53) % 360) + "deg");
-            confetti.appendChild(piece);
-        }
-        confetti.hidden = false;
-        window.setTimeout(function () {
-            confetti.hidden = true;
-            confetti.textContent = "";
-        }, 1900);
+        var heart = $(".motion", cheer);
+        cheer.hidden = false;
+        App.motion.play("heart-pulse", heart).then(function () {
+            window.setTimeout(function () {
+                cheer.hidden = true;
+                App.motion.stop(heart);
+            }, 1600);
+        });
     }
 
     function render() {

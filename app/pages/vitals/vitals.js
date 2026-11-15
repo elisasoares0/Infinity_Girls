@@ -173,7 +173,7 @@
             var on = tab.getAttribute("data-tab") === name;
             tab.setAttribute("aria-selected", on ? "true" : "false");
             tab.tabIndex = on ? 0 : -1;
-            tab.classList.toggle("tabs__tab--active", on);
+            tab.classList.toggle("segmented__option--active", on);
             if (on && focus) {
                 tab.focus();
             }
@@ -431,7 +431,7 @@
         statsEl.textContent = "";
         stats.forEach(function (stat) {
             var li = document.createElement("li");
-            li.className = "stats__item";
+            li.className = "card stats__item";
             li.innerHTML = "<p class=\"stats__label\"></p><p class=\"stats__value\"></p><p class=\"stats__note\"></p>";
             li.querySelector(".stats__label").textContent = stat[0];
             li.querySelector(".stats__value").textContent = stat[1];

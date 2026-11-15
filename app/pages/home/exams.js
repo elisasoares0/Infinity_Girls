@@ -88,7 +88,7 @@
         Object.keys(order).forEach(function (key) {
             sortExams(groups[key]).forEach(function (exam) {
                 var li = document.createElement("li");
-                li.className = "tasks__exam" + (exam.status === "done" ? " tasks__exam--done" : "");
+                li.className = "card tasks__exam" + (exam.status === "done" ? " tasks__exam--done" : "");
                 li.innerHTML =
                     "<div class=\"tasks__exam-head\"><p class=\"tasks__name\"></p>" + badgeHtml(exam) + "</div>" +
                     "<p class=\"tasks__meta tasks__exam-when\"></p><p class=\"tasks__meta\"></p>";
@@ -195,7 +195,7 @@
 
     function examItem(exam) {
         var li = document.createElement("li");
-        li.className = "exam-panel__item";
+        li.className = "list__row list__row--stack exam-panel__item";
         li.setAttribute("data-exam", exam.key);
         li.innerHTML =
             "<div class=\"exam-panel__item-head\"><h4 class=\"exam-panel__name\"></h4>" + badgeHtml(exam) + "</div>" +

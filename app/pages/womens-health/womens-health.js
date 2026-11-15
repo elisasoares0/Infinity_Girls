@@ -102,7 +102,7 @@
         groupTabs.forEach(function (tab) {
             var on = tab.getAttribute("data-wh-tab") === group;
             tab.setAttribute("aria-pressed", on ? "true" : "false");
-            tab.classList.toggle("tabs__tab--active", on);
+            tab.classList.toggle("segmented__option--active", on);
         });
         setText("[data-wh-hint]", GROUP_HINTS[group]);
     }

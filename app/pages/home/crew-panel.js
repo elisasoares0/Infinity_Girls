@@ -559,7 +559,7 @@
                 "<div class=\"crew__name\"><h3 class=\"card__title\"></h3><p class=\"crew__role\"></p><p class=\"crew__meta\"></p>" +
                 "<span class=\"badge crew__badge badge--" + status.level + "\"><svg class=\"badge__icon\" aria-hidden=\"true\"><use href=\"" +
                 (status.level === "ok" ? "#icon-check" : status.level === "soon" ? "#icon-info" : "#icon-alert") + "\"/></svg><span class=\"badge__text\"></span></span></div></div></div>" +
-                "<dl class=\"crew__facts\" aria-label=\"Where\"></dl><dl class=\"crew__data\" aria-label=\"Health\"></dl>";
+                "<dl class=\"crew__facts\" aria-label=\"Where\"></dl><dl class=\"list list--compact crew__data\" aria-label=\"Health\"></dl>";
             card.querySelector(".card__title").textContent = person.name;
             card.querySelector(".crew__avatar").textContent = initials(person.name);
             card.querySelector(".badge__text").textContent = status.label;
@@ -581,13 +581,13 @@
             var rows = healthRows(key);
             var shown = inFlight ? rows.slice(0, 2) : rows;
             var folded = inFlight ? rows.slice(2) : [];
-            addRows(card.querySelector(".crew__data"), shown, ["crew__row", "crew__row"], "crew__label", "crew__value");
+            addRows(card.querySelector(".crew__data"), shown, ["list__row", "list__row"], "list__label", "list__value");
             if (folded.length) {
                 var more = document.createElement("details");
                 more.className = "help crew__more";
-                more.innerHTML = "<summary class=\"help__summary\"><span class=\"help__label\">More details<span class=\"sr-only\"></span></span></summary><dl class=\"crew__data\" aria-label=\"More health details\"></dl>";
+                more.innerHTML = "<summary class=\"help__summary\"><span class=\"help__label\">More details<span class=\"sr-only\"></span></span></summary><dl class=\"list list--compact crew__data\" aria-label=\"More health details\"></dl>";
                 more.querySelector(".sr-only").textContent = " for " + person.name;
-                addRows(more.querySelector(".crew__data"), folded, ["crew__row", "crew__row"], "crew__label", "crew__value");
+                addRows(more.querySelector(".crew__data"), folded, ["list__row", "list__row"], "list__label", "list__value");
                 card.querySelector(".crew__data").insertAdjacentElement("afterend", more);
             }
             if (phase.key === "pre") {
