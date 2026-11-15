@@ -5,7 +5,7 @@
  */
 "use strict";
 
-var CACHE_VERSION = "astro-health-v49";
+var CACHE_VERSION = "astro-health-v50";
 
 var SHELL = [
     "./",
@@ -32,6 +32,7 @@ var SHELL = [
     "pages/emergency/emergency.css",
     "pages/profile/profile.css",
     "assets/js/app.js",
+    "assets/js/api.js",
     "assets/js/crew-data.js",
     "assets/js/records.js",
     "assets/js/glucose.js",

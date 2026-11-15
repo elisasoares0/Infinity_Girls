@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="pages/home/home.css">
 
     <script src="assets/js/app.js" defer></script>
+    <script src="assets/js/api.js" defer></script>
     <script src="assets/js/crew-data.js" defer></script>
     <script src="assets/js/records.js" defer></script>
     <script src="assets/js/glucose.js" defer></script>
@@ -133,8 +134,9 @@
                         <form class="auth__form" novalidate data-auth-form="signin">
                         <div class="auth__fields">
                             <div class="field auth__field">
-                                <label class="field__label" for="signin-nasa-id">NASA ID</label>
-                                <input class="field__input" id="signin-nasa-id" name="nasaId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="signin-nasa-id-error" data-auth-field>
+                                <label class="field__label" for="signin-nasa-id">Crew ID or NASA ID</label>
+                                <p class="field__hint" id="signin-nasa-id-hint">Your astronaut ID (AST-1234) or medical license (CRM-SP 123456). Test accounts also accept the NASA ID, for example hsilva.</p>
+                                <input class="field__input" id="signin-nasa-id" name="nasaId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="signin-nasa-id-hint signin-nasa-id-error" data-auth-field>
                                 <p class="field__error" id="signin-nasa-id-error" hidden></p>
                             </div>
                             <div class="field auth__field">

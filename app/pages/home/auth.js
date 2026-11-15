@@ -117,7 +117,7 @@
         var password = fieldOf(signinForm, "password").value;
         var errors = {};
         if (!nasaId.trim()) {
-            errors.nasaId = "Enter your NASA ID.";
+            errors.nasaId = "Enter your crew ID or NASA ID.";
         }
         if (!password) {
             errors.password = "Enter your password.";
@@ -263,4 +263,9 @@
             target.appendChild(li);
         });
     });
+
+    // Wake the health server while the person types (the free plan sleeps after 15 idle minutes)
+    if (window.App.api) {
+        window.App.api.wake();
+    }
 })();
