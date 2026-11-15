@@ -136,7 +136,7 @@
     flex-direction: column;
     gap: var(--space-1);
     padding: var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
@@ -189,7 +189,7 @@
     line-height: 1;
 }
 
-/* Deep blue on Blue Yonder ≈ 5.6:1 (white would be 3.2:1) */
+/* Number on the Normal green: white ≈ 5.4:1 (light), Deep Blue ≈ 9.9:1 (dark) */
 .heatmap__cell--ok {
     background-color: var(--color-ring-ok);
     color: var(--color-on-ring-ok);
@@ -506,7 +506,7 @@
 /* Desktop */
 @media (min-width: 1200px) {
     .glucose__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -514,7 +514,7 @@
     }
 
     .blocked__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -522,7 +522,7 @@
     }
 
     .range__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -530,7 +530,7 @@
     }
 
     .today__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -538,7 +538,7 @@
     }
 
     .week__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -550,7 +550,7 @@
     }
 
     .mission__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;

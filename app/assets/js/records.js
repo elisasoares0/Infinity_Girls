@@ -8,6 +8,7 @@
  *   App.records.latest(table, usuario_id) → the newest row or null
  *   App.records.upsert(table, row, keys) → insert, or update the row with the same keys (UNIQUE in the schema)
  *   App.records.update(table, id, patch) → the updated row
+ *   App.records.remove(table, id) → deletes the row
  *   App.records.environment() → ambiente_missao for the signed-in person right now
  *   App.records.files.put(bucket, path, blob) → imagem_url ("local://<bucket>/<path>"); files.url(imagem_url) → object URL
  *     (IndexedDB on this device, in place of the private Supabase Storage bucket)
@@ -21,7 +22,8 @@
 
     /*
      * Columns and CHECK constraints copied from the backend schema.
-     * required: NOT NULL without default; values: allowed values (CHECK ... IN); range: [min, max].
+     * required: NOT NULL without default; values: allowed values (CHECK ... IN); range: [min, max];
+ * items: allowed elements of a text[] column.
      */
     var SCHEMA = {
         sinais_vitais: {
@@ -83,6 +85,51 @@
                 sequencia_dias: { range: [0, 100000] },
                 conquistas_desbloqueadas: {}
             }
+        },
+        // Women's health diary: one row per person and day, every field optional (only the keys are required)
+        diario_saude_feminina: {
+            stamp: "atualizado_em",
+            columns: {
+                usuario_id: { required: true },
+                data_registro: { required: true },
+                sangramento: { values: ["nenhum", "escape", "leve", "moderado", "intenso"] },
+                colica_escala: { range: [0, 3] },
+                sintomas: { items: ["dor_cabeca", "seios_sensiveis", "inchaco", "humor", "cansaco", "nausea", "dor_lombar", "acne", "corrimento_coceira", "ondas_calor", "sono_ruim", "tontura"] },
+                notas_privadas: {}
+            }
+        },
+        // Women's health anamnesis: one row per person (UNIQUE usuario_id), mapped before launch with the flight surgeon.
+        // In flight and after landing it is read only and feeds the advice of the daily logs.
+        anamnese_saude_feminina: {
+            stamp: "atualizado_em",
+            columns: {
+                usuario_id: { required: true },
+                condicoes_previas: { items: ["colica_intensa", "sangramento_intenso", "endometriose", "sop", "anemia", "enxaqueca_aura", "infeccao_urinaria_repetida", "candidiase_repetida"] },
+                fatores_risco_osseo: { items: ["historico_familiar", "fratura_previa", "ciclo_ausente", "injecao_trimestral", "tabagismo", "baixo_peso"] },
+                fatores_risco_trombose: { items: ["pilula_estrogenio", "historico_pessoal", "historico_familiar", "disturbio_coagulacao", "tabagismo"] }
+            }
+        },
+        // Bone health: countermeasures taken and bone pain (density comes from the DXA scans, risk from the anamnesis)
+        saude_ossea: {
+            stamp: "atualizado_em",
+            columns: {
+                usuario_id: { required: true },
+                data_registro: { required: true },
+                calcio_tomado: {},
+                vitamina_d_tomada: {},
+                dor_ossea: { items: ["costas", "quadril", "joelhos", "pes", "punhos"] },
+                queda_ou_impacto: {}
+            }
+        },
+        // Blood clot warning signs; status_alerta is set by the app from the signs and the anamnesis
+        sinais_trombose: {
+            stamp: "atualizado_em",
+            columns: {
+                usuario_id: { required: true },
+                data_registro: { required: true },
+                sinais: { items: ["inchaco_um_lado", "dor_panturrilha", "calor_vermelhidao", "inchaco_pescoco", "dor_cabeca_forte", "falta_ar_subita", "dor_peito"] },
+                status_alerta: { required: true, values: ["normal", "atencao", "critico"] }
+            }
         }
     };
 
@@ -127,6 +174,12 @@
                     throw new Error(table + "." + column + " is required");
                 }
                 return;
+            }
+            // items: a text[] column whose elements must come from the list (CHECK (col <@ ARRAY[...]))
+            if (rule.items && (!Array.isArray(value) || value.some(function (item) {
+                return rule.items.indexOf(item) === -1;
+            }))) {
+                throw new Error(table + "." + column + ": " + value + " is not allowed");
             }
             if (rule.values && rule.values.indexOf(value) === -1) {
                 throw new Error(table + "." + column + ": " + value + " is not allowed");
@@ -210,6 +263,16 @@
         return match ? update(table, match.id, row) : insert(table, row);
     }
 
+    // Like DELETE ... WHERE id = ?: used when the person clears a log they wrote
+    function remove(table, id) {
+        if (!SCHEMA[table]) {
+            throw new Error("Unknown table: " + table);
+        }
+        writeTable(table, readTable(table).filter(function (row) {
+            return row.id !== id;
+        }));
+    }
+
     function list(table, filter) {
         var usuario = filter && filter.usuario_id;
         return readTable(table).filter(function (row) {
@@ -288,6 +351,7 @@
         update: update,
         upsert: upsert,
         insert: insert,
+        remove: remove,
         list: list,
         latest: latest,
         environment: environment

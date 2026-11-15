@@ -27,6 +27,26 @@
     gap: var(--space-1);
 }
 
+/* What is fixed (you always see your data, required recipients, never-shared) in one line: only real choices are switches */
+.sharing__fixed {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+.sharing__fixed-icon {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+}
+
+.sharing__fixed-text {
+    max-width: var(--text-max);
+}
+
 .sharing__list {
     display: flex;
     flex-direction: column;
@@ -109,7 +129,7 @@
 /* Desktop */
 @media (min-width: 1200px) {
     .sharing__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -121,7 +141,7 @@
     }
 
     .visibility__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;

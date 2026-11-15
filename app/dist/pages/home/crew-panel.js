@@ -120,6 +120,9 @@ return problem || { reading: reading };
 function stepsProgress(alert) {
 return alerts.stateOf(alert).steps.length + " of " + alert.steps.length + " steps done";
 }
+function setBar(bar, alert) {
+bar.style.setProperty("--fill", Math.round(alerts.stateOf(alert).steps.length / alert.steps.length * 100) + "%");
+}
 function latestReading(alert) {
 if (alert.temperature) {
 var recheck = crew.getRecheck(alert.member);
@@ -147,7 +150,7 @@ var latest = latestReading(alert);
 var item = template.content.firstElementChild.cloneNode(true);
 var badge = item.querySelector("[data-alert-badge]");
 item.setAttribute("data-member", alert.member || "");
-item.classList.add(level === "danger" ? "card--danger" : "card--warn");
+item.classList.add(level === "danger" ? "card--danger" : "card--warn", "alerts__item");
 badge.classList.add("badge--" + level);
 badge.querySelector("use").setAttribute("href", LEVELS[level].icon);
 item.querySelector("[data-alert-level]").textContent = LEVELS[level].label;
@@ -168,7 +171,9 @@ item.querySelector("[data-alert-earth]").textContent = (onRover
 item.querySelector("[data-alert-log]").textContent = alert.log;
 item.querySelector("[data-alert-exit]").textContent = alert.exit;
 var progress = item.querySelector("[data-alert-progress]");
+var bar = item.querySelector("[data-alert-bar]");
 progress.textContent = stepsProgress(alert);
+setBar(bar, alert);
 var result = item.querySelector("[data-alert-result]");
 result.textContent = alert.temperature ? shirtNote(alert) : state.note;
 var steps = item.querySelector("[data-alert-steps]");
@@ -194,6 +199,7 @@ state.steps.push(index);
 }
 label.classList.toggle("choice--active", input.checked);
 progress.textContent = stepsProgress(alert);
+setBar(bar, alert);
 alerts.saveSteps();
 if (alert.temperature) {
 if (state.steps.length === alert.steps.length) {
@@ -338,7 +344,6 @@ return alert.title;
 });
 var rows = [
 ["Open alerts", shared ? (open.length ? open.join(" · ") : "None") : "Not shared"],
-["Readiness", shared ? person.readiness + " / 100" : "Not shared"],
 ["Vital signs", shared ? vitalsSummary(key) : "Not shared by crew member"],
 ["Blood glucose", shared ? glucoseSummary(key) : "Not shared by crew member"],
 ["Mood and sleep", privacy.mood.cmo || key === you ? person.mood : "Not shared by crew member"]
@@ -399,48 +404,116 @@ App.examPanel.open(key);
 });
 return button;
 }
+function readinessBlock(key) {
+var person = members[key];
+var block = document.createElement("div");
+block.className = "crew__score";
+block.innerHTML = "<p class=\"crew__score-value\"><strong class=\"crew__score-number\"></strong><span class=\"crew__score-unit\">/100 readiness</span></p>" +
+"<span class=\"crew__score-bar\" aria-hidden=\"true\"><span class=\"crew__score-fill\"></span></span>";
+block.querySelector(".crew__score-number").textContent = person.readiness;
+block.querySelector(".crew__score-fill").style.setProperty("--fill", person.readiness + "%");
+return block;
+}
+function renderOverview(levels) {
+var holder = $("[data-crew-stats]");
+if (!holder || !inFlight) {
+return;
+}
+var total = levels.length;
+var count = { danger: 0, warn: 0, ok: 0, soon: 0 };
+levels.forEach(function (level) {
+count[level] += 1;
+});
+var attention = count.danger + count.warn;
+var open = alerts.list.filter(function (alert) {
+return alerts.statusOf(alert) !== "resolved";
+}).length;
+setText("[data-crew-phase]", phaseText());
+setText("[data-crew-headline]", attention
+? attention + " of " + total + " crew members need attention"
+: "All " + total + " crew members are fit");
+setText("[data-crew-subline]", open
+? open + (open === 1 ? " open alert" : " open alerts") + (count.danger ? ", " + count.danger + " to act on now" : "") + ". Most urgent first below."
+: "No open alerts. Data updates live from the shirts.");
+var STATS = [
+["danger", "Act now", "#icon-alert"],
+["warn", "Watch", "#icon-alert"],
+["ok", "Fit", "#icon-check"],
+["soon", "Not shared", "#icon-info"]
+];
+holder.textContent = "";
+STATS.forEach(function (stat) {
+if (stat[0] === "soon" && !count.soon) {
+return;
+}
+var li = document.createElement("li");
+li.className = "crew__stat";
+li.innerHTML = "<span class=\"crew__stat-number\"></span><span class=\"badge badge--" + stat[0] + "\"><svg class=\"badge__icon\" aria-hidden=\"true\"><use href=\"" + stat[2] + "\"/></svg><span class=\"badge__text\"></span></span>";
+li.querySelector(".crew__stat-number").textContent = count[stat[0]];
+li.querySelector(".badge__text").textContent = stat[1];
+holder.appendChild(li);
+});
+}
 function renderCrew() {
 var target = $("[data-crew-list]");
 target.textContent = "";
+var levels = [];
 Object.keys(members).forEach(function (key) {
 var person = members[key];
 var status = memberStatus(key);
+levels.push(status.level);
 var card = document.createElement("li");
-card.className = "card" + (status.level === "warn" ? " card--warn" : status.level === "danger" ? " card--danger" : "");
+card.className = "card crew__card crew__card--" + status.level + (status.level === "warn" ? " card--warn" : status.level === "danger" ? " card--danger" : "");
 card.setAttribute("data-member", key);
 card.setAttribute("data-status", status.level);
 card.innerHTML =
 "<div class=\"card__header\"><div class=\"crew__person\"><span class=\"crew__avatar\" aria-hidden=\"true\"></span>" +
-"<div class=\"crew__name\"><h3 class=\"card__title\"></h3><p class=\"crew__role\"></p></div></div>" +
-"<span class=\"badge badge--" + status.level + "\"><svg class=\"badge__icon\" aria-hidden=\"true\"><use href=\"" +
-(status.level === "ok" ? "#icon-check" : status.level === "soon" ? "#icon-info" : "#icon-alert") + "\"/></svg><span class=\"badge__text\"></span></span></div>" +
-"<dl class=\"crew__facts\" aria-label=\"Profile\"></dl><dl class=\"crew__data\" aria-label=\"Health\"></dl>";
+"<div class=\"crew__name\"><h3 class=\"card__title\"></h3><p class=\"crew__role\"></p><p class=\"crew__meta\"></p>" +
+"<span class=\"badge crew__badge badge--" + status.level + "\"><svg class=\"badge__icon\" aria-hidden=\"true\"><use href=\"" +
+(status.level === "ok" ? "#icon-check" : status.level === "soon" ? "#icon-info" : "#icon-alert") + "\"/></svg><span class=\"badge__text\"></span></span></div></div></div>" +
+"<dl class=\"crew__facts\" aria-label=\"Where\"></dl><dl class=\"crew__data\" aria-label=\"Health\"></dl>";
 card.querySelector(".card__title").textContent = person.name;
 card.querySelector(".crew__avatar").textContent = initials(person.name);
 card.querySelector(".badge__text").textContent = status.label;
 card.querySelector(".crew__role").textContent = person.role + (key === you ? " (you)" : "");
-addRows(card.querySelector(".crew__facts"), [
-["Sex", person.sex],
-["Age", person.age + " years"],
-["Flight phase", phaseText(), true]
-].concat(inFlight && App.getContext(key) === "rover"
-? [["Where", "Rover traverse · 12 km from the base, about " + App.habitat.roverMinutes + " min away", true]]
-: []), ["crew__fact", "crew__fact--wide"], "crew__fact-label", "crew__fact-value");
-addRows(card.querySelector(".crew__data"), healthRows(key), ["crew__row", "crew__row"], "crew__label", "crew__value");
+card.querySelector(".crew__meta").textContent = person.sex + " · " + person.age + " years";
+var facts = card.querySelector(".crew__facts");
+if (inFlight && App.getContext(key) === "rover") {
+addRows(facts, [["Where", "Rover traverse · 12 km from the base, about " + App.habitat.roverMinutes + " min away", true]],
+["crew__fact", "crew__fact--wide"], "crew__fact-label", "crew__fact-value");
+} else {
+card.removeChild(facts);
+}
+if (inFlight && App.getPrivacy(key).vitals.cmo) {
+card.insertBefore(readinessBlock(key), card.querySelector(".crew__data"));
+}
+var rows = healthRows(key);
+var shown = inFlight ? rows.slice(0, 2) : rows;
+var folded = inFlight ? rows.slice(2) : [];
+addRows(card.querySelector(".crew__data"), shown, ["crew__row", "crew__row"], "crew__label", "crew__value");
+if (folded.length) {
+var more = document.createElement("details");
+more.className = "help crew__more";
+more.innerHTML = "<summary class=\"help__summary\"><span class=\"help__label\">More details<span class=\"sr-only\"></span></span></summary><dl class=\"crew__data\" aria-label=\"More health details\"></dl>";
+more.querySelector(".sr-only").textContent = " for " + person.name;
+addRows(more.querySelector(".crew__data"), folded, ["crew__row", "crew__row"], "crew__label", "crew__value");
+card.querySelector(".crew__data").insertAdjacentElement("afterend", more);
+}
 if (phase.key === "pre") {
 card.removeChild(card.querySelector(".crew__data"));
 card.appendChild(examsButton(key));
 }
 if (App.getPrivacy(key).vitals.cmo) {
 var link = document.createElement("a");
-link.className = "crew__link";
+link.className = "button button--tonal crew__link";
 link.href = "pages/vitals/index.html?member=" + key;
-link.innerHTML = "<span class=\"crew__link-text\">See vital signs over time</span>";
+link.innerHTML = "<span class=\"button__text\">See vital signs over time</span>";
 link.setAttribute("aria-label", "See vital signs over time for " + person.name);
 card.appendChild(link);
 }
 target.appendChild(card);
 });
+renderOverview(levels);
 }
 function matches(key) {
 var person = members[key];
@@ -541,7 +614,7 @@ setText("[data-crew-subtitle]", phase.key === "pre"
 ? "Each crew member's record. Open Pre-flight exams on a card to see what is done, scheduled and still to schedule, and to book it."
 : phase.key === "post"
 ? "Each crew member's record. After landing, rehab is followed by the flight surgeons."
-: "Each crew member's record: profile, today's status and how old the data is. Most urgent first in the alerts below.");
+: "Today's status of each crew member.");
 if (inFlight) {
 renderFilters();
 }

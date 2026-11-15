@@ -1333,7 +1333,22 @@
 
     // Offline app shell: service worker at the site root, registered after load
     var scriptSrc = document.currentScript && document.currentScript.src;
-    if (scriptSrc && "serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    // VS Code Live Server (127.0.0.1, port 5500 or the next free one) is for editing: no cache, every save shows
+    // at once, and an old worker is removed. The tests and the published app (localhost, https) keep the worker.
+    if ("serviceWorker" in navigator && (location.hostname === "127.0.0.1" || location.port === "5500")) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+            registrations.forEach(function (registration) {
+                registration.unregister();
+            });
+        });
+        if (window.caches) {
+            caches.keys().then(function (keys) {
+                keys.forEach(function (key) {
+                    caches.delete(key);
+                });
+            });
+        }
+    } else if (scriptSrc && "serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
         window.addEventListener("load", function () {
             navigator.serviceWorker.register(new URL("../../sw.js", scriptSrc).href).catch(function () {
                 // The app still works online without it

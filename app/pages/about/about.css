@@ -1,0 +1,129 @@
+/* About & Credits */
+.about__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.about__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+.about__brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.about__mark {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 72px;
+}
+
+/* The official Space Apps file is shown as is (never recolored), so it sits on a white plate in both themes */
+.about__plate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-logo-plate);
+}
+
+.about__space-apps {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+}
+
+.credits__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.credits__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+.credits__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.credits__item {
+    display: block;
+}
+
+/* Link inside a list: 48px touch target */
+.credits__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-7);
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.credits__name {
+    font-weight: 700;
+}
+
+.credits__note {
+    display: block;
+    max-width: var(--text-max);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+    .about__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .about__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-5);
+    }
+
+    .credits__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .credits__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-5);
+    }
+}
+
+/* Desktop */
+@media (min-width: 1200px) {
+    .about__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .credits__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

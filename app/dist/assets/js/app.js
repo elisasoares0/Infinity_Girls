@@ -1055,7 +1055,20 @@ document.addEventListener("DOMContentLoaded", markReady);
 markReady();
 }
 var scriptSrc = document.currentScript && document.currentScript.src;
-if (scriptSrc && "serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+if ("serviceWorker" in navigator && (location.hostname === "127.0.0.1" || location.port === "5500")) {
+navigator.serviceWorker.getRegistrations().then(function (registrations) {
+registrations.forEach(function (registration) {
+registration.unregister();
+});
+});
+if (window.caches) {
+caches.keys().then(function (keys) {
+keys.forEach(function (key) {
+caches.delete(key);
+});
+});
+}
+} else if (scriptSrc && "serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
 window.addEventListener("load", function () {
 navigator.serviceWorker.register(new URL("../../sw.js", scriptSrc).href).catch(function () {
 });

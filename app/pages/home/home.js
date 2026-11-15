@@ -91,12 +91,10 @@
         if (!flagged.length) {
             return null;
         }
-        var names = flagged.map(function (item) {
-            return item.label.toLowerCase();
-        });
+        // Short: the callout under "Your body now" names the reading and gives the action, so this never repeats it
         return flagged.length === 1
-            ? "One reading needs attention today: your " + names[0] + ". Here is what to do."
-            : flagged.length + " readings need attention today: " + names.slice(0, -1).join(", ") + " and " + names[names.length - 1] + ".";
+            ? "One reading needs a look today. Details below."
+            : flagged.length + " readings need a look today. Details below.";
     }
 
     // Mission destination is shown, not chosen (the demo selector lives in the footer)

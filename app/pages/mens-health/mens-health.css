@@ -235,7 +235,7 @@
 /* Desktop */
 @media (min-width: 1200px) {
     .activation__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -243,7 +243,7 @@
     }
 
     .eyes__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -251,7 +251,7 @@
     }
 
     .hearing__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -259,7 +259,7 @@
     }
 
     .reproductive__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -268,7 +268,7 @@
 
 
     .research__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;

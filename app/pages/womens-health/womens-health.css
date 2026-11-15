@@ -15,6 +15,20 @@
     color: var(--color-primary);
 }
 
+/* Section groups (Cycle, Body, History): a segmented control under the module status */
+.wh-nav__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.wh-nav__hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
 /* Help close the data gap */
 .research__container {
     display: flex;
@@ -125,6 +139,46 @@
     gap: var(--space-4);
 }
 
+/* What a tap marks (bleeding, spotting or clear), above the grid */
+.calendar__mode {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.calendar__mode-legend {
+    padding-bottom: var(--space-2);
+    font-weight: 700;
+}
+
+.calendar__mode-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.calendar__mode-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* What the last tap did, with a shortcut to that day in the daily log */
+.calendar__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-soft);
+}
+
+.calendar__status-text {
+    flex: 1 1 200px;
+    font-weight: 700;
+}
+
 .calendar__nav {
     display: flex;
     align-items: center;
@@ -206,6 +260,12 @@
     border: 2px dashed var(--color-primary);
 }
 
+/* Spotting: solid thick outline on a light fill (bleeding is fully filled, expected is dashed) */
+.calendar__day--spotting {
+    border: 3px solid var(--color-chart);
+    background-color: var(--color-bg-soft);
+}
+
 .calendar__day--today {
     box-shadow: inset 0 0 0 2px var(--color-text);
 }
@@ -245,6 +305,7 @@
 }
 
 .calendar__key {
+    flex: 0 0 auto;
     width: 16px;
     height: 16px;
     border: 1px solid var(--color-line);
@@ -258,6 +319,11 @@
 
 .calendar__key--predicted {
     border: 2px dashed var(--color-primary);
+}
+
+.calendar__key--spotting {
+    border: 3px solid var(--color-chart);
+    background-color: var(--color-bg-soft);
 }
 
 .calendar__key--today {
@@ -449,8 +515,391 @@
     font-weight: 700;
 }
 
+/* "optional" tag next to every question of the logs */
+.optional-hint {
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
+/* Health history (anamnesis): form before launch, read-only summary in flight and after landing */
+.history__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.history__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* The three groups: stacked on phones and tablets, side by side on desktop */
+.history__groups {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+}
+
+.history__group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.history__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    font-weight: 700;
+}
+
+/* Options in an even grid (full-width rows), so long labels never leave ragged lines */
+.history__options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+}
+
+.history__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+}
+
+.history__status {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+.history__result {
+    display: flex;
+    flex-direction: column;
+}
+
+.history__summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.history__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+.history__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.history__term {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+.history__value {
+    font-weight: 700;
+}
+
+.history__note {
+    max-width: var(--text-max);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* Daily symptom log */
+.diary__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.diary__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+.diary__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.diary__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.diary__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    font-weight: 700;
+}
+
+.diary__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* .field grows in a row of fields; in this column form it keeps its own height */
+.diary__date {
+    flex: 0 0 auto;
+}
+
+.diary__notes {
+    flex: 0 0 auto;
+    max-width: var(--text-max);
+}
+
+.diary__textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.diary__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.diary__result {
+    display: flex;
+    flex-direction: column;
+}
+
+.diary__history {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.diary__entry {
+    display: flex;
+}
+
+/* Each logged day is a button that opens it in the form */
+.diary__entry-button {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    min-height: 48px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    font-family: inherit;
+    font-size: var(--text-base);
+    text-align: left;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.diary__entry-button:hover {
+    background-color: var(--color-surface-hover);
+}
+
+.diary__entry-date {
+    font-weight: 700;
+}
+
+.diary__entry-text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* Bone health */
+.bone__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.bone__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.bone__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.bone__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    font-weight: 700;
+}
+
+.bone__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.bone__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.bone__result {
+    display: flex;
+    flex-direction: column;
+}
+
+.bone__history {
+    max-width: var(--text-max);
+    font-weight: 700;
+}
+
+.bone__link-text {
+    max-width: var(--text-max);
+    color: var(--color-text-muted);
+}
+
+.bone__link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: var(--space-7);
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+/* Blood clots */
+.clot__container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.clot__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.clot__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.clot__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    font-weight: 700;
+}
+
+.clot__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.clot__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.clot__result {
+    display: flex;
+    flex-direction: column;
+}
+
+.clot__history {
+    max-width: var(--text-max);
+    font-weight: 700;
+}
+
+.clot__sos {
+    align-self: flex-start;
+}
+
+.clot__link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: var(--space-7);
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
 /* Tablet */
 @media (min-width: 768px) {
+    .wh-nav__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .diary__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .diary__layout {
+        grid-template-columns: 3fr 2fr;
+        align-items: start;
+        gap: var(--space-5);
+    }
+
+    .bone__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .history__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .history__list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .history__options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .clot__container {
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
     .calendar__tag-short {
         display: none;
     }
@@ -525,8 +974,57 @@
 
 /* Desktop */
 @media (min-width: 1200px) {
+    .wh-nav__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .diary__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .history__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .history__groups {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: start;
+    }
+
+    .history__options {
+        grid-template-columns: 1fr;
+    }
+
+    .bone__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .clot__container {
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .pregnancy__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -534,7 +1032,7 @@
     }
 
     .calendar__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -542,7 +1040,7 @@
     }
 
     .activation__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -550,7 +1048,7 @@
     }
 
     .research__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -558,7 +1056,7 @@
     }
 
     .cycle__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -570,7 +1068,7 @@
     }
 
     .supplies__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -578,7 +1076,7 @@
     }
 
     .symptoms__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -586,7 +1084,7 @@
     }
 
     .landing__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -602,5 +1100,9 @@
 
     .calendar__tag {
         border: 1px solid CanvasText;
+    }
+
+    .calendar__day--spotting {
+        border: 3px dotted Highlight;
     }
 }

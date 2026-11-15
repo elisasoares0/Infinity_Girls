@@ -188,7 +188,7 @@
     margin: 0;
     padding: 0 var(--space-4);
     list-style: none;
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
@@ -228,7 +228,7 @@
 /* Desktop */
 @media (min-width: 1200px) {
     .hazards__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -241,7 +241,7 @@
     }
 
     .exam-reasons__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -253,7 +253,7 @@
     }
 
     .readapt__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;

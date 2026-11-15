@@ -68,12 +68,9 @@ return item.status !== "ok";
 if (!flagged.length) {
 return null;
 }
-var names = flagged.map(function (item) {
-return item.label.toLowerCase();
-});
 return flagged.length === 1
-? "One reading needs attention today: your " + names[0] + ". Here is what to do."
-: flagged.length + " readings need attention today: " + names.slice(0, -1).join(", ") + " and " + names[names.length - 1] + ".";
+? "One reading needs a look today. Details below."
+: flagged.length + " readings need a look today. Details below.";
 }
 var badge = $("[data-radiation-badge]");
 var radiationCard = $("[data-radiation]");

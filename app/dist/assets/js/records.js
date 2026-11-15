@@ -62,6 +62,46 @@ checkin_realizado: {},
 sequencia_dias: { range: [0, 100000] },
 conquistas_desbloqueadas: {}
 }
+},
+diario_saude_feminina: {
+stamp: "atualizado_em",
+columns: {
+usuario_id: { required: true },
+data_registro: { required: true },
+sangramento: { values: ["nenhum", "escape", "leve", "moderado", "intenso"] },
+colica_escala: { range: [0, 3] },
+sintomas: { items: ["dor_cabeca", "seios_sensiveis", "inchaco", "humor", "cansaco", "nausea", "dor_lombar", "acne", "corrimento_coceira", "ondas_calor", "sono_ruim", "tontura"] },
+notas_privadas: {}
+}
+},
+anamnese_saude_feminina: {
+stamp: "atualizado_em",
+columns: {
+usuario_id: { required: true },
+condicoes_previas: { items: ["colica_intensa", "sangramento_intenso", "endometriose", "sop", "anemia", "enxaqueca_aura", "infeccao_urinaria_repetida", "candidiase_repetida"] },
+fatores_risco_osseo: { items: ["historico_familiar", "fratura_previa", "ciclo_ausente", "injecao_trimestral", "tabagismo", "baixo_peso"] },
+fatores_risco_trombose: { items: ["pilula_estrogenio", "historico_pessoal", "historico_familiar", "disturbio_coagulacao", "tabagismo"] }
+}
+},
+saude_ossea: {
+stamp: "atualizado_em",
+columns: {
+usuario_id: { required: true },
+data_registro: { required: true },
+calcio_tomado: {},
+vitamina_d_tomada: {},
+dor_ossea: { items: ["costas", "quadril", "joelhos", "pes", "punhos"] },
+queda_ou_impacto: {}
+}
+},
+sinais_trombose: {
+stamp: "atualizado_em",
+columns: {
+usuario_id: { required: true },
+data_registro: { required: true },
+sinais: { items: ["inchaco_um_lado", "dor_panturrilha", "calor_vermelhidao", "inchaco_pescoco", "dor_cabeca_forte", "falta_ar_subita", "dor_peito"] },
+status_alerta: { required: true, values: ["normal", "atencao", "critico"] }
+}
 }
 };
 var ENVIRONMENTS = {
@@ -101,6 +141,11 @@ if (rule.required) {
 throw new Error(table + "." + column + " is required");
 }
 return;
+}
+if (rule.items && (!Array.isArray(value) || value.some(function (item) {
+return rule.items.indexOf(item) === -1;
+}))) {
+throw new Error(table + "." + column + ": " + value + " is not allowed");
 }
 if (rule.values && rule.values.indexOf(value) === -1) {
 throw new Error(table + "." + column + ": " + value + " is not allowed");
@@ -170,6 +215,14 @@ return item[key] === row[key];
 });
 })[0];
 return match ? update(table, match.id, row) : insert(table, row);
+}
+function remove(table, id) {
+if (!SCHEMA[table]) {
+throw new Error("Unknown table: " + table);
+}
+writeTable(table, readTable(table).filter(function (row) {
+return row.id !== id;
+}));
 }
 function list(table, filter) {
 var usuario = filter && filter.usuario_id;
@@ -242,6 +295,7 @@ files: files,
 update: update,
 upsert: upsert,
 insert: insert,
+remove: remove,
 list: list,
 latest: latest,
 environment: environment

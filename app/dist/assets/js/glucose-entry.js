@@ -25,7 +25,7 @@ dialog.innerHTML =
 "<div class=\"glucose-entry__head\"><div class=\"glucose-entry__heading\">" +
 "<h2 class=\"glucose-entry__title\" id=\"glucose-entry-title\">Measure blood glucose</h2>" +
 "<p class=\"glucose-entry__subtitle\">With the glucometer from the medical kit</p></div>" +
-"<button class=\"glucose-entry__close\" type=\"button\" aria-label=\"Close\"><svg class=\"glucose-entry__close-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div>" +
+"<button class=\"glucose-entry__close\" type=\"button\" aria-label=\"Close\"><svg class=\"glucose-entry__close-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
 "<ol class=\"glucose-entry__steps\"></ol>" +
 "<div class=\"glucose-entry__bluetooth\" hidden>" +
 "<button class=\"button button--secondary\" type=\"button\" data-glucose-connect><span class=\"button__text\">Connect glucometer</span></button>" +

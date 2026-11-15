@@ -15,34 +15,10 @@
     padding-bottom: calc(var(--space-7) + var(--footer-wave));
 }
 
-/* Orbit lines behind the page: shape from assets/img/wave-lines*.svg (mask), color from tokens */
-.dashboard::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: -1;
-    background-image: linear-gradient(90deg, transparent 0, var(--color-deco-line) 25%, transparent 50%, var(--color-deco-line-strong) 75%, transparent 100%);
-    -webkit-mask-image: url("../../assets/img/wave-lines.svg"), url("../../assets/img/wave-lines-flip.svg"), url("../../assets/img/wave-lines.svg");
-    mask-image: url("../../assets/img/wave-lines.svg"), url("../../assets/img/wave-lines-flip.svg"), url("../../assets/img/wave-lines.svg");
-    -webkit-mask-size: 100% 240px, 100% 240px, 100% 240px;
-    mask-size: 100% 240px, 100% 240px, 100% 240px;
-    -webkit-mask-position: 0 3700px, 0 1700px, 0 2700px;
-    mask-position: 0 3700px, 0 1700px, 0 2700px;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
 /* Greeting (above the fold, LCP) */
+/* Home greeting: a large title on the page background, like the other pages */
 .greeting {
     position: relative;
-    overflow: hidden;
-    background-color: var(--color-bg);
-    background-image: linear-gradient(var(--color-bg-soft), var(--color-bg-soft));
 }
 
 .greeting__container {
@@ -101,7 +77,6 @@
     position: relative;
     overflow: hidden;
     background-color: var(--color-bg);
-    background-image: linear-gradient(var(--color-bg-soft), var(--color-bg-soft));
 }
 
 .welcome__container {
@@ -109,7 +84,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
-    padding-top: var(--space-6);
+    padding-top: 0;
     padding-bottom: var(--space-8);
     padding-left: 4%;
     padding-right: 4%;
@@ -119,6 +94,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-4);
+    padding-top: var(--space-6);
 }
 
 .welcome__mascot {
@@ -165,7 +141,7 @@
 
 .auth__panel {
     padding: var(--space-5);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
@@ -314,12 +290,6 @@
     padding-right: 4%;
 }
 
-.crew__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-}
-
 .crew__tools {
     display: flex;
     flex-direction: column;
@@ -387,15 +357,24 @@
     color: var(--color-text);
 }
 
+/* Phones: the records side by side in a swipeable row (the next card peeks in), so the panel is not 4 screens of cards */
 .crew__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-3);
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+}
+
+.crew__card {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
 }
 
 .crew__person {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-3);
     min-width: 0;
 }
@@ -446,17 +425,147 @@
 }
 
 .crew__link {
-    display: inline-flex;
-    align-items: center;
-    align-self: flex-start;
-    min-height: var(--space-7);
-    font-weight: 700;
-    color: var(--color-primary);
+    align-self: stretch;
 }
 
-.crew__link-text {
+/* Crew card: profile in one line, status in the badge, readiness large */
+.crew__meta {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+/* Status badge under the name, so every card lines up whatever the width */
+.crew__badge {
+    align-self: flex-start;
+}
+
+.crew__score {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.crew__score-value {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+}
+
+.crew__score-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-display);
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.crew__score-unit {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.crew__score-bar {
     display: block;
-    text-box: trim-both cap alphabetic;
+    height: 8px;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-chart-track);
+    overflow: hidden;
+}
+
+.crew__score-fill {
+    display: block;
+    width: var(--fill, 0%);
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-chart);
+}
+
+/* The health rows take the free height, so the button lines up at the bottom of every card */
+.crew__data {
+    flex: 1 1 auto;
+}
+
+/* Status overview: a white card at the top, the counts in soft tiles */
+.crew__overview {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-card);
+}
+
+.crew__overview-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.crew__overview-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.crew__overview-sub {
+    color: var(--color-text-muted);
+}
+
+.crew__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: var(--space-2);
+}
+
+.crew__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    min-height: var(--space-7);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-button);
+    background-color: var(--color-tint-neutral);
+}
+
+.crew__stat-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-value);
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.crew__overview-button {
+    justify-self: start;
+}
+
+/* Alert card: the steps as a bar */
+.alerts__progress {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 320px;
+}
+
+.alerts__bar {
+    display: block;
+    height: 8px;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-chart-track);
+    overflow: hidden;
+}
+
+.alerts__bar-fill {
+    display: block;
+    width: var(--fill, 0%);
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-status-ok-line);
 }
 
 /* Before the flight: the exam counts on each crew card open that person's exams (button, full width) */
@@ -808,8 +917,8 @@
 .alerts__status {
     max-width: var(--text-max);
     padding: var(--space-3) var(--space-4);
-    border-left: 4px solid var(--color-primary);
-    background-color: var(--color-bg-soft);
+    border-radius: var(--radius-button);
+    background-color: var(--color-tint-info);
     font-size: var(--text-sm);
     font-weight: 700;
 }
@@ -856,11 +965,23 @@
 }
 
 /* Overview: body mass + radiation */
+/* Phones: the three cards side by side in a swipeable row (the next one peeks in); a grid from 768px */
 .overview__container {
-    display: grid;
-    gap: var(--space-4);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    overflow-x: auto;
     padding-left: 4%;
     padding-right: 4%;
+    padding-bottom: var(--space-3);
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 4%;
+    overscroll-behavior-x: contain;
+}
+
+.overview__item {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
 }
 
 .radiation {
@@ -870,24 +991,10 @@
     flex-direction: column;
     gap: var(--space-4);
     padding: var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
-}
-
-.radiation::before {
-    content: "";
-    position: absolute;
-    top: -96px;
-    right: -96px;
-    width: 280px;
-    height: 280px;
-    background-image: url("../../assets/img/deco-rosette.webp");
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.14;
-    pointer-events: none;
 }
 
 .radiation--danger {
@@ -1062,7 +1169,7 @@
     gap: var(--space-3);
     min-width: 0;
     padding: var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
@@ -1286,8 +1393,8 @@
     gap: var(--space-3);
     padding: var(--space-4) var(--space-5);
     border-radius: var(--space-5);
-    background-color: var(--color-status-warn);
-    color: var(--color-status-warn-text);
+    background-color: var(--color-tint-warn);
+    color: var(--color-text);
 }
 
 .astronaut-view__callout-text {
@@ -1295,7 +1402,7 @@
     font-weight: 700;
 }
 
-/* Space band, edge to edge: breaks out of the container (any padding or the centered 1140px)
+/* Space band, edge to edge: breaks out of the container (any padding or the centered content width)
    Phone: figure first, then the cards in two columns, all inside the space */
 .astronaut-view__layout {
     position: relative;
@@ -1308,19 +1415,10 @@
         "left"
         "right";
     gap: var(--space-3);
-    width: 100cqw;
-    margin-left: calc(50% - 50cqw);
     overflow: hidden;
-    --wave-height: 40px;
-    padding: calc(var(--space-5) + var(--wave-height)) 4% calc(var(--space-6) + var(--wave-height));
-    -webkit-mask-image: url("../../assets/img/wave-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask)), url("../../assets/img/wave-edge-bottom.svg");
-    mask-image: url("../../assets/img/wave-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask)), url("../../assets/img/wave-edge-bottom.svg");
-    -webkit-mask-size: 100% var(--wave-height), 100% calc(100% - 2 * var(--wave-height) + 2px), 100% var(--wave-height);
-    mask-size: 100% var(--wave-height), 100% calc(100% - 2 * var(--wave-height) + 2px), 100% var(--wave-height);
-    -webkit-mask-position: top, center, bottom;
-    mask-position: top, center, bottom;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
+    padding: var(--space-5) var(--space-4) var(--space-6);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
     background-color: var(--color-space);
     background-image:
         radial-gradient(ellipse 140% 60% at 50% 128%, var(--color-earth-glow) 0, var(--color-earth-rim) 38%, transparent 62%),
@@ -1795,6 +1893,13 @@
     list-style: none;
 }
 
+/* Image, note and reading form; folded inside a <details> once the image was read */
+.scans__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
 .scans__meta {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
@@ -1896,11 +2001,20 @@
     padding-right: 4%;
 }
 
+/* Phones: Today first, then the streak and achievements in a swipeable row; a grid from 768px */
 .goals__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-    align-items: start;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-3);
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+}
+
+.goals__card {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
 }
 
 .goals__overview {
@@ -2059,7 +2173,7 @@
     grid-template-columns: 1fr;
     gap: var(--space-3);
     margin: 0;
-    padding: 0;
+    padding: var(--space-3) 0 0;
     list-style: none;
 }
 
@@ -2368,49 +2482,15 @@
 
 /* Tasks */
 /* Dark space band with wave edges; the task cards stay white on it */
+/* Health tasks: a plain section on the page background (the "stage" colors of its children follow the theme) */
 .tasks {
-    --wave-height: 40px;
+    --color-stage-text: var(--color-text);
+    --color-stage-muted: var(--color-text-muted);
+    --color-stage-line: var(--color-line);
     position: relative;
-    isolation: isolate;
-    padding-top: calc(var(--space-7) + var(--wave-height));
-    padding-bottom: calc(var(--space-7) + var(--wave-height));
-    background-color: var(--color-space);
-    background-image:
-        radial-gradient(ellipse 90% 60% at 85% 30%, var(--color-earth-rim) 0, transparent 60%),
-        linear-gradient(180deg, var(--color-space) 0, var(--color-space-mid) 100%);
-    color: var(--color-stage-text);
-    -webkit-mask-image: url("../../assets/img/wave-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask)), url("../../assets/img/wave-edge-bottom.svg");
-    mask-image: url("../../assets/img/wave-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask)), url("../../assets/img/wave-edge-bottom.svg");
-    -webkit-mask-size: 100% var(--wave-height), 100% calc(100% - 2 * var(--wave-height) + 2px), 100% var(--wave-height);
-    mask-size: 100% var(--wave-height), 100% calc(100% - 2 * var(--wave-height) + 2px), 100% var(--wave-height);
-    -webkit-mask-position: top, center, bottom;
-    mask-position: top, center, bottom;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
+    color: var(--color-text);
     content-visibility: auto;
     contain-intrinsic-size: auto 720px;
-}
-
-/* Stars on the band: same tile as the page background, in white */
-.tasks::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: -1;
-    background-color: var(--color-space-star);
-    -webkit-mask-image: url("../../assets/img/stars.svg"), url("../../assets/img/stars.svg");
-    mask-image: url("../../assets/img/stars.svg"), url("../../assets/img/stars.svg");
-    -webkit-mask-size: 320px 320px, 530px 530px;
-    mask-size: 320px 320px, 530px 530px;
-    -webkit-mask-position: 0 0, 157px 89px;
-    mask-position: 0 0, 157px 89px;
-    -webkit-mask-repeat: repeat;
-    mask-repeat: repeat;
-    opacity: 0.7;
-    pointer-events: none;
 }
 
 .tasks__container {
@@ -2445,23 +2525,24 @@
     color: var(--color-stage-text);
 }
 
+/* Grouped list (iOS inset grouped): one card, rows split by hairlines (the 1px gap shows the line color) */
 .tasks__list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: 1px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background-color: var(--color-line);
+    box-shadow: var(--shadow-card);
 }
 
 .tasks__item {
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-md);
     background-color: var(--color-surface);
-    box-shadow: var(--shadow-card);
     color: var(--color-text);
 }
 
 .tasks__item--done {
     background-color: var(--color-surface-done);
-    box-shadow: none;
 }
 
 .tasks__label {
@@ -2551,7 +2632,7 @@
     flex-direction: column;
     gap: var(--space-1);
     padding: var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
@@ -2577,35 +2658,10 @@
 
 /* Modules */
 .modules {
-    --wave-height: 40px;
     position: relative;
     overflow: hidden;
-    background-color: var(--color-bg-soft);
-    -webkit-mask-image: url("../../assets/img/wave-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask));
-    mask-image: url("../../assets/img/wave-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask));
-    -webkit-mask-size: 100% var(--wave-height), 100% calc(100% - var(--wave-height) + 1px);
-    mask-size: 100% var(--wave-height), 100% calc(100% - var(--wave-height) + 1px);
-    -webkit-mask-position: top, bottom;
-    mask-position: top, bottom;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
     content-visibility: auto;
     contain-intrinsic-size: auto 640px;
-}
-
-.modules::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: -20%;
-    width: 900px;
-    height: 900px;
-    background-image: url("../../assets/img/deco-orbits.webp");
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.16;
-    transform: translateY(-50%) scaleX(-1);
-    pointer-events: none;
 }
 
 .modules__container {
@@ -2613,8 +2669,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
-    padding-top: calc(var(--space-7) + var(--wave-height));
-    padding-bottom: calc(var(--space-7) + var(--footer-wave));
+    padding-top: 0;
+    padding-bottom: var(--space-7);
     padding-left: 4%;
     padding-right: 4%;
 }
@@ -2626,10 +2682,15 @@
     aspect-ratio: 160 / 176;
 }
 
+/* Phones: one grouped list (rows split by hairlines); separate cards from 768px */
 .modules__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-4);
+    gap: 1px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background-color: var(--color-line);
+    box-shadow: var(--shadow-card);
 }
 
 .module-card {
@@ -2637,8 +2698,8 @@
     flex-direction: column;
     gap: var(--space-2);
     padding: var(--space-4);
-    border: 1px dashed var(--color-line);
-    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    border-radius: 0;
     background-color: var(--color-surface);
 }
 
@@ -2664,17 +2725,16 @@
 /* Available module: the whole card is clickable through a stretched link */
 .module-card--link {
     position: relative;
-    border-style: solid;
-    box-shadow: var(--shadow-card);
 }
 
 .module-card--link:hover {
     border-color: var(--color-primary);
 }
 
+/* Inside the grouped list (phones) the ring is drawn inward, so the rounded list never clips it */
 .module-card--link:focus-within {
     outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
+    outline-offset: -4px;
 }
 
 .module-card__link {
@@ -2717,6 +2777,10 @@
     }
 
     .goals__grid {
+        display: grid;
+        align-items: start;
+        overflow-x: visible;
+        padding-bottom: 0;
         grid-template-columns: repeat(2, 1fr);
         gap: var(--space-5);
     }
@@ -2754,8 +2818,7 @@
             "stage stage"
             "left right";
         gap: var(--space-4);
-        --wave-height: 64px;
-        padding: calc(var(--space-6) + var(--wave-height)) 6%;
+        padding: var(--space-6);
     }
 
     .astronaut-view__stage {
@@ -2803,8 +2866,27 @@
     }
 
     .crew__grid {
+        display: grid;
+        overflow-x: visible;
+        padding-bottom: 0;
         grid-template-columns: repeat(2, 1fr);
         gap: var(--space-5);
+    }
+
+    .crew__overview {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        padding: var(--space-6);
+    }
+
+    .crew__stats {
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(96px, auto);
+    }
+
+    .crew__overview-button {
+        grid-column: 1 / -1;
     }
 
     .exam-panel {
@@ -2835,6 +2917,10 @@
 
     /* Body mass next to radiation in flight; alone on Earth, where radiation is hidden */
     .overview__container {
+        display: grid;
+        align-items: stretch;
+        overflow-x: visible;
+        padding-bottom: 0;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: var(--space-5);
         padding-left: 6%;
@@ -2849,29 +2935,39 @@
         padding: var(--space-5);
     }
 
-    .tasks {
-        --wave-height: 64px;
-    }
-
     .tasks__container {
         padding-left: 6%;
         padding-right: 6%;
     }
 
-    .modules {
-        --wave-height: 64px;
-    }
-
     .modules__container {
-        padding-top: calc(var(--space-8) + var(--wave-height));
-        padding-bottom: calc(var(--space-8) + var(--footer-wave));
+        padding-bottom: var(--space-8);
         padding-left: 6%;
         padding-right: 6%;
     }
 
     .modules__grid {
+        overflow: visible;
+        border-radius: 0;
+        background-color: transparent;
+        box-shadow: none;
         grid-template-columns: repeat(2, 1fr);
         gap: var(--space-5);
+    }
+
+    .module-card {
+        border: 1px dashed var(--color-line);
+        border-radius: var(--radius-md);
+    }
+
+    .module-card--link {
+        border-style: solid;
+        border-color: var(--sys-card-border);
+        box-shadow: var(--shadow-card);
+    }
+
+    .module-card--link:focus-within {
+        outline-offset: 2px;
     }
 
     .module-card {
@@ -2882,7 +2978,7 @@
 /* Desktop */
 @media (min-width: 1200px) {
     .scans__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2890,7 +2986,7 @@
     }
 
     .goals__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2902,7 +2998,7 @@
     }
 
     .astronaut-view__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2918,9 +3014,7 @@
             "left stage right";
         align-items: stretch;
         gap: var(--space-5);
-        /* the band is full width; the cards line up with the page's 1140px grid */
-        --wave-height: 96px;
-        padding: calc(var(--space-6) + var(--wave-height)) calc(50cqw - 570px);
+        padding: var(--space-6);
     }
 
     .astronaut-view__stage {
@@ -2938,7 +3032,7 @@
         align-items: center;
         justify-content: space-between;
         gap: var(--space-6);
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2946,7 +3040,7 @@
     }
 
     .welcome__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2954,7 +3048,7 @@
     }
 
     .command__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2962,7 +3056,7 @@
     }
 
     .crew__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2973,8 +3067,24 @@
         grid-template-columns: repeat(4, 1fr);
     }
 
+    .crew__overview {
+        grid-template-columns: 1fr auto auto;
+        gap: var(--space-6);
+    }
+
+    .crew__overview-button {
+        grid-column: auto;
+    }
+
+    /* Alerts side by side: each card keeps its own height */
+    .alerts__list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
     .alerts__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2982,7 +3092,7 @@
     }
 
     .lead-alert__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -2990,24 +3100,15 @@
     }
 
     .overview__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
         margin-right: auto;
     }
 
-    .tasks {
-        --wave-height: 96px;
-    }
-
-    .tasks::before {
-        -webkit-mask-size: 400px 400px, 660px 660px;
-        mask-size: 400px 400px, 660px 660px;
-    }
-
     .tasks__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3015,7 +3116,7 @@
     }
 
     .modules__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3029,21 +3130,6 @@
 
 /* Windows high contrast: decorations off, wave edges become straight */
 @media (forced-colors: active) {
-    .dashboard::before,
-    .tasks::before {
-        display: none;
-    }
-
-    .tasks {
-        -webkit-mask-image: none;
-        mask-image: none;
-    }
-
-    .astronaut-view__layout {
-        -webkit-mask-image: none;
-        mask-image: none;
-    }
-
     .astronaut-view__readiness {
         border-color: CanvasText;
     }

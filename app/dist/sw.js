@@ -1,5 +1,5 @@
 "use strict";
-var CACHE_VERSION = "astro-health-v44";
+var CACHE_VERSION = "astro-health-v56";
 var SHELL = [
 "./",
 "index.html",
@@ -11,6 +11,8 @@ var SHELL = [
 "pages/emergency/index.html",
 "pages/profile/index.html",
 "pages/learn/index.html",
+"pages/about/index.html",
+"pages/design-system/index.html",
 "assets/css/colors.css",
 "assets/css/spacing.css",
 "assets/css/fonts.css",
@@ -18,6 +20,8 @@ var SHELL = [
 "pages/home/home.css",
 "pages/privacy/privacy.css",
 "pages/learn/learn.css",
+"pages/about/about.css",
+"pages/design-system/design-system.css",
 "pages/womens-health/womens-health.css",
 "pages/body/body.css",
 "pages/mens-health/mens-health.css",
@@ -71,7 +75,7 @@ var SHELL = [
 "assets/fonts/fira-sans-latin-700-normal.woff2",
 "assets/fonts/overpass-latin-400-normal.woff2",
 "assets/fonts/overpass-latin-700-normal.woff2",
-"assets/img/logo-space-apps.svg",
+"assets/img/logo-symbol.svg",
 "assets/img/mascot-waving-200.webp",
 "assets/img/mascot-waving-400.webp",
 "assets/img/mascot-heart-160.webp",

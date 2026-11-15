@@ -79,6 +79,58 @@
     var moduleSwitch = $("[data-module-switch]");
     var contents = document.querySelectorAll("[data-module-content]");
 
+    /*
+     * Section groups (one at a time, so the page is never an endless scroll): Cycle, Body, History.
+     * A link to a section (#history, #bone, #clot, #diary) opens its group.
+     */
+    var GROUP_HINTS = {
+        cycle: "Calendar, daily log and supplies.",
+        body: "Urinary symptoms, bone health and blood clot signs.",
+        history: "Your health history and research sharing."
+    };
+    var groupTabs = Array.prototype.slice.call(document.querySelectorAll("[data-wh-tab]"));
+
+    function groupOfHash() {
+        var target = location.hash.length > 1 ? document.getElementById(location.hash.slice(1)) : null;
+        var section = target && target.closest("[data-wh-group]");
+        return section ? section.getAttribute("data-wh-group") : null;
+    }
+
+    var group = groupOfHash() || "cycle";
+
+    function renderGroupTabs() {
+        groupTabs.forEach(function (tab) {
+            var on = tab.getAttribute("data-wh-tab") === group;
+            tab.setAttribute("aria-pressed", on ? "true" : "false");
+            tab.classList.toggle("tabs__tab--active", on);
+        });
+        setText("[data-wh-hint]", GROUP_HINTS[group]);
+    }
+
+    function showGroup(next) {
+        if (next === group) {
+            return;
+        }
+        group = next;
+        renderGroupTabs();
+        renderModule();
+    }
+
+    groupTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            showGroup(tab.getAttribute("data-wh-tab"));
+            announce(tab.textContent.trim() + ": " + GROUP_HINTS[group]);
+        });
+    });
+
+    window.addEventListener("hashchange", function () {
+        var next = groupOfHash();
+        if (next) {
+            showGroup(next);
+            document.getElementById(location.hash.slice(1)).scrollIntoView({ block: "start" });
+        }
+    });
+
     function renderModule() {
         moduleSwitch.checked = state.enabled;
         setText("[data-module-state]", state.enabled ? "On" : "Off");
@@ -89,7 +141,8 @@
             // data-final-days: in flight, show only in the last N days before landing
             var finalDays = Number(section.getAttribute("data-final-days"));
             var tooEarly = finalDays && phaseNow.key === "in" && daysToLanding > finalDays;
-            section.hidden = !state.enabled || !App.isPhaseVisible(section) || tooEarly;
+            var otherGroup = section.hasAttribute("data-wh-group") && section.getAttribute("data-wh-group") !== group;
+            section.hidden = !state.enabled || !App.isPhaseVisible(section) || tooEarly || otherGroup;
         });
     }
 
@@ -298,6 +351,10 @@
         if (modeKey === "mars" && App.isFlight()) {
             lines.push("On a Mars mission there is no evacuation, so early treatment with the on-board medical kit matters.");
         }
+        // From the anamnesis mapped before launch (history() is defined further down and only read here)
+        if ((history().condicoes_previas || []).indexOf("infeccao_urinaria_repetida") !== -1) {
+            lines.push("Repeated urinary infections are in your health history: tell your medical lead today, even if the symptoms are mild.");
+        }
         notice("warn", "Logged at " + log.time + ": possible urinary infection signs", lines);
     }
 
@@ -390,6 +447,10 @@
         state.periodsSimulated = true;
         save();
     }
+    // Spotting days (logged in the daily symptom log): shown apart from bleeding, never counted as a period
+    if (!Array.isArray(state.spotting)) {
+        state.spotting = [];
+    }
 
     function missionEvents() {
         var events = {};
@@ -405,6 +466,10 @@
         var set = {};
         state.periods.forEach(function (key) {
             set[key] = true;
+        });
+        var spots = {};
+        state.spotting.forEach(function (key) {
+            spots[key] = true;
         });
         var days = Object.keys(set).sort();
         var starts = days.filter(function (key) {
@@ -443,6 +508,7 @@
 
         return {
             set: set,
+            spots: spots,
             starts: starts,
             cycles: cycles,
             avgCycle: avgCycle,
@@ -451,7 +517,7 @@
             predicted: predicted,
             suppressed: suppressed,
             spread: cycles.length >= 2 ? Math.max.apply(null, cycles) - Math.min.apply(null, cycles) : 0,
-            recentBleeding: suppressed && days.some(function (key) {
+            recentBleeding: suppressed && days.concat(Object.keys(spots)).some(function (key) {
                 var ms = keyMs(key);
                 return ms <= todayMs && ms > todayMs - 7 * DAY;
             })
@@ -554,6 +620,7 @@
             var ms = Date.UTC(viewYear, viewMonth, d);
             var key = dayKey(ms);
             var logged = !!data.set[key];
+            var spotted = !!data.spots[key] && !logged;
             var expected = !!data.predicted[key] && !logged;
             var event = events[key];
             var button = document.createElement("button");
@@ -565,10 +632,10 @@
             button.type = "button";
             button.className = "calendar__day" +
                 (logged ? " calendar__day--period" : "") +
+                (spotted ? " calendar__day--spotting" : "") +
                 (expected ? " calendar__day--predicted" : "") +
                 (ms === todayMs ? " calendar__day--today" : "");
             button.setAttribute("data-day", key);
-            button.setAttribute("aria-pressed", logged ? "true" : "false");
             button.disabled = ms > todayMs; // bleeding cannot be logged in the future
 
             if (ms === todayMs) {
@@ -576,6 +643,9 @@
             }
             if (logged) {
                 label += ", bleeding logged";
+            }
+            if (spotted) {
+                label += ", spotting logged";
             }
             if (expected) {
                 label += ", period expected";
@@ -624,22 +694,93 @@
         }
     }
 
+    /*
+     * What a tap marks: bleeding, spotting or clear the day. Tapping a day that already has the chosen mark undoes it.
+     * On the continuous pill bleeding is suppressed, so spotting is the first choice.
+     */
+    var MARK_NAMES = { bleeding: "Bleeding", spotting: "Spotting" };
+    var calModes = Array.prototype.slice.call(document.querySelectorAll("[data-cal-mode]"));
+    var calMode = state.plan === "pill" ? "spotting" : "bleeding";
+    var calStatusKey = null;
+
+    function renderCalMode() {
+        calModes.forEach(function (radio) {
+            radio.checked = radio.value === calMode;
+            radio.closest(".choice").classList.toggle("choice--active", radio.checked);
+        });
+    }
+
+    calModes.forEach(function (radio) {
+        radio.addEventListener("change", function () {
+            calMode = radio.value;
+            renderCalMode();
+        });
+    });
+
+    function markOf(key) {
+        if (state.periods.indexOf(key) !== -1) {
+            return "bleeding";
+        }
+        return state.spotting.indexOf(key) !== -1 ? "spotting" : null;
+    }
+
+    // Under the grid: what the last tap did, with a shortcut to that day in the daily log
+    function showCalStatus(key, before, after) {
+        var date = shortDate(keyMs(key));
+        var text = after
+            ? MARK_NAMES[after] + " logged on " + date + "."
+            : before ? MARK_NAMES[before] + " removed from " + date + "." : "Nothing was marked on " + date + ".";
+        calStatusKey = key;
+        setText("[data-cal-status-text]", text + (after ? " Tap the day again to undo." : ""));
+        setText("[data-cal-details-text]", "Open " + date + " in the daily log");
+        $("[data-cal-details]").hidden = !after;
+        $("[data-cal-status]").hidden = false;
+        announce(text);
+    }
+
     $("[data-cal-grid]").addEventListener("click", function (event) {
         var button = event.target.closest(".calendar__day");
         if (!button || button.disabled) {
             return;
         }
         var key = button.getAttribute("data-day");
-        var index = state.periods.indexOf(key);
-        if (index === -1) {
+        var before = markOf(key);
+        var after = calMode === "clear" || before === calMode ? null : calMode;
+        removeDay(state.periods, key);
+        removeDay(state.spotting, key);
+        if (after === "bleeding") {
             state.periods.push(key);
-            announce("Bleeding logged on " + shortDate(keyMs(key)) + ".");
-        } else {
-            state.periods.splice(index, 1);
-            announce("Bleeding removed from " + shortDate(keyMs(key)) + ".");
+        } else if (after === "spotting") {
+            state.spotting.push(key);
         }
         save();
+        // Keep the daily log in step. Spotting is exact ("escape"); for bleeding the app never guesses how heavy it was,
+        // so a mismatching answer goes back to "Not logged"
+        var diaryRow = rowOn("diario_saude_feminina", key);
+        if (diaryRow && diaryRow.sangramento) {
+            var answer = BLEEDING_DAYS.indexOf(diaryRow.sangramento) !== -1 ? "bleeding" : diaryRow.sangramento === "escape" ? "spotting" : null;
+            if (answer !== after) {
+                App.records.update("diario_saude_feminina", diaryRow.id, { sangramento: after === "spotting" ? "escape" : null });
+            }
+            renderDiaryHistory();
+            if (diaryDate.value === key) {
+                loadDiary(key);
+            }
+        }
         renderCalendar(key);
+        showCalStatus(key, before, after);
+    });
+
+    // Opens that day in the daily log, where the flow, cramps and symptoms are logged
+    $("[data-cal-details]").addEventListener("click", function () {
+        if (!calStatusKey) {
+            return;
+        }
+        diaryDate.value = calStatusKey;
+        loadDiary(calStatusKey);
+        diaryResult.textContent = "";
+        diaryDate.focus();
+        announce("Daily log open for " + shortDate(keyMs(calStatusKey)) + ".");
     });
 
     $("[data-cal-prev]").addEventListener("click", function () {
@@ -662,11 +803,592 @@
 
     $("[data-cal-clear]").addEventListener("click", function () {
         state.periods = [];
+        state.spotting = [];
         state.periodsSimulated = false;
+        $("[data-cal-status]").hidden = true;
         save();
         renderCalendar();
         announce("Simulated history cleared. Tap the days you had bleeding to start your own history.");
     });
+
+    /*
+     * Daily symptom log, bone health and blood clot signs, saved through App.records with the backend names.
+     * Every field is optional: what is left empty is saved as null ("not logged"), never as "no".
+     */
+    var member = App.getProfile().member;
+    var BLEEDING_DAYS = ["leve", "moderado", "intenso"];
+    var CRAMPS = ["none", "mild", "moderate", "severe"];
+
+    function inputs(selector) {
+        return Array.prototype.slice.call(document.querySelectorAll(selector));
+    }
+
+    function labelOf(input) {
+        return input.closest(".choice").querySelector(".choice__label").textContent;
+    }
+
+    function checkedValues(selector) {
+        return inputs(selector).filter(function (input) {
+            return input.checked;
+        }).map(function (input) {
+            return input.value;
+        });
+    }
+
+    function labelsOf(selector, values) {
+        return inputs(selector).filter(function (input) {
+            return values.indexOf(input.value) !== -1;
+        }).map(labelOf);
+    }
+
+    function markActive(selector) {
+        inputs(selector).forEach(function (input) {
+            input.closest(".choice").classList.toggle("choice--active", input.checked);
+        });
+    }
+
+    function setChecked(selector, values) {
+        inputs(selector).forEach(function (input) {
+            input.checked = values.indexOf(input.value) !== -1;
+        });
+        markActive(selector);
+    }
+
+    // Chips show their state with a border; radios also clear the other chips of the same group
+    function watchChips(selector) {
+        inputs(selector).forEach(function (input) {
+            input.addEventListener("change", function () {
+                markActive(selector);
+            });
+        });
+    }
+
+    function removeDay(list, key) {
+        var index = list.indexOf(key);
+        if (index !== -1) {
+            list.splice(index, 1);
+        }
+    }
+
+    function rowOn(table, key) {
+        return App.records.list(table, { usuario_id: member }).filter(function (row) {
+            return row.data_registro === key;
+        })[0] || null;
+    }
+
+    // A notice inside a result box: level info, warn or danger; lines are plain text (no HTML from input)
+    function showNotice(container, level, title, lines) {
+        container.textContent = "";
+        var box = document.createElement("div");
+        box.className = "notice notice--" + level;
+        box.innerHTML = '<svg class="notice__icon" aria-hidden="true"><use href="' + (level === "info" ? "#icon-check" : "#icon-alert") + '"/></svg><div class="notice__text"><p class="notice__title"></p></div>';
+        box.querySelector(".notice__title").textContent = title;
+        var text = box.querySelector(".notice__text");
+        lines.forEach(function (line) {
+            var p = document.createElement("p");
+            p.textContent = line;
+            text.appendChild(p);
+        });
+        container.appendChild(box);
+        return text;
+    }
+
+    function sharingLine() {
+        return canMedicalLeadSee()
+            ? "Shared with your medical lead: " + App.getMedicalLead().name.toLowerCase() + "."
+            : "Not shared: your medical lead cannot see this log. You can share it in Privacy.";
+    }
+
+    function countLog() {
+        state.logs = (state.logs || 0) + 1;
+        save();
+        renderResearch();
+    }
+
+    /*
+     * ---------- Health history (anamnesis) ----------
+     * Mapped before launch (editable only in the "pre" phase). In flight and after landing it is read only:
+     * the logs never ask for it again and use it in their advice.
+     */
+    var HISTORY_TABLE = "anamnese_saude_feminina";
+    var HISTORY_GROUPS = [
+        { column: "condicoes_previas", selector: "[data-history-condition]" },
+        { column: "fatores_risco_osseo", selector: "[data-history-bone]" },
+        { column: "fatores_risco_trombose", selector: "[data-history-clot]" }
+    ];
+    var historyPhase = App.getPhase().key;
+    HISTORY_GROUPS.forEach(function (group) {
+        watchChips(group.selector);
+    });
+
+    function history() {
+        return App.records.latest(HISTORY_TABLE, member) || {};
+    }
+
+    // Before launch it sits with the other pre-flight planning. In flight and after landing it is a read-only
+    // reference, so it moves below the logs used every day (moved in the DOM, so the Tab order follows)
+    if (historyPhase !== "pre") {
+        var historySection = $(".history");
+        var researchSection = $(".research");
+        if (historySection && researchSection) {
+            researchSection.parentNode.insertBefore(historySection, researchSection);
+        }
+    }
+
+    // The demo crew member flies with a history mapped before launch, like every real astronaut
+    if (historyPhase !== "pre" && !App.records.latest(HISTORY_TABLE, member)) {
+        App.records.insert(HISTORY_TABLE, {
+            usuario_id: member,
+            condicoes_previas: ["colica_intensa", "infeccao_urinaria_repetida"],
+            fatores_risco_osseo: ["historico_familiar"],
+            fatores_risco_trombose: usesPills() ? ["pilula_estrogenio"] : []
+        });
+        state.historySimulated = true;
+        save();
+    }
+
+    function historyText(selector, values, none) {
+        return values && values.length ? labelsOf(selector, values).join(", ") : none;
+    }
+
+    function renderHistory() {
+        var row = history();
+        var mapped = !!row.usuario_id;
+        HISTORY_GROUPS.forEach(function (group) {
+            setChecked(group.selector, row[group.column] || []);
+        });
+
+        // Read-only summary (in flight and after landing)
+        var list = $("[data-history-list]");
+        list.textContent = "";
+        HISTORY_GROUPS.forEach(function (group) {
+            var legend = $(group.selector).closest("fieldset").querySelector("legend").firstChild.textContent.trim();
+            var item = document.createElement("div");
+            item.className = "history__item";
+            var term = document.createElement("dt");
+            term.className = "history__term";
+            term.textContent = legend;
+            var value = document.createElement("dd");
+            value.className = "history__value";
+            value.textContent = mapped ? historyText(group.selector, row[group.column], "None mapped") : "Not mapped before launch";
+            item.appendChild(term);
+            item.appendChild(value);
+            list.appendChild(item);
+        });
+        $("[data-history-demo]").hidden = !state.historySimulated;
+        setText("[data-history-status]", mapped && row.atualizado_em
+            ? "Saved on " + shortDate(Date.parse(row.atualizado_em)) + ". You can change it until launch."
+            : "Not saved yet. Nothing applies? Save it empty.");
+
+        // The bone and clot logs say what they take from the history
+        var missing = historyPhase === "pre"
+            ? "Fill in your health history above so the advice takes it into account."
+            : "No health history was mapped before launch: ask your flight surgeon to add it.";
+        setText("[data-bone-history]", !mapped ? missing : row.fatores_risco_osseo && row.fatores_risco_osseo.length
+            ? "From your health history: " + historyText("[data-history-bone]", row.fatores_risco_osseo).toLowerCase() + ". The advice takes it into account."
+            : "No bone health risks in your health history.");
+        setText("[data-clot-history]", !mapped ? missing : row.fatores_risco_trombose && row.fatores_risco_trombose.length
+            ? "From your health history: " + historyText("[data-history-clot]", row.fatores_risco_trombose).toLowerCase() + ". The advice takes it into account."
+            : "No blood clot risks in your health history.");
+    }
+
+    $("[data-history-form]").addEventListener("submit", function (event) {
+        event.preventDefault();
+        // Only before launch: during the mission the form is hidden and the data is read only
+        if (historyPhase !== "pre") {
+            return;
+        }
+        var row = { usuario_id: member };
+        HISTORY_GROUPS.forEach(function (group) {
+            row[group.column] = checkedValues(group.selector);
+        });
+        App.records.upsert(HISTORY_TABLE, row, ["usuario_id"]);
+        state.historySimulated = false;
+        save();
+        renderHistory();
+        showNotice($("[data-history-result]"), "info", "Health history saved", [
+            "Your flight surgeon reviews it before launch. During the mission it is not asked again: the app uses it in the advice of your logs.",
+            sharingLine()
+        ]);
+        announce("Health history saved.");
+    });
+
+    /* ---------- Daily symptom log ---------- */
+    var diaryForm = $("[data-diary-form]");
+    var diaryDate = $("[data-diary-date]");
+    var diaryNotes = $("[data-diary-notes]");
+    var diaryResult = $("[data-diary-result]");
+    var todayDiaryKey = dayKey(todayMs);
+
+    diaryDate.max = todayDiaryKey;
+    diaryDate.value = todayDiaryKey;
+    watchChips("[data-diary-bleeding]");
+    watchChips("[data-diary-cramps]");
+    watchChips("[data-diary-symptom]");
+
+    function loadDiary(key) {
+        var row = rowOn("diario_saude_feminina", key) || {};
+        setChecked("[data-diary-bleeding]", [row.sangramento || ""]);
+        setChecked("[data-diary-cramps]", [row.colica_escala === null || row.colica_escala === undefined ? "" : String(row.colica_escala)]);
+        setChecked("[data-diary-symptom]", row.sintomas || []);
+        diaryNotes.value = row.notas_privadas || "";
+    }
+
+    function diarySummary(row) {
+        var parts = [];
+        if (row.sangramento) {
+            parts.push("Bleeding: " + labelsOf("[data-diary-bleeding]", [row.sangramento])[0].toLowerCase());
+        }
+        if (row.colica_escala !== null && row.colica_escala !== undefined) {
+            parts.push("Cramps: " + CRAMPS[row.colica_escala]);
+        }
+        if (row.sintomas && row.sintomas.length) {
+            parts.push(labelsOf("[data-diary-symptom]", row.sintomas).join(", "));
+        }
+        if (row.notas_privadas) {
+            parts.push("private note");
+        }
+        return parts.join(" · ");
+    }
+
+    function renderDiaryHistory() {
+        var list = $("[data-diary-history]");
+        var rows = App.records.list("diario_saude_feminina", { usuario_id: member }).filter(diarySummary).sort(function (a, b) {
+            return a.data_registro < b.data_registro ? 1 : -1;
+        }).slice(0, 7);
+        list.textContent = "";
+        $("[data-diary-empty]").hidden = rows.length > 0;
+        rows.forEach(function (row) {
+            var item = document.createElement("li");
+            item.className = "diary__entry";
+            var button = document.createElement("button");
+            button.type = "button";
+            button.className = "diary__entry-button";
+            button.setAttribute("data-diary-day", row.data_registro);
+            var date = document.createElement("strong");
+            date.className = "diary__entry-date";
+            date.textContent = shortDate(keyMs(row.data_registro)) + (row.data_registro === todayDiaryKey ? " (today)" : "");
+            var text = document.createElement("span");
+            text.className = "diary__entry-text";
+            text.textContent = diarySummary(row);
+            var hint = document.createElement("span");
+            hint.className = "sr-only";
+            hint.textContent = ". Edit this day";
+            button.appendChild(date);
+            button.appendChild(text);
+            button.appendChild(hint);
+            item.appendChild(button);
+            list.appendChild(item);
+        });
+    }
+
+    // Bleeding answers feed the cycle calendar; "Not logged" leaves the calendar as it is
+    function syncCalendar(key, bleeding) {
+        $("[data-cal-status]").hidden = true;
+        if (!bleeding) {
+            return;
+        }
+        removeDay(state.periods, key);
+        removeDay(state.spotting, key);
+        if (BLEEDING_DAYS.indexOf(bleeding) !== -1) {
+            state.periods.push(key);
+        } else if (bleeding === "escape") {
+            state.spotting.push(key);
+        }
+        save();
+        renderCalendar();
+    }
+
+    function diaryAdvice(row) {
+        var lines = [];
+        var symptoms = row.sintomas || [];
+        // Conditions mapped in the anamnesis before launch change what the same symptom means
+        var conditions = history().condicoes_previas || [];
+        var had = function (condition) {
+            return conditions.indexOf(condition) !== -1;
+        };
+        if (row.sangramento === "intenso") {
+            lines.push("Heavy bleeding: in space the body also breaks down more red blood cells (space anemia), so it can leave you tired or dizzy. Tell your medical lead if it lasts more than 7 days or you fill a pad or cup every 1 to 2 hours.");
+            if (had("anemia")) {
+                lines.push("You have anemia in your health history: tell your medical lead today, they may check your blood count or iron.");
+            } else if (had("sangramento_intenso")) {
+                lines.push("Heavy periods are in your health history. Tell your medical lead if this one is heavier or longer than usual.");
+            }
+        }
+        if (row.colica_escala === 3 && (had("endometriose") || had("colica_intensa"))) {
+            lines.push("Severe cramps are known in your health history (" + labelsOf("[data-history-condition]", conditions.filter(function (c) {
+                return c === "endometriose" || c === "colica_intensa";
+            })).join(", ").toLowerCase() + "). Follow the pain plan you agreed with your flight surgeon before launch.");
+        }
+        if (symptoms.indexOf("corrimento_coceira") !== -1 && had("candidiase_repetida")) {
+            lines.push("Repeated yeast infections are in your health history: the medical kit has the treatment your flight surgeon planned for this.");
+        }
+        if (symptoms.indexOf("dor_cabeca") !== -1 && had("enxaqueca_aura")) {
+            lines.push("You have migraine with aura in your health history. If the headache is unlike your usual ones, or comes with weakness or trouble speaking, ask for help at once.");
+        }
+        if (row.sangramento === "escape" && state.plan === "pill") {
+            lines.push("Spotting on the continuous pill is common in the first months or after a missed pill. Tell your flight surgeon if it keeps happening.");
+        }
+        if (row.colica_escala === 3) {
+            lines.push("Severe cramps: use a warm pack and the pain relief your flight surgeon approved. If the pain is sudden, on one side, or comes with fever or fainting, contact your medical lead now.");
+        }
+        if (symptoms.indexOf("corrimento_coceira") !== -1) {
+            lines.push("Unusual discharge or itching can be a yeast or vaginal infection, which the limited hygiene on board makes more likely. It is easy to treat early: tell your medical lead.");
+        }
+        if (symptoms.indexOf("tontura") !== -1 && row.sangramento !== "intenso") {
+            lines.push("Dizziness: drink water and sit or strap in. Tell your medical lead if it keeps happening.");
+        }
+        if (symptoms.indexOf("ondas_calor") !== -1) {
+            lines.push("Hot flashes can come from hormone changes. Mention them at your private medical conference.");
+        }
+        return lines;
+    }
+
+    diaryForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var key = diaryDate.value;
+        if (!key || key > todayDiaryKey) {
+            showNotice(diaryResult, "warn", "Choose today or a day before", ["Symptoms cannot be logged for a day that has not happened yet."]);
+            diaryDate.focus();
+            return;
+        }
+        var bleeding = checkedValues("[data-diary-bleeding]")[0] || null;
+        var cramps = checkedValues("[data-diary-cramps]")[0];
+        var symptoms = checkedValues("[data-diary-symptom]");
+        var notes = diaryNotes.value.trim();
+        var row = {
+            usuario_id: member,
+            data_registro: key,
+            sangramento: bleeding,
+            colica_escala: cramps ? Number(cramps) : null,
+            sintomas: symptoms.length ? symptoms : null,
+            notas_privadas: notes || null
+        };
+        if (!diarySummary(row)) {
+            showNotice(diaryResult, "info", "Nothing to save", ["Every field is optional. Choose at least one answer, or simply leave this day empty."]);
+            return;
+        }
+        App.records.upsert("diario_saude_feminina", row, ["usuario_id", "data_registro"]);
+        syncCalendar(key, bleeding);
+        countLog();
+        renderDiaryHistory();
+
+        var advice = diaryAdvice(row);
+        var lines = ["You logged: " + diarySummary(row) + "."].concat(advice);
+        lines.push(sharingLine() + (notes ? " Your private notes are never shared." : ""));
+        showNotice(diaryResult, advice.length ? "warn" : "info", "Saved for " + shortDate(keyMs(key)), lines);
+        announce("Symptom log saved for " + shortDate(keyMs(key)) + ".");
+    });
+
+    $("[data-diary-clear]").addEventListener("click", function () {
+        var key = diaryDate.value;
+        var row = rowOn("diario_saude_feminina", key);
+        if (row) {
+            App.records.remove("diario_saude_feminina", row.id);
+            if (row.sangramento) {
+                syncCalendar(key, "nenhum");
+            }
+        }
+        loadDiary(key);
+        renderDiaryHistory();
+        diaryResult.textContent = "";
+        announce(row ? "Log cleared for " + shortDate(keyMs(key)) + "." : "Nothing was logged on " + shortDate(keyMs(key)) + ".");
+    });
+
+    diaryDate.addEventListener("change", function () {
+        diaryResult.textContent = "";
+        if (diaryDate.value && diaryDate.value <= todayDiaryKey) {
+            loadDiary(diaryDate.value);
+        }
+    });
+
+    $("[data-diary-history]").addEventListener("click", function (event) {
+        var button = event.target.closest("[data-diary-day]");
+        if (!button) {
+            return;
+        }
+        diaryDate.value = button.getAttribute("data-diary-day");
+        loadDiary(diaryDate.value);
+        diaryResult.textContent = "";
+        diaryDate.focus();
+        announce("Editing the log of " + shortDate(keyMs(diaryDate.value)) + ".");
+    });
+
+    /* ---------- Bone health ---------- */
+    var boneResult = $("[data-bone-result]");
+    watchChips("[data-bone-today]");
+    watchChips("[data-bone-pain]");
+
+    // Today's answers come only from today's row; the risk factors come from the anamnesis
+    function loadBone() {
+        var today = rowOn("saude_ossea", todayDiaryKey) || {};
+        var todayValues = ["calcio_tomado", "vitamina_d_tomada", "queda_ou_impacto"].filter(function (column) {
+            return today[column] === true;
+        });
+        setChecked("[data-bone-today]", todayValues);
+        setChecked("[data-bone-pain]", today.dor_ossea || []);
+    }
+
+    $("[data-bone-form]").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var todayValues = checkedValues("[data-bone-today]");
+        var pain = checkedValues("[data-bone-pain]");
+        var hadRow = !!rowOn("saude_ossea", todayDiaryKey);
+        if (!todayValues.length && !pain.length && !hadRow) {
+            showNotice(boneResult, "info", "Nothing to save", ["Every field is optional. Choose at least one answer to start your bone log."]);
+            return;
+        }
+        var row = {
+            usuario_id: member,
+            data_registro: todayDiaryKey,
+            calcio_tomado: todayValues.indexOf("calcio_tomado") !== -1 || null,
+            vitamina_d_tomada: todayValues.indexOf("vitamina_d_tomada") !== -1 || null,
+            queda_ou_impacto: todayValues.indexOf("queda_ou_impacto") !== -1 || null,
+            dor_ossea: pain.length ? pain : null
+        };
+        App.records.upsert("saude_ossea", row, ["usuario_id", "data_registro"]);
+        countLog();
+
+        var risks = history().fatores_risco_osseo || [];
+        var lines = [];
+        var level = "info";
+        if (row.queda_ou_impacto) {
+            level = "warn";
+            lines.push("After a fall or a hard knock, tell your medical lead today, especially with pain that gets worse, swelling or trouble putting weight on it: bones are weaker after time in microgravity.");
+            if (risks.indexOf("fratura_previa") !== -1 || risks.indexOf("historico_familiar") !== -1) {
+                lines.push("Your health history (" + labelsOf("[data-history-bone]", risks).join(", ").toLowerCase() + ") makes a fracture more likely: ask for a check today, even if the pain is mild.");
+            }
+        }
+        if (pain.length) {
+            level = "warn";
+            lines.push("Bone or joint pain (" + labelsOf("[data-bone-pain]", pain).join(", ").toLowerCase() + "): keep up your resistive exercise unless it makes the pain worse, and tell your medical lead if it lasts more than a few days.");
+        }
+        if (!row.calcio_tomado && !row.vitamina_d_tomada) {
+            lines.push("Calcium and vitamin D, with your daily resistive exercise, are your main protection against bone loss.");
+        }
+        if (risks.indexOf("injecao_trimestral") !== -1) {
+            lines.push("From your health history: the three-month injection adds bone loss to the loss space already causes. Your flight surgeon follows your bone scans more closely.");
+        }
+        if (risks.indexOf("ciclo_ausente") !== -1) {
+            lines.push("From your health history: periods that stopped without the pill can mean low estrogen, which weakens bones.");
+        }
+        lines.push(sharingLine());
+        showNotice(boneResult, level, "Bone log saved for today", lines);
+        announce("Bone log saved for today.");
+    });
+
+    /* ---------- Blood clots ---------- */
+    var clotResult = $("[data-clot-result]");
+    var URGENT_SIGNS = ["falta_ar_subita", "dor_peito"];
+    // Anamnesis items that make any warning sign more likely to be a real clot
+    var STRONG_CLOT_RISKS = ["historico_pessoal", "disturbio_coagulacao"];
+    watchChips("[data-clot-sign]");
+
+    function loadClot() {
+        var today = rowOn("sinais_trombose", todayDiaryKey) || {};
+        setChecked("[data-clot-sign]", today.sinais || []);
+    }
+
+    function clotStatus(signs) {
+        if (signs.some(function (sign) { return URGENT_SIGNS.indexOf(sign) !== -1; })) {
+            return "critico";
+        }
+        return signs.length ? "atencao" : "normal";
+    }
+
+    function renderClot(row) {
+        var signs = row.sinais || [];
+        var risks = history().fatores_risco_trombose || [];
+        var strong = risks.filter(function (risk) {
+            return STRONG_CLOT_RISKS.indexOf(risk) !== -1;
+        });
+        var flight = App.isFlight();
+        if (row.status_alerta === "critico") {
+            var text = showNotice(clotResult, "danger", "Act now: these signs can mean a clot in the lungs", [
+                flight
+                    ? "Stop what you are doing, strap in and press SOS now. The crew medical officer needs to check you right away."
+                    : "Call your local emergency number now, or have someone take you to the nearest emergency room.",
+                "You logged: " + labelsOf("[data-clot-sign]", signs).join(", ").toLowerCase() + "."
+            ]);
+            if (flight && App.emergency) {
+                var sos = document.createElement("button");
+                sos.type = "button";
+                sos.className = "button button--primary clot__sos";
+                sos.innerHTML = '<span class="button__text">Start SOS</span>';
+                sos.addEventListener("click", function () {
+                    App.emergency.start(signs.indexOf("dor_peito") !== -1 ? "chest-pain" : "manual", "blood clot signs");
+                });
+                text.appendChild(sos);
+            }
+            return;
+        }
+        if (row.status_alerta === "atencao") {
+            var lines = [
+                "You logged: " + labelsOf("[data-clot-sign]", signs).join(", ").toLowerCase() + ".",
+                "Do not rub or massage the area. Tell your medical lead " + (strong.length ? "now" : "today") + (flight ? ": the crew medical officer can check the vein with the ultrasound." : ".")
+            ];
+            if (strong.length) {
+                lines.push("Your health history (" + labelsOf("[data-history-clot]", strong).join(", ").toLowerCase() + ") makes these signs more likely to be a clot, so do not wait.");
+            }
+            if (signs.indexOf("inchaco_pescoco") !== -1 && flight) {
+                lines.push("Neck vein clots in astronauts were found with this ultrasound, so do not wait for your next weekly scan.");
+            }
+            if (risks.indexOf("pilula_estrogenio") !== -1) {
+                lines.push("Your health history says your pill has estrogen: your medical lead takes it into account in the treatment.");
+            }
+            var conditions = history().condicoes_previas || [];
+            if (signs.indexOf("dor_cabeca_forte") !== -1 && conditions.indexOf("enxaqueca_aura") !== -1) {
+                lines.push("You have migraine with aura in your health history. A headache unlike your usual migraines, or with weakness or trouble speaking, needs help at once.");
+            }
+            lines.push("If you get short of breath or have chest pain, log it again or ask for help at once.");
+            lines.push(sharingLine());
+            showNotice(clotResult, "warn", "Possible blood clot signs", lines);
+            return;
+        }
+        showNotice(clotResult, "info", "Logged: no warning signs today", [
+            risks.length
+                ? "Your health history has " + (risks.length === 1 ? "1 blood clot risk" : risks.length + " blood clot risks") + ": move through the day, drink regularly and keep logging any sign."
+                : "Move through the day and drink regularly."
+        ]);
+    }
+
+    function logClot(signs) {
+        var row = {
+            usuario_id: member,
+            data_registro: todayDiaryKey,
+            sinais: signs,
+            status_alerta: clotStatus(signs)
+        };
+        var saved = App.records.upsert("sinais_trombose", row, ["usuario_id", "data_registro"]);
+        countLog();
+        renderClot(saved);
+        announce(row.status_alerta === "critico" ? "Urgent blood clot signs logged. Ask for help now." : "Blood clot log saved for today.");
+    }
+
+    $("[data-clot-form]").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var signs = checkedValues("[data-clot-sign]");
+        if (!signs.length) {
+            showNotice(clotResult, "info", "Choose at least one sign", ["Or press No signs today."]);
+            return;
+        }
+        logClot(signs);
+    });
+
+    $("[data-clot-none]").addEventListener("click", function () {
+        setChecked("[data-clot-sign]", []);
+        logClot([]);
+    });
+
+    renderHistory();
+    loadDiary(todayDiaryKey);
+    renderDiaryHistory();
+    loadBone();
+    loadClot();
+    var todayClot = rowOn("sinais_trombose", todayDiaryKey);
+    if (todayClot) {
+        renderClot(todayClot);
+    }
 
     // Return to gravity: preparation in flight, readaptation after landing
     var phase = App.getPhase();
@@ -686,9 +1408,15 @@
     }
 
     setText("[data-sharing-summary]", sharingSummary());
+    renderGroupTabs();
     renderModule();
+    // Opened with a link to a section: its group is shown, then the page goes to it
+    if (groupOfHash()) {
+        document.getElementById(location.hash.slice(1)).scrollIntoView({ block: "start" });
+    }
     renderPlan();
     renderLog();
     renderResearch();
     renderCalendar();
+    renderCalMode();
 })();

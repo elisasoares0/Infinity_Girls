@@ -316,11 +316,11 @@ dialog.innerHTML =
 "<div class=\"ask__head\"><div class=\"ask__heading\">" +
 "<h2 class=\"ask__heading-title\" id=\"ask-title\">Ask the assistant</h2>" +
 "<p class=\"ask__subtitle\">Answers come only from the guides in this app, with their source. It works offline.</p></div>" +
-"<button class=\"ask__close\" type=\"button\" aria-label=\"Close\"><svg class=\"ask__close-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div>" +
+"<button class=\"ask__close\" type=\"button\" aria-label=\"Close\"><svg class=\"ask__close-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
 "<form class=\"ask__form\" role=\"search\" novalidate>" +
 "<label class=\"field__label\" for=\"ask-question\">Your question</label>" +
 "<div class=\"ask__row\"><input class=\"field__input ask__input\" id=\"ask-question\" type=\"text\" autocomplete=\"off\" enterkeyhint=\"search\">" +
-"<button class=\"ask__mic\" type=\"button\" aria-label=\"Ask by voice\" aria-pressed=\"false\" hidden data-ask-mic><svg class=\"ask__mic-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"3\" width=\"6\" height=\"11\" rx=\"3\"/><path d=\"M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21\"/></svg></button>" +
+"<button class=\"ask__mic\" type=\"button\" aria-label=\"Ask by voice\" aria-pressed=\"false\" hidden data-ask-mic><svg class=\"ask__mic-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M128,176a48.05,48.05,0,0,0,48-48V64a48,48,0,0,0-96,0v64A48.05,48.05,0,0,0,128,176ZM96,64a32,32,0,0,1,64,0v64a32,32,0,0,1-64,0Zm40,143.6V240a8,8,0,0,1-16,0V207.6A80.11,80.11,0,0,1,48,128a8,8,0,0,1,16,0,64,64,0,0,0,128,0,8,8,0,0,1,16,0A80.11,80.11,0,0,1,136,207.6Z\"/></svg></button>" +
 "<button class=\"button button--primary ask__submit\" type=\"submit\"><span class=\"button__text\">Ask</span></button></div>" +
 "</form>" +
 "<div class=\"ask__chips\" role=\"group\" aria-label=\"Example questions\"></div>" +

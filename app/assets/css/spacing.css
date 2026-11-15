@@ -1,5 +1,5 @@
 /*
- * Spacing tokens — 8px grid (with a 4px half step).
+ * Spacing, shape, width and motion tokens — 8px grid (with a 4px half step).
  * Proximity rule: the weaker the relation between elements, the larger the space.
  */
 :root {
@@ -12,17 +12,27 @@
     --space-7: 3rem;     /* 48px — between sections (mobile), min touch target */
     --space-8: 4rem;     /* 64px — between sections (>=768) */
 
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-pill: 999px;
+    /* Shapes: soft cards (20px), rounded-rectangle buttons and inputs (12px), pills for chips and status */
+    --radius-xs: 4px;    /* tags */
+    --radius-sm: 8px;    /* inputs, small surfaces */
+    --radius-md: 20px;   /* cards (soft, product-like corners) */
+    --radius-button: 12px; /* buttons and inputs: rounded rectangles, Apple style */
+    --radius-xl: 28px;   /* sheets and dialogs */
+    --radius-pill: 999px; /* primary buttons, chips, FAB, avatars */
+
+    /* Content width from 1200px: up to 1280px, never closer than 32px to the screen edges */
+    --container: 1280px;
+    --gutter-desktop: 32px;
+
+    /* Motion (Material 3, calm for a clinical context): short, little bounce, nothing above 500 ms */
+    --motion-micro: 100ms;
+    --motion-state: 200ms;
+    --motion-enter: 300ms;
+    --motion-screen: 450ms;
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
 
     --text-max: 65ch;    /* max paragraph width */
 
-    --footer-wave: 40px; /* wave on top of the footer: every page bottom keeps this much room for it */
-}
-
-@media (min-width: 768px) {
-    :root {
-        --footer-wave: 56px;
-    }
+    --footer-wave: 0px;  /* the footer has a straight top edge (no wave since the product redesign) */
 }

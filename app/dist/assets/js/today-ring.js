@@ -2,16 +2,16 @@
 "use strict";
 var App = window.App;
 var ICONS = {
-sleep: "<path d=\"M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z\"/>",
-hydration: "<path d=\"M12 3.5s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z\"/>",
-exercise: "<path d=\"M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11\"/>",
-hr: "<path d=\"M12 20s-7.5-4.5-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.5 12 20 12 20z\"/>",
-bp: "<path d=\"M4 16.5a8 8 0 1 1 16 0\"/><path d=\"M12 16.5l3.5-5\"/>",
-spo2: "<path d=\"M12 4v7\"/><path d=\"M12 11c-1.5 0-2.5-2-4.5-2C5.5 9 4 12 4 15.5 4 18 5 20 7 20c3 0 5-2.5 5-6\"/><path d=\"M12 11c1.5 0 2.5-2 4.5-2 2 0 3.5 3 3.5 6.5 0 2.5-1 4.5-3 4.5-3 0-5-2.5-5-6\"/>",
-resp: "<path d=\"M3 9h11a3 3 0 1 0-3-3\"/><path d=\"M3 15h14a3 3 0 1 1-3 3\"/><path d=\"M3 12h7\"/>",
-temp: "<path d=\"M10 14.2V5.5a2 2 0 0 1 4 0v8.7a4 4 0 1 1-4 0z\"/><path d=\"M12 10v7\"/>",
-signal: "<path d=\"M2 9.5a15 15 0 0 1 20 0\"/><path d=\"M5.5 13a10 10 0 0 1 13 0\"/><path d=\"M9 16.5a5 5 0 0 1 6 0\"/><path d=\"M12 20h.01\"/>",
-close: "<path d=\"M6 6l12 12M18 6L6 18\"/>"
+sleep: "<path d=\"M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z\"/>",
+hydration: "<path d=\"M174,47.75a254.19,254.19,0,0,0-41.45-38.3,8,8,0,0,0-9.18,0A254.19,254.19,0,0,0,82,47.75C54.51,79.32,40,112.6,40,144a88,88,0,0,0,176,0C216,112.6,201.49,79.32,174,47.75ZM128,216a72.08,72.08,0,0,1-72-72c0-57.23,55.47-105,72-118,16.53,13,72,60.75,72,118A72.08,72.08,0,0,1,128,216Zm55.89-62.66a57.6,57.6,0,0,1-46.56,46.55A8.75,8.75,0,0,1,136,200a8,8,0,0,1-1.32-15.89c16.57-2.79,30.63-16.85,33.44-33.45a8,8,0,0,1,15.78,2.68Z\"/>",
+exercise: "<path d=\"M248,120h-8V88a16,16,0,0,0-16-16H208V64a16,16,0,0,0-16-16H168a16,16,0,0,0-16,16v56H104V64A16,16,0,0,0,88,48H64A16,16,0,0,0,48,64v8H32A16,16,0,0,0,16,88v32H8a8,8,0,0,0,0,16h8v32a16,16,0,0,0,16,16H48v8a16,16,0,0,0,16,16H88a16,16,0,0,0,16-16V136h48v56a16,16,0,0,0,16,16h24a16,16,0,0,0,16-16v-8h16a16,16,0,0,0,16-16V136h8a8,8,0,0,0,0-16ZM32,168V88H48v80Zm56,24H64V64H88V192Zm104,0H168V64h24V175.82c0,.06,0,.12,0,.18s0,.12,0,.18V192Zm32-24H208V88h16Z\"/>",
+hr: "<path d=\"M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z\"/>",
+bp: "<path d=\"M207.06,72.67A111.24,111.24,0,0,0,128,40h-.4C66.07,40.21,16,91,16,153.13V176a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V152A111.25,111.25,0,0,0,207.06,72.67ZM224,176H119.71l54.76-75.3a8,8,0,0,0-12.94-9.42L99.92,176H32V153.13c0-3.08.15-6.12.43-9.13H56a8,8,0,0,0,0-16H35.27c10.32-38.86,44-68.24,84.73-71.66V80a8,8,0,0,0,16,0V56.33A96.14,96.14,0,0,1,221,128H200a8,8,0,0,0,0,16h23.67c.21,2.65.33,5.31.33,8Z\"/>",
+spo2: "<path d=\"M174,47.75a254.19,254.19,0,0,0-41.45-38.3,8,8,0,0,0-9.18,0A254.19,254.19,0,0,0,82,47.75C54.51,79.32,40,112.6,40,144a88,88,0,0,0,176,0C216,112.6,201.49,79.32,174,47.75ZM200,144a70.57,70.57,0,0,1-.46,8H136V136h63.64Q200,140,200,144ZM183.39,88H136V72h36.89A175.85,175.85,0,0,1,183.39,88ZM136,200h37.19A71.67,71.67,0,0,1,136,215.54Zm0-16V168h59.87a72,72,0,0,1-8,16Zm0-64V104h55.39a116.84,116.84,0,0,1,5.45,16Zm23.89-64H136V32.6A257.22,257.22,0,0,1,159.89,56ZM56,144c0-50,42.26-92.71,64-111.4V215.54A72.08,72.08,0,0,1,56,144Z\"/>",
+resp: "<path d=\"M184,184a32,32,0,0,1-32,32c-13.7,0-26.95-8.93-31.5-21.22a8,8,0,0,1,15-5.56C137.74,195.27,145,200,152,200a16,16,0,0,0,0-32H40a8,8,0,0,1,0-16H152A32,32,0,0,1,184,184Zm-64-80a32,32,0,0,0,0-64c-13.7,0-26.95,8.93-31.5,21.22a8,8,0,0,0,15,5.56C105.74,60.73,113,56,120,56a16,16,0,0,1,0,32H24a8,8,0,0,0,0,16Zm88-32c-13.7,0-26.95,8.93-31.5,21.22a8,8,0,0,0,15,5.56C193.74,92.73,201,88,208,88a16,16,0,0,1,0,32H32a8,8,0,0,0,0,16H208a32,32,0,0,0,0-64Z\"/>",
+temp: "<path d=\"M136,153V88a8,8,0,0,0-16,0v65a32,32,0,1,0,16,0Zm-8,47a16,16,0,1,1,16-16A16,16,0,0,1,128,200Zm40-66V48a40,40,0,0,0-80,0v86a64,64,0,1,0,80,0Zm-40,98a48,48,0,0,1-27.42-87.4A8,8,0,0,0,104,138V48a24,24,0,0,1,48,0v90a8,8,0,0,0,3.42,6.56A48,48,0,0,1,128,232Z\"/>",
+signal: "<path d=\"M140,204a12,12,0,1,1-12-12A12,12,0,0,1,140,204ZM237.08,87A172,172,0,0,0,18.92,87,8,8,0,0,0,29.08,99.37a156,156,0,0,1,197.84,0A8,8,0,0,0,237.08,87ZM205,122.77a124,124,0,0,0-153.94,0A8,8,0,0,0,61,135.31a108,108,0,0,1,134.06,0,8,8,0,0,0,11.24-1.3A8,8,0,0,0,205,122.77Zm-32.26,35.76a76.05,76.05,0,0,0-89.42,0,8,8,0,0,0,9.42,12.94,60,60,0,0,1,70.58,0,8,8,0,1,0,9.42-12.94Z\"/>",
+close: "<path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/>"
 };
 var STATUS_WORD = { ok: "In range", warn: "Watch", danger: "Act now" };
 function renderHealthInfo(container, key, status, value) {
@@ -42,7 +42,7 @@ speak.addEventListener("click", function () {
 App.voice.speak(App.crew.getMetric(key).label + ". How it is measured: " + info.how + " Why it matters: " + info.why + " What to do: " + todo, { priority: "info" });
 });
 }
-var SVG = "<svg class=\"CLASS\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><use href=\"#ring-icon-KEY\"/></svg>";
+var SVG = "<svg class=\"CLASS\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><use href=\"#ring-icon-KEY\"/></svg>";
 function icon(key, className) {
 return SVG.replace("KEY", key).replace("CLASS", className);
 }
@@ -52,7 +52,7 @@ return;
 }
 var holder = document.createElement("div");
 holder.innerHTML = "<svg class=\"sr-only\" aria-hidden=\"true\" focusable=\"false\">" + Object.keys(ICONS).map(function (key) {
-return "<symbol id=\"ring-icon-" + key + "\" viewBox=\"0 0 24 24\">" + ICONS[key] + "</symbol>";
+return "<symbol id=\"ring-icon-" + key + "\" viewBox=\"0 0 256 256\">" + ICONS[key] + "</symbol>";
 }).join("") + "</svg>";
 document.body.insertBefore(holder.firstChild, document.body.firstChild);
 }
@@ -65,6 +65,14 @@ var since = state.since ? " since " + App.formatTime(new Date(state.since)) : ""
 var what = state.shirt ? "Astroskin shirt not sending" + since + "." : "Water dispenser offline" + since + ".";
 return what + (own ? (state.shirt ? " Put it back on so the readings continue." : " Your drinks are counted again when it is back online.") : " Showing the last reading.");
 }
+var NORMAL_BAND = { hr: [50, 90], bp: [90, 130], spo2: [95, 100], resp: [12, 20], temp: [36.1, 37.5], glucose: [70, 140] };
+function svgNode(name, attrs) {
+var node = document.createElementNS("http://www.w3.org/2000/svg", name);
+Object.keys(attrs).forEach(function (attr) {
+node.setAttribute(attr, attrs[attr]);
+});
+return node;
+}
 function drawSeries(svg, series, key) {
 var values = series.map(function (point) {
 return point.value;
@@ -75,11 +83,20 @@ svg.textContent = "";
 if (!values.length) {
 return;
 }
-var min = key === "sleep" ? 0 : Math.min.apply(null, values);
-var max = key === "sleep" ? 1 : Math.max.apply(null, values);
+var band = NORMAL_BAND[key];
+var min = key === "sleep" ? 0 : Math.min.apply(null, band ? values.concat(band) : values);
+var max = key === "sleep" ? 1 : Math.max.apply(null, band ? values.concat(band) : values);
 var pad = key === "sleep" ? 0 : Math.max((max - min) * 0.15, key === "temp" ? 0.1 : 1);
 min -= pad;
 max += pad;
+if (band) {
+var top = 30 - ((band[1] - min) / (max - min || 1)) * 28;
+var bottom = 30 - ((band[0] - min) / (max - min || 1)) * 28;
+svg.appendChild(svgNode("rect", { "class": "series-band", x: 0, y: top.toFixed(1), width: 120, height: (bottom - top).toFixed(1) }));
+[top, bottom].forEach(function (y) {
+svg.appendChild(svgNode("line", { "class": "series-band__edge", x1: 0, x2: 120, y1: y.toFixed(1), y2: y.toFixed(1), "vector-effect": "non-scaling-stroke" }));
+});
+}
 var segments = [[]];
 series.forEach(function (point, index) {
 if (point.value === null) {

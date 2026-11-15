@@ -140,10 +140,12 @@ a {
     position: sticky;
     top: 0;
     z-index: 20;
-    background-color: var(--color-bg);
+    background-color: var(--sys-glass);
     border-bottom: 1px solid var(--color-line);
     box-shadow: var(--shadow-header);
-    transition: transform 0.2s ease-out;
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    transition: transform var(--motion-state) var(--ease-standard);
 }
 
 /* Compact: slide the logo row away (amount measured in app.js), keep the status row */
@@ -163,10 +165,85 @@ a {
     padding-right: 4%;
 }
 
+/* Astro Health logo: symbol (inline SVG, colors from colors.css) + wordmark */
 .app-header__logo {
-    width: 104px;
-    height: auto;
-    filter: var(--logo-filter);
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.app-header__wordmark {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-logo-word);
+}
+
+.app-header__word--accent {
+    color: var(--color-logo-word-accent);
+}
+
+/* The logo symbol (heart, pulse, orbit and star), also used at other sizes */
+.brand-mark {
+    display: block;
+    width: 56px;
+    height: 42px;
+}
+
+.brand-mark__orbit-back {
+    stroke: var(--color-logo-orbit-back);
+}
+
+.brand-mark__heart {
+    fill: var(--color-logo-heart);
+    stroke: var(--color-logo-outline);
+}
+
+.brand-mark__pulse {
+    stroke: var(--color-logo-pulse);
+}
+
+.brand-mark__halo {
+    stroke: var(--color-logo-halo);
+}
+
+.brand-mark__orbit {
+    stroke: var(--color-logo-orbit);
+}
+
+.brand-mark__star {
+    fill: var(--color-logo-orbit);
+    stroke: var(--color-logo-halo);
+}
+
+/* Windows high contrast: the logo keeps its shape in system colors */
+@media (forced-colors: active) {
+    .brand-mark__heart {
+        fill: CanvasText;
+    }
+
+    .brand-mark__pulse {
+        stroke: Canvas;
+    }
+
+    .brand-mark__orbit,
+    .brand-mark__orbit-back {
+        stroke: CanvasText;
+    }
+
+    .brand-mark__star {
+        fill: CanvasText;
+        stroke: Canvas;
+    }
+
+    .brand-mark__halo {
+        stroke: Canvas;
+    }
 }
 
 /* Status row + emergency button: they stay on screen when the logo row slides away */
@@ -196,13 +273,13 @@ a {
     min-width: var(--space-7);
     min-height: var(--space-7);
     padding: 0 var(--space-3);
-    border: 1px solid var(--color-line);
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
+    background-color: var(--color-tint-neutral);
     font-family: inherit;
     font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-on-tint-primary);
     cursor: pointer;
 }
 
@@ -240,13 +317,13 @@ a {
     min-width: var(--space-7);
     min-height: var(--space-7);
     padding: 0 var(--space-3);
-    border: 1px solid var(--color-line);
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
+    background-color: var(--color-tint-neutral);
     font-family: inherit;
     font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-on-tint-primary);
     cursor: pointer;
 }
 
@@ -282,13 +359,13 @@ a {
     gap: var(--space-2);
     min-height: var(--space-7);
     padding: 0 var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
+    background-color: var(--color-tint-neutral);
     font-size: var(--text-sm);
     font-weight: 700;
     text-decoration: none;
-    color: var(--color-primary);
+    color: var(--color-on-tint-primary);
 }
 
 .app-header__emergency:hover {
@@ -417,26 +494,25 @@ a {
     text-box: trim-both cap alphabetic;
 }
 
+/* Status badges: tonal pills (soft fill + colored text and icon), never like a button */
 .badge--ok {
-    color: var(--color-status-ok-text);
-    background-color: var(--color-status-ok-bg);
-    border: 1px solid var(--color-status-ok-line);
+    color: var(--color-on-tint-ok);
+    background-color: var(--color-tint-ok);
 }
 
 .badge--warn {
-    color: var(--color-status-warn-text);
-    background-color: var(--color-status-warn);
-    border: 1px solid var(--color-status-warn-text);
+    color: var(--color-on-tint-warn);
+    background-color: var(--color-tint-warn);
 }
 
 .badge--danger {
-    color: var(--color-text-inverse);
-    background-color: var(--color-status-danger);
+    color: var(--color-on-tint-danger);
+    background-color: var(--color-tint-danger);
 }
 
 .badge--soon {
     color: var(--color-text-muted);
-    border: 1px solid var(--color-line);
+    background-color: var(--color-tint-neutral);
 }
 
 .badge__icon {
@@ -482,45 +558,9 @@ a {
     padding-bottom: calc(var(--space-7) + var(--footer-wave));
 }
 
-/* Orbit lines behind the page: shape from assets/img/wave-lines*.svg (mask),
-   color from tokens, fading in and out across the width */
-.page::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: -1;
-    background-image: linear-gradient(90deg, transparent 0, var(--color-deco-line) 25%, transparent 50%, var(--color-deco-line-strong) 75%, transparent 100%);
-    -webkit-mask-image: url("../img/wave-lines.svg"), url("../img/wave-lines-flip.svg");
-    mask-image: url("../img/wave-lines.svg"), url("../img/wave-lines-flip.svg");
-    -webkit-mask-size: 100% 240px, 100% 240px;
-    mask-size: 100% 240px, 100% 240px;
-    -webkit-mask-position: 0 280px, 0 1080px;
-    mask-position: 0 280px, 0 1080px;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
-/* Page intro (back link + h1 + lead): calm tint with stars only, bottom edge in a wave.
-   Opaque (tint over the page color) so the page's orbit lines never cross the title. */
+/* Page intro (back link + large title + lead): an iOS-style large title on the page background, no band */
 .page-intro {
-    --wave-height: 40px;
     position: relative;
-    overflow: hidden;
-    background-color: var(--color-bg);
-    background-image: linear-gradient(var(--color-bg-soft), var(--color-bg-soft));
-    -webkit-mask-image: linear-gradient(var(--color-mask), var(--color-mask)), url("../img/wave-edge-bottom.svg");
-    mask-image: linear-gradient(var(--color-mask), var(--color-mask)), url("../img/wave-edge-bottom.svg");
-    -webkit-mask-size: 100% calc(100% - var(--wave-height) + 1px), 100% var(--wave-height);
-    mask-size: 100% calc(100% - var(--wave-height) + 1px), 100% var(--wave-height);
-    -webkit-mask-position: top, bottom;
-    mask-position: top, bottom;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
 }
 
 .page-intro__container {
@@ -529,7 +569,7 @@ a {
     flex-direction: column;
     gap: var(--space-3);
     padding-top: var(--space-5);
-    padding-bottom: calc(var(--space-6) + var(--wave-height));
+    padding-bottom: 0;
     padding-left: 4%;
     padding-right: 4%;
 }
@@ -594,18 +634,19 @@ a {
     gap: var(--space-3);
     min-width: 0;
     padding: var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
 }
 
+/* Status cards keep the plain card look: the badge inside says the status (soft UI, no colored outlines) */
 .card--warn {
-    border-color: var(--color-status-warn-line);
+    border-color: var(--sys-card-border);
 }
 
 .card--danger {
-    border-color: var(--color-status-danger-line);
+    border-color: var(--sys-card-border);
 }
 
 /* Current step in a sequence (e.g. rehab phase), paired with a "You are here" badge */
@@ -707,39 +748,45 @@ a {
 }
 
 /* Notice (status banner: always icon + text) */
+/* Notice: a soft tinted panel, no outline; the level is in the icon circle, its color and the title */
 .notice {
+    --notice-accent: var(--color-on-tint-info);
+    --color-primary: var(--notice-accent); /* links and text buttons inside read on the tint */
     display: flex;
     align-items: flex-start;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-sm);
-    background-color: var(--color-surface);
+    padding: var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background-color: var(--color-tint-neutral);
     font-size: var(--text-base);
+    color: var(--color-text);
 }
 
 .notice--info {
-    border-color: var(--color-primary);
-    background-color: var(--color-bg-soft);
+    background-color: var(--color-tint-info);
 }
 
 .notice--warn {
-    border-color: var(--color-status-warn-text);
-    background-color: var(--color-status-warn);
-    color: var(--color-status-warn-text);
+    --notice-accent: var(--color-on-tint-warn);
+    background-color: var(--color-tint-warn);
 }
 
 .notice--danger {
-    border-color: var(--color-status-danger);
-    background-color: var(--color-status-danger);
-    color: var(--color-text-inverse);
+    --notice-accent: var(--color-on-tint-danger);
+    background-color: var(--color-tint-danger);
 }
 
+/* The icon sits in a white circle, like the list icons of iOS and Material */
 .notice__icon {
     flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
-    margin-top: 2px;
+    box-sizing: content-box;
+    width: 18px;
+    height: 18px;
+    padding: 7px;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-surface);
+    color: var(--notice-accent);
 }
 
 .notice__text {
@@ -751,6 +798,7 @@ a {
 
 .notice__title {
     font-weight: 700;
+    color: var(--notice-accent);
 }
 
 /* Button: primary (main action), secondary (alternative), tertiary (light action like Undo).
@@ -763,7 +811,7 @@ a {
     min-height: var(--space-7);
     padding: 0 var(--space-5);
     border: 2px solid transparent;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-button);
     background-color: transparent;
     font-family: inherit;
     font-size: var(--text-base);
@@ -779,35 +827,98 @@ a {
 }
 
 .button--primary {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
+    border-color: var(--sys-filled-rim);
+    background-color: var(--sys-filled);
+    color: var(--sys-on-filled);
+    box-shadow: var(--shadow-button);
+    transition: background-color var(--motion-state) var(--ease-standard), box-shadow var(--motion-state) var(--ease-standard);
 }
 
 .button--primary:hover {
-    border-color: var(--color-primary-hover);
-    background-color: var(--color-primary-hover);
+    border-color: var(--sys-filled-hover);
+    background-color: var(--sys-filled-hover);
+    box-shadow: var(--shadow-button-hover);
 }
 
+/* Secondary: tinted (Apple "tinted", Material "tonal"): soft blue fill, blue label */
 .button--secondary {
-    border-color: var(--color-primary);
-    background-color: var(--color-surface);
-    color: var(--color-primary);
+    border-color: var(--color-tint-primary);
+    background-color: var(--color-tint-primary);
+    color: var(--color-on-tint-primary);
 }
 
 .button--secondary:hover {
-    background-color: var(--color-surface-hover);
+    border-color: var(--color-on-tint-primary);
 }
 
 .button--tertiary {
     padding: 0 var(--space-3);
     color: var(--color-primary);
-    text-decoration: underline;
-    text-underline-offset: 3px;
 }
 
 .button--tertiary:hover {
     background-color: var(--color-surface-hover);
+}
+
+/* Tonal (Material 3): medium emphasis, e.g. a second action next to a primary one */
+.button--tonal {
+    border-color: var(--color-tint-primary);
+    background-color: var(--color-tint-primary);
+    color: var(--color-on-tint-primary);
+}
+
+.button--tonal:hover {
+    border-color: var(--color-on-tint-primary);
+}
+
+/* Critical: destructive or emergency actions, always behind a confirmation */
+.button--critical {
+    border-color: var(--color-status-danger);
+    background-color: var(--color-status-danger);
+    color: var(--color-text-inverse);
+}
+
+.button--critical:hover {
+    border-color: var(--color-status-danger-line);
+}
+
+/* Accent: at most one per screen (the brand spark). Neon Yellow in dark, Deep Blue in light */
+.button--accent {
+    border-color: var(--sys-accent);
+    background-color: var(--sys-accent);
+    color: var(--sys-on-accent);
+}
+
+.button--accent:hover {
+    border-color: var(--color-text);
+}
+
+/* Pressed: a short press-in (transform only); disabled: 38% content, no pointer */
+.button:active {
+    transform: scale(0.98);
+}
+
+.button:disabled {
+    cursor: not-allowed;
+    opacity: var(--state-disabled-content);
+    transform: none;
+}
+
+/* Loading: an orbit spinner replaces the icon, the width stays the same */
+.button__spinner {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--radius-pill);
+    animation: orbit-spin 0.9s linear infinite;
+}
+
+@keyframes orbit-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Tertiary button inside a column of text: the label lines up with the paragraphs (padding + 2px border; the hover keeps its padding) */
@@ -816,14 +927,15 @@ a {
 }
 
 /* Tabs (role="tablist"): Vitals views and the sign-in screen */
+/* Segmented control (iOS): a neutral track, the chosen option is a raised white thumb */
 .tabs {
     display: flex;
     gap: var(--space-1);
     max-width: 28rem;
     padding: var(--space-1);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-pill);
-    background-color: var(--color-bg-soft);
+    border: 1px solid transparent;
+    border-radius: var(--radius-button);
+    background-color: var(--color-tint-neutral);
 }
 
 .tabs__tab {
@@ -831,7 +943,7 @@ a {
     min-height: var(--space-7);
     padding: 0 var(--space-3);
     border: 2px solid transparent;
-    border-radius: var(--radius-pill);
+    border-radius: calc(var(--radius-button) - 4px);
     background-color: transparent;
     font-family: inherit;
     font-size: var(--text-base);
@@ -850,9 +962,10 @@ a {
 }
 
 .tabs__tab--active {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
+    border-color: transparent;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 1px 3px rgba(7, 23, 63, 0.12), 0 1px 2px rgba(7, 23, 63, 0.08);
 }
 
 .tabs__tab--active:hover {
@@ -877,13 +990,13 @@ a {
     gap: var(--space-2);
     min-height: var(--space-7);
     padding: 0 var(--space-4);
-    border: 1px solid var(--color-line);
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
+    background-color: var(--color-tint-neutral);
     font-family: inherit;
     font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--color-text);
+    color: var(--color-on-tint-primary);
     cursor: pointer;
 }
 
@@ -940,8 +1053,10 @@ a {
 }
 
 .choice--active {
-    border: 2px solid var(--color-primary);
-    background-color: var(--color-bg-soft);
+    border: 2px solid var(--sys-filled-rim);
+    background-color: var(--sys-primary-container);
+    color: var(--sys-on-primary-container);
+    font-weight: 700;
 }
 
 .choice--chip {
@@ -1028,9 +1143,9 @@ a {
     width: 100%;
     min-height: var(--space-7);
     padding: 0 var(--space-3);
-    border: 1px solid var(--color-text-muted);
-    border-radius: var(--radius-sm);
-    background-color: var(--color-surface);
+    border: 1px solid var(--sys-outline);
+    border-radius: var(--radius-button);
+    background-color: var(--color-tint-neutral);
     font-family: inherit;
     font-size: var(--text-base);
     color: var(--color-text);
@@ -1188,7 +1303,7 @@ a {
 
 .health-ring__segment--ok {
     background-color: var(--color-ring-ok);
-    color: var(--color-text-inverse);
+    color: var(--color-on-ring-ok);
 }
 
 .health-ring__segment--warn {
@@ -1443,6 +1558,18 @@ a {
     color: var(--color-text-muted);
 }
 
+/* Normal range behind a mini line: Normal-green tint with dashed edges (shape, not only color) */
+.series-band {
+    fill: var(--color-status-ok-bg);
+}
+
+.series-band__edge {
+    stroke: var(--color-status-ok-line);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    opacity: 0.6;
+}
+
 .health-ring__detail-line {
     display: block;
     width: 100%;
@@ -1464,8 +1591,8 @@ a {
 }
 
 .health-ring__callout--warn {
-    background-color: var(--color-status-warn);
-    color: var(--color-status-warn-text);
+    background-color: var(--color-tint-warn);
+    color: var(--color-text);
 }
 
 .health-ring__callout-text {
@@ -1475,11 +1602,6 @@ a {
 }
 
 /* Deep Blue pill, like the dark button of the reference */
-.health-ring__callout-button {
-    border-color: var(--color-primary-hover);
-    background-color: var(--color-primary-hover);
-}
-
 /* Summary columns */
 .summary-bars {
     display: flex;
@@ -1575,7 +1697,7 @@ a {
 }
 
 .chart__band {
-    fill: var(--color-bg-soft);
+    fill: var(--color-status-ok-bg); /* normal range: Normal-green tint, named in the chart summary */
     stroke: none;
 }
 
@@ -1661,8 +1783,8 @@ a {
 
 .chart__swatch--band {
     border-radius: 2px;
-    background-color: var(--color-bg-soft);
-    border: 1px solid var(--color-line);
+    background-color: var(--color-status-ok-bg);
+    border: 1px dashed var(--color-status-ok-line);
 }
 
 .chart__swatch--threshold {
@@ -1688,21 +1810,6 @@ a {
 .app-footer {
     position: relative;
     background-color: var(--color-footer-bg);
-}
-
-.app-footer::before {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: calc(100% - 1px);
-    left: 0;
-    height: var(--footer-wave);
-    background-color: var(--color-footer-bg);
-    -webkit-mask-image: url("../img/wave-edge-top.svg");
-    mask-image: url("../img/wave-edge-top.svg");
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    pointer-events: none;
 }
 
 .app-footer__container {
@@ -1731,13 +1838,13 @@ a {
     width: var(--space-7);
     min-height: var(--space-7);
     padding: 0;
-    border: 1px solid var(--color-line);
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
+    background-color: var(--color-tint-neutral);
     font-family: inherit;
     font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-on-tint-primary);
     cursor: pointer;
 }
 
@@ -2530,8 +2637,7 @@ a {
     max-width: 40rem;
     margin: 0 auto;
     padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-line);
-    border-left: 4px solid var(--color-primary);
+    border: 1px solid var(--sys-card-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     box-shadow: var(--shadow-dock);
@@ -2964,7 +3070,7 @@ a {
 
 @media (min-width: 1200px) {
     .crew-alert__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3008,9 +3114,11 @@ a {
     bottom: 0;
     z-index: 20;
     padding-bottom: env(safe-area-inset-bottom);
-    background-color: var(--color-nav-bg);
+    background-color: var(--sys-glass);
     border-top: 1px solid var(--color-line);
     box-shadow: var(--shadow-nav);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
 }
 
 .tab-bar__container {
@@ -3043,8 +3151,9 @@ a {
     color: var(--color-text);
 }
 
+/* Active destination: icon and label in the brand blue (with aria-current; the label never changes, so it is not color alone) */
 .tab-bar__link--active {
-    color: var(--color-primary);
+    color: var(--color-nav-active);
 }
 
 .tab-bar__icon-wrap {
@@ -3057,10 +3166,49 @@ a {
     height: 24px;
 }
 
+/* Glass navigation (header and tab bar): opaque where blur is missing, or when the person asks for
+   less transparency or more contrast */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .app-header {
+        background-color: var(--color-bg);
+    }
+
+    .tab-bar {
+        background-color: var(--color-nav-bg);
+    }
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .app-header {
+        background-color: var(--color-bg);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .tab-bar {
+        background-color: var(--color-nav-bg);
+        border-top-color: var(--sys-outline);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
     .app-header {
         transition: none;
+    }
+
+    .tab-bar__icon-wrap {
+        transition: none;
+    }
+
+    .button:active {
+        transform: none;
+    }
+
+    .button__spinner {
+        animation: none;
     }
 
     .switch__input::before {
@@ -3074,17 +3222,6 @@ a {
 
 /* Windows high contrast: keep states visible when backgrounds are removed */
 @media (forced-colors: active) {
-    /* Decorations off; wave edges become straight edges */
-    .page::before,
-    .app-footer::before {
-        display: none;
-    }
-
-    .page-intro {
-        -webkit-mask-image: none;
-        mask-image: none;
-    }
-
     .switch__input {
         border-color: CanvasText;
     }
@@ -3233,7 +3370,6 @@ a {
         text-box: trim-both cap alphabetic;
     }
 
-
     .app-header__container {
         padding-left: 6%;
         padding-right: 6%;
@@ -3271,7 +3407,7 @@ a {
     }
 
     .page-intro {
-        --wave-height: 64px;
+        --wave-height: 0px;
     }
 
     .page-intro__container {
@@ -3279,13 +3415,6 @@ a {
         padding-bottom: calc(var(--space-7) + var(--wave-height));
         padding-left: 6%;
         padding-right: 6%;
-    }
-
-    .page::before {
-        -webkit-mask-size: 100% 360px, 100% 360px;
-        mask-size: 100% 360px, 100% 360px;
-        -webkit-mask-position: 0 240px, 0 1240px;
-        mask-position: 0 240px, 0 1240px;
     }
 
     .card {
@@ -3296,7 +3425,7 @@ a {
 /* Desktop */
 @media (min-width: 1200px) {
     .app-header__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3304,7 +3433,7 @@ a {
     }
 
     .other-profile__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3312,7 +3441,7 @@ a {
     }
 
     .link-lost__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3352,7 +3481,7 @@ a {
     }
 
     .app-footer__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
@@ -3360,14 +3489,14 @@ a {
     }
 
     .page-intro__container {
-        width: 1140px;
+        width: min(var(--container), 100% - 2 * var(--gutter-desktop));
         padding-left: 0;
         padding-right: 0;
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* Floating dock so it never overlaps the 1140px content edges */
+    /* Floating dock so it never overlaps the content edges */
     .tab-bar {
         left: 50%;
         right: auto;

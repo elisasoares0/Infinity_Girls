@@ -176,7 +176,7 @@ dialog.innerHTML =
 "<div class=\"scan__head\"><div class=\"scan__heading\">" +
 "<h2 class=\"scan__title\" id=\"scan-title\">Neck vein ultrasound</h2>" +
 "<p class=\"scan__subtitle\">Guided, about 3 minutes. The medical team reads the image: the app never gives a diagnosis.</p></div>" +
-"<button class=\"scan__close\" type=\"button\" aria-label=\"Close\"><svg class=\"scan__close-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div>" +
+"<button class=\"scan__close\" type=\"button\" aria-label=\"Close\"><svg class=\"scan__close-icon\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div>" +
 "<ol class=\"scan__steps\"></ol>" +
 "<fieldset class=\"scan__source\"><legend class=\"scan__legend\">Image from</legend><div class=\"scan__choices\">" +
 "<label class=\"choice\"><input class=\"choice__input\" type=\"radio\" name=\"scan-source\" value=\"file\" checked><span class=\"choice__label\">The ultrasound device (saved image)</span></label>" +
@@ -257,9 +257,11 @@ var person = members[row.usuario_id] || { name: row.usuario_id };
 var li = document.createElement("li");
 li.className = "card scans__item";
 var id = "scan-" + row.id;
+var reviewed = row.status_leitura !== "pendente";
 li.innerHTML =
 "<div class=\"card__header\"><h3 class=\"card__title\"></h3>" + badge(row.status_leitura) + "</div>" +
 "<p class=\"scans__meta\"></p>" +
+(reviewed ? "<details class=\"help scans__details\"><summary class=\"help__summary\"><span class=\"help__label\">See image and reading</span></summary><div class=\"scans__body\">" : "<div class=\"scans__body\">") +
 "<button class=\"scans__zoom\" type=\"button\" aria-expanded=\"false\"><img class=\"scans__image\" width=\"240\" height=\"180\" alt=\"\" loading=\"lazy\" decoding=\"async\"><span class=\"scans__zoom-text\">Enlarge image</span></button>" +
 "<p class=\"scans__note\"></p>" +
 "<form class=\"scans__form\" novalidate>" +
@@ -271,7 +273,8 @@ return "<label class=\"choice\"><input class=\"choice__input\" type=\"radio\" na
 "<div class=\"field scans__field\"><label class=\"field__label\" for=\"" + id + "-note\">Reading for the crew member</label>" +
 "<textarea class=\"field__input scans__textarea\" id=\"" + id + "-note\" maxlength=\"500\" rows=\"3\"></textarea></div>" +
 "<p class=\"field__error\" hidden></p>" +
-"<button class=\"button button--primary\" type=\"submit\"><span class=\"button__text\">Save reading</span></button></form>";
+"<button class=\"button button--primary\" type=\"submit\"><span class=\"button__text\">Save reading</span></button></form>" +
+(reviewed ? "</div></details>" : "</div>");
 li.querySelector(".card__title").textContent = person.name;
 li.querySelector(".scans__meta").textContent = "Neck vein, left · " + dateText(row.registrado_em) + (row.avaliado_por ? " · read by " + (members[row.avaliado_por] ? members[row.avaliado_por].name : row.avaliado_por) : "");
 li.querySelector(".scans__note").textContent = row.observacao_astronauta ? "Note from " + person.name + ": " + row.observacao_astronauta : "No note from the crew member.";

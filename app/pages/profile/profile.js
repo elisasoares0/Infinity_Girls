@@ -49,9 +49,11 @@
         male: [["Men's health focus", "../mens-health/index.html"], ["Privacy: who sees your data", "../privacy/index.html"], ["Your vital signs over time", "../vitals/index.html"]],
         doctor: [["Crew panel: records and alerts", "../../index.html#crew"], ["Emergency procedures", "../emergency/index.html"]]
     };
-    // Every profile: the health risks of this phase, in plain words (pages/learn/)
+    // Every profile: the health risks of this phase (pages/learn/), the design system and About & Credits
     Object.keys(LINKS).forEach(function (key) {
         LINKS[key].push(["Your health risks", "../learn/index.html"]);
+        LINKS[key].push(["Design system", "../design-system/index.html"]);
+        LINKS[key].push(["About & Credits", "../about/index.html"]);
     });
     var links = document.querySelector("[data-profile-links]");
     LINKS[profile.key].forEach(function (pair) {

@@ -44,6 +44,8 @@ doctor: [["Crew panel: records and alerts", "../../index.html#crew"], ["Emergenc
 };
 Object.keys(LINKS).forEach(function (key) {
 LINKS[key].push(["Your health risks", "../learn/index.html"]);
+LINKS[key].push(["Design system", "../design-system/index.html"]);
+LINKS[key].push(["About & Credits", "../about/index.html"]);
 });
 var links = document.querySelector("[data-profile-links]");
 LINKS[profile.key].forEach(function (pair) {
