@@ -656,6 +656,9 @@
     }
 
     function closePop() {
+        // Opened by a tap on the 3D figure: on narrow screens the matching card sits below the stage,
+        // so focus goes back to it without scrolling the figure out of view
+        var fromFigure = !opener;
         var back = opener || $("[data-body-card='" + selectedKey + "']");
         selectedKey = null;
         opener = null;
@@ -666,7 +669,7 @@
         }
         renderCards();
         if (back) {
-            back.focus();
+            back.focus(fromFigure ? { preventScroll: true } : undefined);
         }
     }
 
