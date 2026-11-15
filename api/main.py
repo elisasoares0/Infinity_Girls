@@ -40,7 +40,9 @@ SUPABASE_URL = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
 SUPABASE_KEY = (os.getenv("SUPABASE_KEY") or "").strip()
 ORIGENS = [o.strip() for o in os.getenv(
     "CORS_ORIGINS",
-    "http://localhost:8080,http://127.0.0.1:8080,https://spaceapps-infinitygirls.web.app,https://spaceapps-infinitygirls.firebaseapp.com",
+    "http://localhost:8080,http://127.0.0.1:8080,https://spaceapps-infinitygirls.web.app,https://spaceapps-infinitygirls.firebaseapp.com,"
+    "https://spaceapps2026-infinitygirls.web.app,https://spaceapps2026-infinitygirls.firebaseapp.com",
+    "https://spaceapps2026-infinitygirls.web.app,https://spaceapps2026-infinitygirls.firebaseapp.com",
 ).split(",") if o.strip()]
 
 BUCKET_IMAGENS = "exames-imagem"

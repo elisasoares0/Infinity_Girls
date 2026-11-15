@@ -116,6 +116,7 @@ console.log(leitura.status.label); // "Normal" ou "Critical alert"
 
 ## Pendências
 
-- **Login: decisão do time.** O banco usa o próprio ID como login (`AST-0427` + senha). O front ainda entra pelo NASA ID (`hsilva`) e guarda o AST/CRM em outro campo. A API segue o banco, então a tela de login do front precisa pedir o ID em vez do NASA ID.
-- As contas de demonstração (`AST-0427`, `AST-0388` e `CRM-SP 123456`) ainda não existem no Supabase. É só cadastrá-las pelo `/docs` com a senha `Mission2026`.
-- A API ainda não está hospedada. Para o front publicado no Firebase chamar a API, ela precisa ir para um serviço como Render ou Railway, e o endereço entra em `CORS_ORIGINS`.
+- **Front ligado.** A tela de login aceita o ID (`AST-0427`) ou o NASA ID (`hsilva`). Os dois chegam à API: pelo NASA ID, o app confere a senha no aparelho e entra no servidor com o ID da conta; se a conta ainda não existe no Supabase, ele a cria com `/auth/cadastro`. O front fala com a API em `https://astrohealth-api.onrender.com` (`app/assets/js/api.js`) e envia `sinais_vitais`, `exames_imagem`, `body_checkin`, `avaliacoes_diarias` e `gamificacao_metas` por uma fila offline (`app/assets/js/sync.js`).
+- As contas de demonstração (`AST-0427`, `AST-0388` e `CRM-SP 123456`) são criadas no Supabase sozinhas no primeiro login pelo app (com a senha `Mission2026`). Se alguém já criou uma delas com outra senha, aquela conta fica só no aparelho até as senhas baterem.
+- Tabelas da saúde da mulher (`diario_saude_feminina`, `anamnese_saude_feminina`, `saude_ossea`, `sinais_trombose`): o front já grava com esses nomes, mas elas ainda não estão no `schema.sql` nem têm rotas aqui.
+- O plano gratuito do Render dorme depois de 15 minutos parado; a primeira requisição pode levar quase um minuto (o front espera até 60 s e acorda o servidor enquanto a pessoa digita).
