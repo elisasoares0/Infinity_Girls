@@ -30,7 +30,9 @@ def nasa_id_para_email_interno(nasa_id: str) -> str:
 
 def executar_demonstracao():
     nasa_id_teste = "AST-002"
-    senha_teste = "Astro2026!"
+    senha_teste = (os.getenv("DEMO_PASSWORD") or "").strip()
+    if not senha_teste:
+        raise SystemExit("Falta DEMO_PASSWORD no .env (veja SGBD/.env.example).")
     email_interno = nasa_id_para_email_interno(nasa_id_teste)
 
     print("\n" + "=" * 62)
