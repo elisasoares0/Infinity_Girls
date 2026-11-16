@@ -192,6 +192,9 @@
     --color-deco-line: var(--blue-yonder);
     --color-deco-line-strong: var(--neon-blue);
     --color-mask: var(--deep-blue);              /* any opaque color: the solid part of a mask */
+    /* Gradient line at the end of a hero (graphics only): the brand gradient, horizontal */
+    --color-divider-start: var(--electric-blue);
+    --color-divider-end: var(--deep-blue);
 
     /* Status (always paired with icon + text, never color alone): Normal green, Attention amber, Critical red.
        The Space Apps palette has no green or amber, so they are added below as health-status colors only;
@@ -323,6 +326,9 @@
     --color-on-tint-ok: var(--status-green-light);
     --color-tint-neutral: var(--gray-800);
     --color-nav-active: var(--blue-yonder-light);    /* ≈ 9.3:1 on the gray bar */
+    /* Hero line on the gray page: Deep Blue would nearly vanish (≈ 1.2:1), so Blue Yonder → Electric Blue */
+    --color-divider-start: var(--blue-yonder);
+    --color-divider-end: var(--electric-blue);
 
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.24);
     --shadow-header: 0 2px 16px rgba(0, 0, 0, 0.4);

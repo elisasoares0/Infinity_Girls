@@ -377,7 +377,7 @@ Produção e offline:
     - Botão de tema no header (`.theme-toggle`, todas as páginas, fases e perfis; texto visível a partir de 768px) com a ação seguinte: lua + "Dark" no claro, sol + "Light" no escuro, e nome "Switch to dark theme" / "Switch to light theme" no `aria-label` e no `title` (sem `aria-pressed`, porque o nome muda). Sem escolha salva, segue `prefers-color-scheme` (e acompanha a mudança do aparelho); com escolha, salva em `theme` (`App.setTheme`, `App.getTheme`, evento `theme:change`). O `theme-color` segue `--color-bg`.
 
 ### 7.1.1 Linguagem visual (produto, desde 15/11/2026)
-Inspirada no iOS (fundo agrupado, large titles, controle segmentado) e no Material 3 (superfícies tonais), sem enfeites "gerados": nada de degradês de fundo, ondas, linhas de órbita ou padrões decorativos.
+Inspirada no iOS (fundo agrupado, large titles, controle segmentado) e no Material 3 (superfícies tonais), sem enfeites "gerados": nada de degradês de fundo, linhas de órbita ou padrões decorativos. Só três decorações, todas `pointer-events: none`, só com tokens e escondidas em `forced-colors` (bordas retas): a onda do rodapé, a linha gradiente no fim do hero e o horizonte da faixa do astronauta.
 - Fundo da página `--canvas-light` (#F3F5F9, cinza-azulado) no claro; cards brancos sem contorno (`--sys-card-border` transparente), cantos de 20px (`--radius-md`) e sombra suave e larga (`--shadow-card`). No escuro, cards um tom acima do fundo (elevação tonal).
 - Status nunca pinta a moldura do card (`.card--warn`/`--danger` mantêm o card neutro): quem diz o status é o selo, o ícone e o texto.
 - Tons suaves opacos para estados e ações secundárias: `--color-tint-info/primary/warn/danger/ok/neutral`, cada um com o texto que lê sobre ele (`--color-on-tint-*`, contrastes anotados em `colors.css`).
@@ -394,8 +394,8 @@ Inspirada no iOS (fundo agrupado, large titles, controle segmentado) e no Materi
     - `tests/design-system.spec.js` confere: diálogos são `.sheet`, botões de fechar são `.icon-button`, nenhum CSS de página redesenha um card ou um backdrop, ícones são Phosphor.
 - Campos: fundo neutro preenchido com contorno `--sys-outline` (≥ 3:1), cantos de 12px.
 - Topos das páginas (`.page-intro`, `.greeting`, `.welcome__intro`): large title sobre o fundo da página, sem faixa.
-- A faixa do astronauta vai de ponta a ponta, com bordas retas (sem ondas), e as estrelas desenhadas em CSS; "Health tasks today" é uma seção clara com a lista agrupada (um card, linhas separadas por fio de 1px).
-- Barra de abas: aba ativa em `--color-nav-active` (cor + `aria-current`), sem pílula. Rodapé reto (`--footer-wave` é 0).
+- A faixa do astronauta vai de ponta a ponta, com as estrelas desenhadas em CSS. Em cima e embaixo, a curva de um planeta visto da órbita (um arco suave, não uma onda): máscaras `assets/img/horizon-edge-top.svg` e `horizon-edge-bottom.svg` com o centro sólido, altura `--band-curve` (32/48/64px) somada ao padding, para nada ficar na curva, e um brilho de atmosfera sob o arco de cima; "Health tasks today" é uma seção clara com a lista agrupada (um card, linhas separadas por fio de 1px).
+- Barra de abas: aba ativa em `--color-nav-active` (cor + `aria-current`), sem pílula. Rodapé com onda: `.app-footer::before` na cor do rodapé, máscara `assets/img/wave-edge-top.svg`, altura `--footer-wave` (40px, 56px a partir de 768px), que as páginas somam ao padding de baixo. Fim de cada hero (`.page-intro__container`, `.greeting__container`, `.welcome__intro`): uma linha de 4px num `::after`, `linear-gradient(90deg, --color-divider-start, --color-divider-end)`: Electric Blue → Deep Blue no claro (o gradiente da marca) e Blue Yonder → Electric Blue no escuro (o Deep Blue some no cinza).
 - Os patterns da marca (`assets/img/deco-*.webp`) e os SVGs de onda e linhas (`assets/img/wave-*.svg`) ficam guardados, sem uso no app (podem ir para slides e vídeo da apresentação).
 
 ### 7.2 Espaçamento (`assets/css/spacing.css`)

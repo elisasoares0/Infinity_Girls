@@ -32,6 +32,16 @@
     padding-right: 4%;
 }
 
+/* End of the hero: the brand gradient line (same as .page-intro__container::after in base.css) */
+.greeting__container::after {
+    content: "";
+    width: 100%;
+    height: var(--space-1);
+    border-radius: var(--radius-pill);
+    background-image: linear-gradient(90deg, var(--color-divider-start), var(--color-divider-end));
+    pointer-events: none;
+}
+
 .greeting__intro {
     display: flex;
     align-items: center;
@@ -92,9 +102,20 @@
 
 .welcome__intro {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--space-4);
     padding-top: var(--space-6);
+}
+
+/* End of the sign-in hero: the brand gradient line on its own row, before the form */
+.welcome__intro::after {
+    content: "";
+    flex: 0 0 100%;
+    height: var(--space-1);
+    border-radius: var(--radius-pill);
+    background-image: linear-gradient(90deg, var(--color-divider-start), var(--color-divider-end));
+    pointer-events: none;
 }
 
 .welcome__mascot {
@@ -1313,12 +1334,27 @@
     width: 100cqw;
     margin-left: calc(50% - 50cqw);
     overflow: hidden;
-    padding: var(--space-5) 4cqw var(--space-6);
+    /* The planet-horizon curves take --band-curve on top and bottom: nothing is drawn under them */
+    padding: calc(var(--space-5) + var(--band-curve)) 4cqw calc(var(--space-6) + var(--band-curve));
     background-color: var(--color-space);
+    /* First layer: a thin atmosphere glow just under the top curve (it follows the curve, cut by the mask) */
     background-image:
+        linear-gradient(180deg, var(--color-earth-glow) 0, var(--color-earth-rim) calc(var(--band-curve) * 0.6), transparent calc(var(--band-curve) * 1.4)),
         radial-gradient(ellipse 140% 60% at 50% 128%, var(--color-earth-glow) 0, var(--color-earth-rim) 38%, transparent 62%),
         radial-gradient(ellipse 90% 70% at 18% 20%, var(--color-earth-rim) 0, transparent 60%),
         linear-gradient(180deg, var(--color-space) 0, var(--color-space-mid) 100%);
+    /*
+     * Top and bottom edges: the curve of a planet seen from orbit (a smooth arc, not a wave like the footer).
+     * Shapes from assets/img/horizon-edge-*.svg used as masks, with a solid middle; no color in the files.
+     */
+    -webkit-mask-image: url("../../assets/img/horizon-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask)), url("../../assets/img/horizon-edge-bottom.svg");
+    mask-image: url("../../assets/img/horizon-edge-top.svg"), linear-gradient(var(--color-mask), var(--color-mask)), url("../../assets/img/horizon-edge-bottom.svg");
+    -webkit-mask-size: 100% var(--band-curve), 100% calc(100% - 2 * var(--band-curve) + 2px), 100% var(--band-curve);
+    mask-size: 100% var(--band-curve), 100% calc(100% - 2 * var(--band-curve) + 2px), 100% var(--band-curve);
+    -webkit-mask-position: top, center, bottom;
+    mask-position: top, center, bottom;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
 }
 
 /* Star field: three tiles of different (prime) sizes so the pattern never visibly repeats */
@@ -3044,7 +3080,7 @@
             "stage stage"
             "left right";
         gap: var(--space-4);
-        padding: var(--space-6) 6cqw;
+        padding: calc(var(--space-6) + var(--band-curve)) 6cqw;
     }
 
     .astronaut-view__stage {
@@ -3233,7 +3269,7 @@
         align-items: stretch;
         gap: var(--space-5);
         /* The background reaches both edges; the cards line up with the page grid */
-        padding: var(--space-6) calc((100cqw - min(var(--container), 100cqw - 2 * var(--gutter-desktop))) / 2);
+        padding: calc(var(--space-6) + var(--band-curve)) calc((100cqw - min(var(--container), 100cqw - 2 * var(--gutter-desktop))) / 2);
     }
 
     .astronaut-view__stage {
@@ -3248,6 +3284,7 @@
 
     .greeting__container {
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
         gap: var(--space-6);
@@ -3256,6 +3293,11 @@
         padding-right: 0;
         margin-left: auto;
         margin-right: auto;
+    }
+
+    /* The hero line keeps its own row under the greeting */
+    .greeting__container::after {
+        flex: 0 0 100%;
     }
 
     .welcome__container {
@@ -3364,5 +3406,16 @@
     .modules {
         -webkit-mask-image: none;
         mask-image: none;
+    }
+
+    /* High contrast: straight edges, no decorative curve and no hero line */
+    .astronaut-view__layout {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .greeting__container::after,
+    .welcome__intro::after {
+        display: none;
     }
 }

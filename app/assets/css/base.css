@@ -574,6 +574,20 @@ a {
     padding-right: 4%;
 }
 
+/*
+ * End of a hero: a gradient line in the brand colors separates the title block from the content.
+ * The last item of the hero container, so it takes the content width (4% / 6% / the desktop container).
+ * Light: Electric Blue → Deep Blue (the brand gradient); dark: Blue Yonder → Electric Blue (Deep Blue would vanish on gray).
+ */
+.page-intro__container::after {
+    content: "";
+    width: 100%;
+    height: var(--space-1);
+    border-radius: var(--radius-pill);
+    background-image: linear-gradient(90deg, var(--color-divider-start), var(--color-divider-end));
+    pointer-events: none;
+}
+
 .page-intro__back {
     display: inline-flex;
     align-items: center;
@@ -2264,6 +2278,25 @@ a {
     background-color: var(--color-footer-bg);
 }
 
+/* Wave on top of the footer: the footer color rises over the end of the page in a soft wave
+   (shape from assets/img/wave-edge-top.svg used as a mask, color from the token). Decoration only. */
+.app-footer::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: var(--footer-wave);
+    background-color: var(--color-footer-bg);
+    -webkit-mask-image: url("../img/wave-edge-top.svg");
+    mask-image: url("../img/wave-edge-top.svg");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    pointer-events: none;
+}
+
 .app-footer__container {
     display: flex;
     flex-direction: column;
@@ -3684,6 +3717,12 @@ a {
 
 /* Windows high contrast: keep states visible when backgrounds are removed */
 @media (forced-colors: active) {
+    /* High contrast: no decorative wave on the footer, no hero line (forced colors would paint them as solid blocks) */
+    .app-footer::before,
+    .page-intro__container::after {
+        display: none;
+    }
+
     .switch__input {
         border-color: CanvasText;
     }

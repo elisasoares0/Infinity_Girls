@@ -47,6 +47,35 @@ test("the dark theme has neutral gray backgrounds and keeps the blue for the det
     expect(colors.footer).toBe("rgb(7, 23, 63)");
 });
 
+// Decorations: a gradient line ends each hero, the footer rises in a wave, the astronaut band has curved edges
+test("the hero ends with a brand gradient line, the footer has a wave and the astronaut band is curved", async function ({ page }, testInfo) {
+    await open(page, "/index.html");
+    const home = await page.evaluate(function () {
+        var line = getComputedStyle(document.querySelector(".greeting__container"), "::after");
+        var band = getComputedStyle(document.querySelector(".astronaut-view__layout"));
+        var wave = getComputedStyle(document.querySelector(".app-footer"), "::before");
+        return {
+            lineWidth: parseFloat(line.width),
+            lineHeight: line.height,
+            lineImage: line.backgroundImage,
+            bandMask: band.maskImage || band.webkitMaskImage,
+            waveHeight: wave.height
+        };
+    });
+    expect(home.lineWidth).toBeGreaterThan(200);
+    expect(home.lineHeight).toBe("4px");
+    expect(home.lineImage).toContain("linear-gradient");
+    expect(home.bandMask).toContain("horizon-edge-top.svg");
+    expect(home.waveHeight).toBe(testInfo.project.name === "phone" ? "40px" : "56px");
+    await page.goto("/pages/vitals/index.html");
+    const inner = await page.evaluate(function () {
+        var line = getComputedStyle(document.querySelector(".page-intro__container"), "::after");
+        return { width: parseFloat(line.width), image: line.backgroundImage };
+    });
+    expect(inner.width).toBeGreaterThan(200);
+    expect(inner.image).toContain("linear-gradient");
+});
+
 test("Profile links to the design system and to About & Credits", async function ({ page }) {
     await open(page, "/pages/profile/index.html");
     await page.getByRole("link", { name: "About & Credits" }).click();

@@ -47,5 +47,21 @@
     /* Hairline: dividers and component borders (a border, never a space) */
     --hairline: 1px;
 
-    --footer-wave: 0px;  /* the footer has a straight top edge (no wave since the product redesign) */
+    /* Decorative edges: the wave on top of the footer (pages add it to their bottom padding, so nothing sits under it)
+       and the planet-horizon curve on top and bottom of the astronaut band (added to its padding) */
+    --footer-wave: 40px;
+    --band-curve: 32px;
+}
+
+@media (min-width: 768px) {
+    :root {
+        --footer-wave: 56px;
+        --band-curve: 48px;
+    }
+}
+
+@media (min-width: 1200px) {
+    :root {
+        --band-curve: 64px;
+    }
 }

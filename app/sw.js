@@ -5,7 +5,7 @@
  */
 "use strict";
 
-var CACHE_VERSION = "astro-health-v59";
+var CACHE_VERSION = "astro-health-v60";
 
 var SHELL = [
     "./",
@@ -98,6 +98,8 @@ var SHELL = [
     "assets/img/mascot-heart-320.webp",
     "assets/img/deco-orbits.webp",
     "assets/img/wave-edge-top.svg",
+    "assets/img/horizon-edge-top.svg",
+    "assets/img/horizon-edge-bottom.svg",
     "assets/img/wave-edge-bottom.svg",
     "assets/img/wave-lines.svg",
     "assets/img/wave-lines-flip.svg",
